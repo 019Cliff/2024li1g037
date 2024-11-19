@@ -40,4 +40,4 @@ A documentação do projeto pode ser gerada recorrendo ao [Haddock](https://hask
 
 ```bash
 cabal haddock
-    ```
+```
