@@ -43,7 +43,7 @@ validaPortal portais = all validaOndaPortal portais
 
        --   Verifica se todos os portais estão posicionados sobre terra.
             posicionadoEmTerra :: Mapa -> [Portal] -> Bool
-            posicionadoEmTerra mapa portais = all (\portal -> terrenoNaPosicao (posicaoPortal portal) mapa == Just Terra) portais
+            posicionadoEmTerra mapa portais = all (\portal -> terrenoPorPosicao (posicaoPortal portal) mapa == Just Terra) portais
 
             -- Obtém o terreno numa posição específica do mapa.
             terrenoPorPosicao :: Posicao -> Mapa -> Maybe Terreno
@@ -51,9 +51,7 @@ validaPortal portais = all validaOndaPortal portais
                                           let linha = mapa !! (floor y) -- Converte Float para índice de linha
                                               terreno = linha !! (floor x) -- Converte Float para índice de coluna
                                            in Just terreno
-                                                                                                                                    | otherwise = truncate f - 1 -- Ajusta para números negativos
-
-
+                                                                 
 
 validaInimigo :: Inimigo -> Bool
 validaInimigo = undefined
