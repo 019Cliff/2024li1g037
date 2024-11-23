@@ -30,7 +30,7 @@ validaJogo = undefined
 
 --Verifica se todos os portais do jogo têm ondas sem inimigos no início
 validaPortal :: [Portal] -> Bool
-validaPortal portais = all validaOndaPortal portais 
+validaPortal portais = undefined
       where
             validaOndaPortal :: Portal -> Bool 
             validaOndaPortal portal = all ondaSemInimigos (ondasPortal portal) 
@@ -52,8 +52,8 @@ validaPortal portais = all validaOndaPortal portais
                                               terreno = linha !! (floor x) -- Converte Float para índice de coluna
                                            in Just terreno
                                                                  
-            naoSobrepostosTorreBase :: [Posicao] -> Base -> Torre -> Terreno -> Bool
-            naoSobrepostosTorreBase posicoes base torre terreno = all ( )
+            naoSobrepostosTorreBase :: [Posicao] -> Base -> [Torre] -> [Portal] -> Mapa -> Bool
+            naoSobrepostosTorreBase posicoes base torre terreno = posicionadoEmRelvaTorre && posicionadoEmTerraBase && verificaPosicaoTorreEmPortal && verificaPosicaoBaseEmPortal 
                                                                   where 
                                                                         posicionadoEmRelvaTorre :: Mapa -> [Torre] -> Bool
                                                                         posicionadoEmRelvaTorre mapa torres = all (\torre -> terrenoPorPosicao (posicaoTorre torre) mapa == Just Relva) torres
@@ -62,10 +62,13 @@ validaPortal portais = all validaOndaPortal portais
                                                                         posicionadoEmTerraBase mapa base = all (\base -> terrenoPorPosicao (posicaoBase base) mapa == Just Terra) base
 
                                                                         verificaPosicaoTorreEmPortal :: Mapa -> [Torre] -> [Portal] -> Bool 
-                                                                        verificaPosicaoTorreEmPortal mapa torres portais = all (\portais -> posicionadoEmRelvaTorre (posicaoPortal portal) mapa /= posicaoTorre) portais
-
-                                                                        verificaPosicaoBaseEmPortal :: Mapa -> Base -> Bool 
-                                                                        verificaPosicaoBaseEmPortal mapa base = all (\base -> posicionadoEmTerraBase (posicaoBase base)  mapa /= posicaoBase) base
+                                                                        verificaPosicaoTorreEmPortal mapa torres portais = all (\torre -> posicaoTorre torre `notElem` map posicaoPortal portais) torres
+                                                                       
+                                                                        verificaPosicaoBaseEmPortal :: Mapa -> Base  [Portal] -> Bool 
+                                                                        verificaPosicaoBaseEmPortal mapa base portais = all (\base -> posicaoBase base `notElem` map posicaoPortal portais ) base
+           
+            maximoOndaPorPortal :: Onda -> [Portal] -> Bool 
+            maximoOndaPorPortal onda portais = undefined
 
 validaInimigo :: Inimigo -> Bool
 validaInimigo = undefined
