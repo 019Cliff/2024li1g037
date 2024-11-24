@@ -53,20 +53,31 @@ validaPortal portais = undefined
                                            in Just terreno
                                                                  
             naoSobrepostosTorreBase :: [Posicao] -> Base -> [Torre] -> [Portal] -> Mapa -> Bool
-            naoSobrepostosTorreBase posicoes base torre terreno = posicionadoEmRelvaTorre && posicionadoEmTerraBase && verificaPosicaoTorreEmPortal && verificaPosicaoBaseEmPortal 
-                                                                  where 
-                                                                        posicionadoEmRelvaTorre :: Mapa -> [Torre] -> Bool
-                                                                        posicionadoEmRelvaTorre mapa torres = all (\torre -> terrenoPorPosicao (posicaoTorre torre) mapa == Just Relva) torres
+            naoSobrepostosTorreBase posicoes base torres portais mapa =
+                  posicionadoEmRelvaTorre mapa torres &&
+                  posicionadoEmTerraBase mapa base &&
+                  verificaPosicaoTorreEmPortal mapa torres portais &&
+                  verificaPosicaoBaseEmPortal mapa base portais
+                        where
+                              -- Verifica se todas as torres estão posicionadas em terrenos de Relva
+                              posicionadoEmRelvaTorre :: Mapa -> [Torre] -> Bool
+                              posicionadoEmRelvaTorre mapa torres =
+                                    all (\torre -> terrenoPorPosicao (posicaoTorre torre) mapa == Just Relva) torres
+                              -- Verifica se a base está posicionada em terreno de Terra
+                              posicionadoEmTerraBase :: Mapa -> Base -> Bool
+                              posicionadoEmTerraBase mapa base =
+                                    terrenoPorPosicao (posicaoBase base) mapa == Just Terra
 
-                                                                        posicionadoEmTerraBase :: Mapa -> Base -> Bool
-                                                                        posicionadoEmTerraBase mapa base = all (\base -> terrenoPorPosicao (posicaoBase base) mapa == Just Terra) base
+                              -- Verifica se torres não estão sobre portais
+                              verificaPosicaoTorreEmPortal :: Mapa -> [Torre] -> [Portal] -> Bool 
+                              verificaPosicaoTorreEmPortal mapa torres portais =
+                                    all (\torre -> posicaoTorre torre `notElem` map posicaoPortal portais) torres
 
-                                                                        verificaPosicaoTorreEmPortal :: Mapa -> [Torre] -> [Portal] -> Bool 
-                                                                        verificaPosicaoTorreEmPortal mapa torres portais = all (\torre -> posicaoTorre torre `notElem` map posicaoPortal portais) torres
-                                                                       
-                                                                        verificaPosicaoBaseEmPortal :: Mapa -> Base  [Portal] -> Bool 
-                                                                        verificaPosicaoBaseEmPortal mapa base portais = all (\base -> posicaoBase base `notElem` map posicaoPortal portais ) base
-           
+                              -- Verifica se a base não está sobre portais
+                              verificaPosicaoBaseEmPortal :: Mapa -> Base -> [Portal] -> Bool 
+                              verificaPosicaoBaseEmPortal mapa base portais =
+                                    posicaoBase base `notElem` map posicaoPortal portais
+
             maximoOndaPorPortal :: Onda -> [Portal] -> Bool 
             maximoOndaPorPortal onda portais = undefined
 
