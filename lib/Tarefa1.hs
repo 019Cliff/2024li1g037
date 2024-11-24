@@ -77,9 +77,11 @@ validaPortal portais = undefined
                               verificaPosicaoBaseEmPortal :: Mapa -> Base -> [Portal] -> Bool 
                               verificaPosicaoBaseEmPortal mapa base portais =
                                     posicaoBase base `notElem` map posicaoPortal portais
+            -- Limita o número de ondas por portal para apenas 1
+            maximoOndaPorPortal :: [Portal] -> Bool 
+            maximoOndaPorPortal portais = all (\portal -> length (ondasPortal portal) <= 1) portais 
 
-            maximoOndaPorPortal :: Onda -> [Portal] -> Bool 
-            maximoOndaPorPortal onda portais = undefined
+
 
 validaInimigo :: Inimigo -> Bool
 validaInimigo = undefined
