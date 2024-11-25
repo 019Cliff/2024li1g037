@@ -77,19 +77,34 @@ validaPortal portais = undefined
                               verificaPosicaoBaseEmPortal :: Mapa -> Base -> [Portal] -> Bool 
                               verificaPosicaoBaseEmPortal mapa base portais =
                                     posicaoBase base `notElem` map posicaoPortal portais
+            
             -- Limita o número de ondas por portal para apenas 1
             maximoOndaPorPortal :: [Portal] -> Bool 
             maximoOndaPorPortal portais = all (\portal -> length (ondasPortal portal) <= 1) portais 
 
+            caminhoPortalBase :: [Portal] -> Base -> Mapa -> Bool
+            caminhoPortalBase portais base mapa = undefined
 
 
 validaInimigo :: Inimigo -> Bool
-validaInimigo = undefined
+validaInimigo inimigo = undefined
 
 validaTorre :: Torre -> Bool
 validaTorre = undefined
 
 validaBase :: Base -> Bool
 validaBase = undefined 
-            
+            where 
+                  creditoPositivo :: Creditos -> Bool
+                  creditoPositivo creditos = if creditos >= 0 then True else False
 
+                  naoSobrepostoTorrePortal :: [Portal] -> [Torre] -> Base -> Mapa -> Bool
+                  naoSobrepostoTorrePortal portais torres base mapa = verificaPosicaoTorreEmBase mapa torres base && verificaPosicaoPortalBase mapa portais base
+                              where 
+                                    verificaPosicaoTorreEmBase :: Mapa -> [Torre] -> Base -> Bool 
+                                    verificaPosicaoTorreEmBase mapa torres base = all (\torre -> posicaoTorre torre /= posicaoBase base) torres
+
+                                    verificaPosicaoPortalBase :: Mapa -> [Portal] -> Base -> Bool
+                                    verificaPosicaoPortalBase mapa portais base = all(\portal -> posicaoPortal portal /= posicaoBase base) portais
+
+                                    
