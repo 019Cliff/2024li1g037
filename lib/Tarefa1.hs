@@ -25,6 +25,12 @@ mapaJogo = [[t, t, r, a, a, a],
             r = Relva
             a = Agua
 
+terrenoPorPosicao :: Posicao -> Mapa -> Maybe Terreno
+terrenoPorPosicao (x, y) mapa =
+                                          let linha = mapa !! (floor y) -- Converte Float para índice de linha
+                                              terreno = linha !! (floor x) -- Converte Float para índice de coluna
+                                           in Just terreno
+
 validaJogo :: Jogo -> Bool
 validaJogo = undefined
 
@@ -45,12 +51,6 @@ validaPortal portais = undefined
             posicionadoEmTerra :: Mapa -> [Portal] -> Bool
             posicionadoEmTerra mapa portais = all (\portal -> terrenoPorPosicao (posicaoPortal portal) mapa == Just Terra) portais
 
-            --Recebe  o terreno numa posição específica do mapa.
-            terrenoPorPosicao :: Posicao -> Mapa -> Maybe Terreno
-            terrenoPorPosicao (x, y) mapa =
-                                          let linha = mapa !! (floor y) -- Converte Float para índice de linha
-                                              terreno = linha !! (floor x) -- Converte Float para índice de coluna
-                                           in Just terreno
                                                                  
             naoSobrepostosTorreBase :: [Posicao] -> Base -> [Torre] -> [Portal] -> Mapa -> Bool
             naoSobrepostosTorreBase posicoes base torres portais mapa =
@@ -92,19 +92,34 @@ validaInimigo inimigo = undefined
 validaTorre :: Torre -> Bool
 validaTorre = undefined
 
-validaBase :: Base -> Bool
-validaBase = undefined 
-            where 
-                  creditoPositivo :: Creditos -> Bool
-                  creditoPositivo creditos = if creditos >= 0 then True else False
+validaBase :: Base -> Creditos -> [Portal] -> [Torre] -> Mapa -> Bool
+validaBase base creditos portais torres mapa =
+    creditoPositivo creditos &&
+    naoSobrepostoTorrePortal portais torres base mapa &&
+    posicionadoEmTerraBase mapa base
+  where
+    -- Verifica se os créditos são positivos
+    creditoPositivo :: Creditos -> Bool
+    creditoPositivo creditos = creditos >= 0
 
-                  naoSobrepostoTorrePortal :: [Portal] -> [Torre] -> Base -> Mapa -> Bool
-                  naoSobrepostoTorrePortal portais torres base mapa = verificaPosicaoTorreEmBase mapa torres base && verificaPosicaoPortalBase mapa portais base
-                              where 
-                                    verificaPosicaoTorreEmBase :: Mapa -> [Torre] -> Base -> Bool 
-                                    verificaPosicaoTorreEmBase mapa torres base = all (\torre -> posicaoTorre torre /= posicaoBase base) torres
+    -- Verifica que a base não está sobreposta a torres ou portais
+    naoSobrepostoTorrePortal :: [Portal] -> [Torre] -> Base -> Mapa -> Bool
+    naoSobrepostoTorrePortal portais torres base mapa =
+        verificaPosicaoTorreEmBase mapa torres base &&
+        verificaPosicaoPortalBase mapa portais base
 
-                                    verificaPosicaoPortalBase :: Mapa -> [Portal] -> Base -> Bool
-                                    verificaPosicaoPortalBase mapa portais base = all(\portal -> posicaoPortal portal /= posicaoBase base) portais
+    -- Verifica que nenhuma torre está sobre a base
+    verificaPosicaoTorreEmBase :: Mapa -> [Torre] -> Base -> Bool 
+    verificaPosicaoTorreEmBase mapa torres base =
+        all (\torre -> posicaoTorre torre /= posicaoBase base) torres
 
-                                    
+    -- Verifica que nenhum portal está sobre a base
+    verificaPosicaoPortalBase :: Mapa -> [Portal] -> Base -> Bool
+    verificaPosicaoPortalBase mapa portais base =
+        all (\portal -> posicaoPortal portal /= posicaoBase base) portais
+
+    -- Verifica que a base está posicionada em um terreno de tipo "Terra"
+    posicionadoEmTerraBase :: Mapa -> Base -> Bool
+    posicionadoEmTerraBase mapa base = 
+        terrenoPorPosicao (posicaoBase base) mapa == Just Terra
+
