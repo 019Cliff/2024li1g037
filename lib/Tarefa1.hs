@@ -1,4 +1,3 @@
-{-# LANGUAGE AllowAmbiguousTypes #-}
 {-|
 Module      : Tarefa1
 Description : Invariantes do Jogo
