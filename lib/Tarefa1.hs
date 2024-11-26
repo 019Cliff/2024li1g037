@@ -122,4 +122,3 @@ validaBase base creditos portais torres mapa =
     posicionadoEmTerraBase :: Mapa -> Base -> Bool
     posicionadoEmTerraBase mapa base = 
         terrenoPorPosicao (posicaoBase base) mapa == Just Terra
-
