@@ -51,7 +51,7 @@ terrenoPorPosicao (x, y) mapa =
                                           let linha = mapa !! (floor y) -- Converte Float para índice de linha
                                               terreno = linha !! (floor x) -- Converte Float para índice de coluna
                                            in Just terreno
-                                           
+
  --Verifica se todos os portais estão posicionados sobre terra.
 posicionadoEmTerra :: Mapa -> [Portal] -> Bool
 posicionadoEmTerra mapa portais = all (\portal -> terrenoPorPosicao (posicaoPortal portal) mapa == Just Terra) portais
@@ -114,8 +114,44 @@ recuperaPosicao :: Posicao -> Mapa -> Maybe Terreno
 recuperaPosicao (x, y) mapa
                               | posicaoValida mapa (x, y) = Just ((mapa !! floor x) !! floor y)
                               | otherwise = Nothing
-validaInimigos :: Inimigo -> Bool
-validaInimigos = undefined
+
+validaInimigos :: Mapa -> [Torre] -> [(Inimigo, [Projetil])] -> Bool
+validaInimigos mapa torres inimigosProjeteis = 
+    all validaInimigo inimigosProjeteis
+    where
+        -- Verifica condições para um único inimigo
+        validaInimigo :: (Inimigo, [Projetil]) -> Bool
+        validaInimigo (inimigo, projeteis) =
+            posicaoSobreTerra (posicaoInimigo inimigo) &&
+            vidaInimigo inimigo > 0 &&
+            velocidadeInimigo inimigo >= 0 &&
+            listaSemDuplicatas projeteis &&
+            naoConflitantes projeteis &&
+            not (sobrepostoComTorre inimigo torres)
+
+        -- Verifica se a posição do inimigo está sobre terra
+        posicaoSobreTerra :: Posicao -> Bool
+        posicaoSobreTerra pos = terrenoPorPosicao pos mapa == Just Terra
+
+        -- Verifica se a lista de projéteis não contém duplicatas
+        listaSemDuplicatas :: [Projetil] -> Bool
+        listaSemDuplicatas projeteis =
+            let tipos = map tipoProjetil projeteis
+            in length tipos == length (nub tipos)
+
+
+        -- Verifica que projéteis não são conflitantes
+        naoConflitantes :: [Projetil] -> Bool
+        naoConflitantes projeteis =
+            let tipos = map tipoProjetil projeteis
+            in not (Fogo `elem` tipos && Resina `elem` tipos) &&
+               not (Fogo `elem` tipos && Gelo `elem` tipos)
+
+
+        -- Verifica se o inimigo não está sobreposto com torres
+        sobrepostoComTorre :: Inimigo -> [Torre] -> Bool
+        sobrepostoComTorre inimigo = any (\torre -> posicaoInimigo inimigo == posicaoTorre torre)
+
 
 validaTorres :: Mapa -> [Torre] -> Bool
 validaTorres mapa torres =
