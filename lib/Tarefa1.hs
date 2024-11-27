@@ -47,12 +47,11 @@ True
 >>> validaJogo jogoInvalido
 False
 -}
+-- | Função que valida um jogo.
+
 validaJogo :: Jogo -> Bool
 validaJogo jogo = 
-    validaPortais mapa base torres portais &&
-    validaInimigos mapa torres inimigosProjeteis &&
-    validaTorres mapa torres && 
-    validaBase base creditos portais torres mapa
+    all ($ jogo) [validaPortais, validaInimigos, validaTorres, validaBase]
 
 {-|
 Verifica se todos os portais do jogo cumprem as condições impostas.
@@ -128,6 +127,10 @@ Verifica se todas as torres estão posicionadas sobre Relva.
 >>> posicionadoEmRelvaTorre mapaJogo [torreExemplo]
 True
 -}
+
+posicionadoEmRelvaTorre :: Mapa -> [Torre] -> Bool
+posicionadoEmRelvaTorre mapa torres = all (\torre -> terrenoPorPosicao (posicaoTorre torre) mapa == Just Relva) torres
+
 {-|
 Verifica se as posições de portais, torres e a base estão válidas e não sobrepostas.
 
