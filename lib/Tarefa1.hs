@@ -35,11 +35,24 @@ mapaJogo = [[t, t, r, a, a, a],
 {-|
 Verifica se o estado geral do jogo é válido.
 
->>> validaJogo undefined
-False (a ser implementado)
+A função `validaJogo` realiza uma série de verificações no estado atual do jogo, validando diferentes aspectos, como:
+- A validade dos portais (existência mínima, posicionamento em Terra, caminho até a base, entre outros).
+- A validade dos inimigos, incluindo suas posições, vida, velocidade e interação com torres.
+- A validade das torres, verificando se estão posicionadas corretamente, com alcances e rajadas positivos e sem sobreposição.
+- A validade da base, garantindo que esteja sobre um terreno válido (Terra), que não esteja sobreposta a outras entidades (torres ou portais) e que os créditos sejam suficientes.
+
+>>> validaJogo jogoExemplo
+True
+
+>>> validaJogo jogoInvalido
+False
 -}
 validaJogo :: Jogo -> Bool
-validaJogo = undefined
+validaJogo jogo = 
+    validaPortais mapa base torres portais &&
+    validaInimigos mapa torres inimigosProjeteis &&
+    validaTorres mapa torres && 
+    validaBase base creditos portais torres mapa
 
 {-|
 Verifica se todos os portais do jogo cumprem as condições impostas.
