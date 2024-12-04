@@ -112,14 +112,19 @@ atingeInimigo = undefined
 
 >>>ativaInimigo Portal {posicaoPortal = (0, 0.5), ondasPortal = (onda@Onda {inimigosOnda = [] } : os)} inimigosjogo
 (Portal {posicaoPortal = (0, 0.5), ondasPortal = onda {inimigosOnda = is} : os}, inimigosjogo)
+
+>>> ativaInimigo Portal {posicaoPortal = (x, y), ondasPortal = []} [inimigo1,inimigo2]
+             (Portal {posicaoPortal = (x, y), ondasPortal = []}, [inimigo1,inimigo2])
  
 -}
 ativaInimigo :: Portal -> [Inimigo] -> (Portal, [Inimigo])
-ativaInimigo Portal {posicaoPortal = (x,y), ondasPortal = (onda@Onda {inimigosOnda = (i:is)} : os)} inimigosjogo = 
-             (Portal {posicaoPortal = (x,y), ondasPortal = onda {inimigosOnda = is}: os}, inimigosjogo  ++ [i])      
+ativaInimigo Portal {posicaoPortal = (x, y), ondasPortal = []} inimigosjogo =
+             (Portal {posicaoPortal = (x, y), ondasPortal = []}, inimigosjogo)
 ativaInimigo Portal {posicaoPortal = (x,y), ondasPortal = (onda@Onda {inimigosOnda = []} : os)} inimigosjogo =
              ( Portal {posicaoPortal = (x,y), ondasPortal = onda {inimigosOnda = []} : os}, inimigosjogo) 
-ativaInimigo portal inimigosjogo = (portal, inimigosjogo) 
+ativaInimigo Portal {posicaoPortal = (x,y), ondasPortal = (onda@Onda {inimigosOnda = (i:is)} : os)} inimigosjogo = 
+             (Portal {posicaoPortal = (x,y), ondasPortal = onda {inimigosOnda = is}: os}, inimigosjogo  ++ [i])      
+
 
 
 {-| A funçao terminouJogo decide se o jogo terminou, ou seja, se o jogador ganhou ou perdeu o jogo.
