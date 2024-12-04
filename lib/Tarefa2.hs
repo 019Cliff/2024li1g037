@@ -9,10 +9,6 @@ Módulo para a realização da Tarefa 2 de LI1 em 2024/25. Este módulo implemen
 -}
 module Tarefa2 where
 
-import Graphics.Gloss
-
-import Graphics.Gloss.Interface.Pure.Game
-
 type Posicao = (Float, Float)
 
 data Terreno = Relva | Agua | Terra
@@ -80,10 +76,26 @@ inimigosJogo :: [Inimigo],
 lojaJogo :: Loja
 }
 
+{-| A funçao inimigosNoAlcance calcula os inimigos ao alcance de uma dada torre.
 
--- Calcula se os inimigos estão no alcance da torre
+==Exemplo:
+ >>>inimigosNoAlcance torre@Torre {posicaoTorre = (1.5,1.5), alcanceTorre = 2} [] 
+ []
+
+>>>inimigosNoAlcance torre@Torre {posicaoTorre = (1.5,1.5), alcanceTorre = 2}  [inimigo@Inimigo {posicaoInimigo = (0.5,0.5)}]
+inimigosNoAlcance torre@Torre {posicaoTorre = (1.5,1.5), alcanceTorre = 2} [inimigo@Inimigo {posicaoInimigo = (0.5,0.5)}]
+
+
+>>>inimigosNoAlcance torre@Torre {posicaoTorre = (1.5,1.5), alcanceTorre = 2}  [inimigo@Inimigo {posicaoInimigo = (0.5,0.5),inimigo@Inimigo {posicaoInimigo = (4.5,4.5)}, inimigo@Inimigo { posicaoInimigo = (1.5,1.5)}]
+ [inimigo@Inimigo {posicaoInimigo = (0.5, 0.5)}, inimigo@Inimigo {posicaoInimigo = (1.5, 1.5)}]
+
+
+-}
 inimigosNoAlcance :: Torre -> [Inimigo] -> [Inimigo]
-inimigosNoAlcance = undefined
+inimigosNoAlcance torre@Torre {posicaoTorre = (a,b), alcanceTorre = x} [] = []
+inimigosNoAlcance torre@Torre {posicaoTorre = (a,b), alcanceTorre = x} (inimigo@Inimigo {posicaoInimigo = (x1,y1)} :is)
+      |sqrt ((x1 - a) ^ 2 + (y1 - b) ^ 2) <= x = inimigo : inimigosNoAlcance torre is
+      | otherwise = inimigosNoAlcance torre is
   
 
 
@@ -91,12 +103,26 @@ inimigosNoAlcance = undefined
 atingeInimigo :: Torre -> Inimigo -> Inimigo
 atingeInimigo = undefined
 
---coloca o próximo inimigo a ser lancado por um portal em jogo
+{-| A funçao ativaInimigo e coloca o próximo inimigo a ser lançado por um portal em jogo
+
+==Exemplo:
+
+>>>ativaInimigo Portal {posicaoPortal = (0, 0.5), ondasPortal = (onda@Onda {inimigosOnda = [inimigo3, inimigo4, inimigo5]} : os)} [inimigo1, inimigo2]
+(Portal {posicaoPortal = (0, 0.5), ondasPortal = onda {inimigosOnda = [inimigo4, inimigo5]} : os}, [inimigo1, inimigo2, inimigo3])
+
+>>>ativaInimigo Portal {posicaoPortal = (0, 0.5), ondasPortal = (onda@Onda {inimigosOnda = [] } : os)} inimigosjogo
+(Portal {posicaoPortal = (0, 0.5), ondasPortal = onda {inimigosOnda = is} : os}, inimigosjogo)
+ 
+-}
 ativaInimigo :: Portal -> [Inimigo] -> (Portal, [Inimigo])
-ativaInimigo = undefined
+ativaInimigo Portal {posicaoPortal = (x,y), ondasPortal = (onda@Onda {inimigosOnda = (i:is)} : os)} inimigosjogo = 
+             (Portal {posicaoPortal = (x,y), ondasPortal = onda {inimigosOnda = is}: os}, inimigosjogo  ++ [i])      
+ativaInimigo Portal {posicaoPortal = (x,y), ondasPortal = (onda@Onda {inimigosOnda = []} : os)} inimigosjogo =
+             ( Portal {posicaoPortal = (x,y), ondasPortal = onda {inimigosOnda = []} : os}, inimigosjogo) 
+ativaInimigo portal inimigosjogo = (portal, inimigosjogo) 
 
 
-{- A funçao terminouJogo decide se o jogo terminou, ou seja, se o jogador ganhou ou perdeu o jogo.
+{-| A funçao terminouJogo decide se o jogo terminou, ou seja, se o jogador ganhou ou perdeu o jogo.
 Para isso são utilizadas outras duas funçoes a ganhouJogo e a perdeuJogo.
 
 ==Exemplo:
