@@ -5,6 +5,12 @@ import Eventos
 import Graphics.Gloss
 import ImmutableTowers
 import Tempo
+import LI2425
+import Tarefa1
+import Tarefa2
+import Tarefa3
+
+data MenuInicialOpcoes = Jogar | Sair  deriving (Show, Eq)
 
 janela :: Display
 janela = InWindow "Immutable Towers" (1920, 1080) (0, 0)
