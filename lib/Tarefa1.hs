@@ -32,44 +32,23 @@ jogo1 :: Jogo
 jogo1 = Jogo {mapaJogo = mapa1, baseJogo = base1, portaisJogo = [portal1], inimigosJogo = [inimigo1], torresJogo = [torre1], lojaJogo = [(50, torre1)]}
 
 {-|
-Verifica a validade do estado geral do jogo.
+Verifica se o estado de um jogo é válido.
 
-Essa função realiza verificações abrangentes no estado do jogo, como:
-- Validade dos portais.
-- Validade dos inimigos.
-- Validade das torres.
-- Validade da base.
+Esta função avalia a validade dos componentes do jogo, como portais, torres, inimigos e a base.
 
->>> validaJogo jogoExemplo
+=== Exemplo de utilização:
+>>> validaJogo jogo1
 True
-
->>> validaJogo jogoInvalido
-False
--}
-{-|
-=== Função: validaJogo
-Verifica se o estado geral do jogo é válido, garantindo que todos os elementos
-cumpram as condições necessárias (portais, torres, inimigos, base).
-
-=== Exemplos:
-
->>> validaJogo jogoExemplo
-True
-
 -}
 validaJogo :: Jogo -> Bool
 validaJogo jogo = 
     all ($ jogo) [validaPortais, validaInimigos, validaTorres, validaBase]
 
 {-|
-Valida os portais no jogo.
+Verifica se todos os portais de um jogo estão em posições válidas no mapa.
 
-A função garante que os portais:
-- Estejam em terreno válido.
-- Não estejam sobrepostos a torres ou base.
-- Possuam caminhos válidos até a base.
-
->>> validaPortais mapaJogo baseExemplo [] [portalExemplo]
+=== Exemplo de utilização:
+>>> validaPortais jogo1
 True
 -}
 validaPortais :: Jogo -> Bool
@@ -78,53 +57,63 @@ validaPortais jogo =
         mapa = mapaJogo jogo
     in all (\portal -> posicaoPortalValida (posicaoPortal portal) mapa) portais
 
+{-|
+Verifica se uma posição de portal é válida no mapa.
+
+Uma posição é válida se estiver dentro dos limites do mapa e o terreno correspondente não for "Água".
+
+=== Exemplo de utilização:
+>>> posicaoPortalValida (0, 0) mapa1
+True
+-}
 posicaoPortalValida :: Posicao -> Mapa -> Bool
 posicaoPortalValida (x, y) mapa =
     x >= 0 && y >= 0 && x < fromIntegral (length mapa) && y < fromIntegral (length (head mapa)) &&
     case terrenoPorPosicao (x, y) mapa of
-        Just terra -> terra /= Agua  -- Exemplo: se o terreno for água, a posição é inválida
-        Nothing -> False  -- Se a posição estiver fora do mapa, é inválida
-
- 
+        Just terra -> terra /= Agua
+        Nothing -> False
 
 {-|
-Verifica se uma onda de um portal está vazia de inimigos no início.
+Verifica se uma onda de inimigos associada a um portal é válida.
 
->>> validaOndaPortal portalExemplo
+Uma onda é válida se não possuir inimigos.
+
+=== Exemplo de utilização:
+>>> validaOndaPortal portal1
 True
 -}
 validaOndaPortal :: Portal -> Bool 
 validaOndaPortal portal = all ondaSemInimigos (ondasPortal portal)
 
 {-|
-Verifica se uma onda não contém inimigos.
+Verifica se uma onda está vazia (sem inimigos).
 
->>> ondaSemInimigos ondaVazia
+=== Exemplo de utilização:
+>>> ondaSemInimigos (Onda [] 1 1 1)
 True
 -}
+
 ondaSemInimigos :: Onda -> Bool 
 ondaSemInimigos onda = null (inimigosOnda onda)
 
 {-|
-Verifica se há pelo menos um portal.
+Verifica se existe pelo menos um portal no jogo.
 
->>> minimoPortal [portalExemplo]
+=== Exemplo de utilização:
+>>> minimoPortal [portal1]
 True
-
->>> minimoPortal []
-False
 -}
 minimoPortal :: [Portal] -> Bool
 minimoPortal portais = not (null portais)
 
 {-|
-Recupera o terreno de uma posição do mapa.
+Obtém o terreno correspondente a uma posição no mapa.
 
->>> terrenoPorPosicao (1.0, 2.0) mapaJogo
-Just Relva
+Retorna `Nothing` se a posição estiver fora dos limites do mapa.
 
->>> terrenoPorPosicao (10.0, 2.0) mapaJogo
-Nothing
+=== Exemplo de utilização:
+>>> terrenoPorPosicao (0, 0) mapa1
+Just Terra
 -}
 terrenoPorPosicao :: Posicao -> Mapa -> Maybe Terreno
 terrenoPorPosicao (x, y) mapa =
@@ -132,30 +121,31 @@ terrenoPorPosicao (x, y) mapa =
     then Nothing
     else Just (mapa !! floor y !! floor x)
 
-
 {-|
-Verifica se todos os portais estão posicionados sobre Terra.
+Verifica se todos os portais estão posicionados sobre terrenos "Terra" no mapa.
 
->>> posicionadoEmTerra mapaJogo [portalExemplo]
+=== Exemplo de utilização:
+>>> posicionadoEmTerra mapa1 [portal1]
 True
 -}
 posicionadoEmTerra :: Mapa -> [Portal] -> Bool
 posicionadoEmTerra mapa portais = all (\portal -> terrenoPorPosicao (posicaoPortal portal) mapa == Just Terra) portais
 
 {-|
-Verifica se todas as torres estão posicionadas sobre Relva.
+Verifica se todas as torres estão posicionadas sobre terrenos "Relva" no mapa.
 
->>> posicionadoEmRelvaTorre mapaJogo [torreExemplo]
+=== Exemplo de utilização:
+>>> posicionadoEmRelvaTorre mapa1 [torre1]
 True
 -}
-
 posicionadoEmRelvaTorre :: Mapa -> [Torre] -> Bool
 posicionadoEmRelvaTorre mapa torres = all (\torre -> terrenoPorPosicao (posicaoTorre torre) mapa == Just Relva) torres
 
 {-|
-Verifica se as posições de portais, torres e a base estão válidas e não sobrepostas.
+Verifica se torres, portais e a base não estão sobrepostos.
 
->>> naoSobrepostosTorreBase [(1, 1)] baseExemplo [torreExemplo] [portalExemplo] mapaJogo
+=== Exemplo de utilização:
+>>> naoSobrepostosTorreBase [] base1 [torre1] [portal1] mapa1
 True
 -}
 naoSobrepostosTorreBase :: [Posicao] -> Base -> [Torre] -> [Portal] -> Mapa -> Bool
@@ -164,49 +154,56 @@ naoSobrepostosTorreBase _ base torres portais mapa =
       posicionadoEmTerraBase mapa base &&
       verificaPosicaoTorreEmPortal mapa torres portais &&
       verificaPosicaoBaseEmPortal mapa base portais
-            
+
 {-|
-Verifica se torres não estão posicionadas sobre portais.
->>> verificaPosicaoTorreEmPortal mapaJogo [torreExemplo] [portalExemplo]
+Verifica se uma torre não está sobre um portal.
+
+=== Exemplo de utilização:
+>>> verificaPosicaoTorreEmPortal mapa1 [torre1] [portal1]
 True
 -}
-
 verificaPosicaoTorreEmPortal :: Mapa -> [Torre] -> [Portal] -> Bool
-verificaPosicaoTorreEmPortal mapa torres portais =
+verificaPosicaoTorreEmPortal _ torres portais =
     all (\torre -> posicaoTorre torre `notElem` map posicaoPortal portais) torres
 
 {-|
-Verifica se a base não está posicionada sobre portais.
->>> verificaPosicaoBaseEmPortal mapaJogo baseExemplo [portalExemplo]
+Verifica se a base não está sobre um portal.
+
+=== Exemplo de utilização:
+>>> verificaPosicaoBaseEmPortal mapa1 base1 [portal1]
 True
 -}
-
 verificaPosicaoBaseEmPortal :: Mapa -> Base -> [Portal] -> Bool
 verificaPosicaoBaseEmPortal _ base portais =
     posicaoBase base `notElem` map posicaoPortal portais
 
 {-|
-Limita o número de ondas por portal para no máximo 1.
+Verifica se há no máximo uma onda por portal.
 
->>> maximoOndaPorPortal [portalExemplo]
+=== Exemplo de utilização:
+>>> maximoOndaPorPortal [portal1]
 True
 -}
 maximoOndaPorPortal :: [Portal] -> Bool 
-maximoOndaPorPortal portais = all (\portal -> length (ondasPortal portal) <= 1) portais 
+maximoOndaPorPortal portais = all (\portal -> length (ondasPortal portal) <= 1) portais
 
 {-|
-Verifica se existe pelo menos um caminho entre os portais e a base.
+Verifica se existe um caminho entre qualquer portal e a base no mapa.
 
->>> caminhoPortalBase mapaJogo [(0, 0)] (5, 5)
+=== Exemplo de utilização:
+>>> caminhoPortalBase mapa1 [(1, 1), (2, 2)] (0, 0)
 True
 -}
 caminhoPortalBase :: Mapa -> [Posicao] -> Posicao -> Bool
 caminhoPortalBase mapa portais base = any (\portal -> buscaCaminho mapa portal base []) portais
 
 {-|
-Busca recursivamente se há um caminho entre duas posições.
+Realiza a busca de um caminho entre uma posição atual e o destino no mapa.
 
->>> buscaCaminho mapaJogo (0, 0) (5, 5) []
+A busca considera a validade da posição, terrenos e evita visitar posições repetidas.
+
+=== Exemplo de utilização:
+>>> buscaCaminho mapa1 (1, 1) (0, 0) []
 True
 -}
 buscaCaminho :: Mapa -> Posicao -> Posicao -> [Posicao] -> Bool
@@ -221,22 +218,21 @@ buscaCaminho mapa atual destino visitados
         in any (\pos -> buscaCaminho mapa pos destino visitados') vizinhos
 
 {-|
-Obtém as posições adjacentes a uma posição.
+Obtém as posições adjacentes a uma posição dada.
 
->>> adjacentes (2, 2)
-[(1.0,2.0),(3.0,2.0),(2.0,1.0),(2.0,3.0)]
+=== Exemplo de utilização:
+>>> adjacentes (1.0, 1.0)
+[(0.0,1.0),(2.0,1.0),(1.0,0.0),(1.0,2.0)]
 -}
 adjacentes :: Posicao -> [Posicao]
 adjacentes (x, y) = [(x-1, y), (x+1, y), (x, y-1), (x, y+1)]
 
 {-|
-Verifica se uma posição está dentro dos limites do mapa.
+Verifica se uma posição é válida no mapa, considerando os limites.
 
->>> posicaoValida mapaJogo (2, 2)
+=== Exemplo de utilização:
+>>> posicaoValida mapa1 (1.5, 2.5)
 True
-
->>> posicaoValida mapaJogo (10, 10)
-False
 -}
 posicaoValida :: Mapa -> (Float, Float) -> Bool
 posicaoValida mapa (x, y) =
@@ -245,29 +241,45 @@ posicaoValida mapa (x, y) =
     in ix >= 0 && ix < length mapa && iy >= 0 && iy < length (head mapa)
 
 {-|
-Valida os inimigos do jogo.
+Verifica as condições de validade dos inimigos no jogo.
 
-Verifica condições como:
-- Posições válidas.
-- Vida e velocidade aceitáveis.
-- Conflitos entre projéteis.
-
->>> validaInimigos mapaJogo [torreExemplo] [(inimigoExemplo, [projetilExemplo])]
+=== Exemplo de utilização:
+>>> validaInimigos jogo1
 True
 -}
 
 validaInimigos :: Jogo -> Bool
-validaInimigos jogo = undefined
+validaInimigos jogo = all validaInimigo (inimigosJogo jogo)
+  where
+    -- Verifica as condições para cada inimigo
+    validaInimigo inimigo =
+      vidaInimigo inimigo > 0 &&                      -- Vida positiva
+      velocidadeInimigo inimigo >= 0 &&              -- Velocidade não negativa
+      validaProjeteis (projeteisInimigo inimigo) &&  -- Lista de projéteis normalizada
+      not (sobrepoeTorres inimigo (torresJogo jogo)) -- Não sobrepõe torres
 
-{-
-Valida as torres no jogo.
+    -- Verifica se os projéteis do inimigo estão normalizados
+    validaProjeteis projeteis =
+      let tipos = map tipoProjetil projeteis
+      in length (nub tipos) == length tipos &&       -- Sem projéteis duplicados
+         not (incompatíveis tipos)                  -- Sem projéteis incompatíveis
 
-A função verifica:
-- Se todas estão em terreno válido.
-- Se os alcances e rajadas possuem valores positivos.
-- Se não estão sobrepostas a outras torres.
+    -- Verifica incompatibilidade de projéteis
+    incompatíveis tipos =
+      (Fogo `elem` tipos && Resina `elem` tipos) || 
+      (Fogo `elem` tipos && Gelo `elem` tipos)
 
->>> validaTorres mapaJogo [torreExemplo]
+    -- Verifica se o inimigo está sobreposto a uma torre
+    sobrepoeTorres inimigo torres =
+      any (\torre -> posicaoTorre torre == posicaoInimigo inimigo) torres
+
+{-|
+Função que valida se todas as torres no jogo estão corretamente posicionadas e não têm conflitos.
+
+Verifica se todas as torres estão posicionadas sobre o terreno correto (relva) e se não há sobreposição de torres com a base, portais ou outras torres.
+
+=== Exemplo de utilização:
+>>> validaTorres jogo1
 True
 -}
 validaTorres :: Jogo -> Bool
@@ -275,39 +287,61 @@ validaTorres jogo =
     posicionadoEmRelvaTorre (mapaJogo jogo) (torresJogo jogo) &&
     naoSobrepostosTorreBase (map posicaoTorre (torresJogo jogo)) (baseJogo jogo) (torresJogo jogo) (portaisJogo jogo) (mapaJogo jogo)
 
- 
-
 {-|
-Verifica se todas as torres estão posicionadas em terrenos de Relva.
->>> todasEmRelva mapaJogo [torreExemplo]
+Função que verifica se todas as torres estão posicionadas sobre o terreno de relva.
+
+Verifica se cada torre está sobre uma célula de relva no mapa.
+
+=== Exemplo de utilização:
+>>> todasEmRelva (mapaJogo jogo1) (torresJogo jogo1)
 True
 -}
 todasEmRelva :: Mapa -> [Torre] -> Bool
 todasEmRelva mapa = all (\torre -> terrenoPorPosicao (posicaoTorre torre) mapa == Just Relva)
+
 {-|
-Verifica se os alcances das torres são todos positivos.
->>> alcancesPositivos [torreExemplo]
+Função que verifica se todas as torres têm um alcance positivo.
+
+Verifica se o alcance de cada torre é maior que 0.
+
+=== Exemplo de utilização:
+>>> alcancesPositivos (torresJogo jogo1)
 True
 -}
 alcancesPositivos :: [Torre] -> Bool
 alcancesPositivos = all (\torre -> alcanceTorre torre > 0)
+
 {-|
-Verifica se as rajadas das torres são todas positivas.
->>> rajadasPositivas [torreExemplo]
+Função que verifica se todas as torres têm rajadas de tiro positivas.
+
+Verifica se o número máximo de inimigos que uma torre pode atingir em uma rajada de tiro é maior que 0.
+
+=== Exemplo de utilização:
+>>> rajadasPositivas (torresJogo jogo1)
 True
 -}
 rajadasPositivas :: [Torre] -> Bool
 rajadasPositivas = all (\torre -> rajadaTorre torre > 0)
+
 {-|
-Verifica se os ciclos das torres são todos não negativos.
->>> ciclosNaoNegativos [torreExemplo]
+Função que verifica se todas as torres têm ciclos de rajada não negativos.
+
+Verifica se o tempo entre as rajadas de cada torre é maior ou igual a 0.
+
+=== Exemplo de utilização:
+>>> ciclosNaoNegativos (torresJogo jogo1)
 True
 -}
 ciclosNaoNegativos :: [Torre] -> Bool
 ciclosNaoNegativos = all (\torre -> cicloTorre torre >= 0)
+
 {-|
-Verifica se as torres não estão sobrepostas, ou seja, possuem posições únicas.
->>> naoSobrepostas [torreExemplo]
+Função que verifica se não há sobreposição de torres.
+
+Verifica se as torres não estão sobrepondo umas às outras.
+
+=== Exemplo de utilização:
+>>> naoSobrepostas (torresJogo jogo1)
 True
 -}
 naoSobrepostas :: [Torre] -> Bool
@@ -316,55 +350,39 @@ naoSobrepostas torres =
     in length posicoes == length (nub posicoes)
 
 {-|
-Valida a base do jogo, verificando condições de posição, sobreposição e créditos.
+Função que valida o estado da base do jogo.
 
->>> validaBase baseExemplo 10 [portalExemplo] [torreExemplo] mapaJogo
+Verifica se a base está posicionada sobre um terreno de terra, se o número de créditos é não negativo e se a base não sobrepõe nenhuma torre ou portal.
+
+=== Exemplo de utilização:
+>>> validaBase jogo1
 True
 -}
 validaBase :: Jogo -> Bool
 validaBase jogo =
-    creditoPositivo creditos &&
-    naoSobrepostoTorrePortal portais torres base mapa &&
-    posicionadoEmTerraBase mapa base
+  baseSobreTerra (mapaJogo jogo) (baseJogo jogo) &&  -- Base está sobre terra
+  creditosBase (baseJogo jogo) >= 0 &&              -- Créditos não negativos
+  not (sobrepoeTorreOuPortal (baseJogo jogo) (torresJogo jogo) (portaisJogo jogo)) -- Não sobrepõe torre/portal
+  where
+    -- Verifica se a base está sobre terra no mapa
+    baseSobreTerra mapa base =
+      case terrenoPorPosicao (posicaoBase base) mapa of
+        Just Terra -> True
+        _          -> False
 
-    
+    -- Verifica se a base sobrepõe alguma torre ou portal
+    sobrepoeTorreOuPortal base torres portais =
+      let posBase = posicaoBase base
+      in any (\torre -> posicaoTorre torre == posBase) torres ||
+         any (\portal -> posicaoPortal portal == posBase) portais
+
 {-|
-Verifica se os créditos da base são positivos.
->>> creditoPositivo 10
-True
->>> creditoPositivo (-5)
-False
--}
-creditoPositivo :: Creditos -> Bool
-creditoPositivo creditos = creditos >= 0
-{-|
-Verifica que a base não está sobreposta a torres ou portais.
->>> naoSobrepostoTorrePortal [portalExemplo] [torreExemplo] baseExemplo mapaJogo
-True
--}
-naoSobrepostoTorrePortal :: [Portal] -> [Torre] -> Base -> Mapa -> Bool
-naoSobrepostoTorrePortal portais torres base mapa =
-    verificaPosicaoTorreEmBase mapa torres base &&
-    verificaPosicaoPortalBase mapa portais base
-{-|
-Verifica que nenhuma torre está sobreposta à base.
->>> verificaPosicaoTorreEmBase mapaJogo [torreExemplo] baseExemplo
-True
--}
-verificaPosicaoTorreEmBase :: Mapa -> [Torre] -> Base -> Bool 
-verificaPosicaoTorreEmBase _ torres base =
-    all (\torre -> posicaoTorre torre /= posicaoBase base) torres
-{-|
-Verifica que nenhum portal está sobreposto à base.
->>> verificaPosicaoPortalBase mapaJogo [portalExemplo] baseExemplo
-True
--}
-verificaPosicaoPortalBase :: Mapa -> [Portal] -> Base -> Bool
-verificaPosicaoPortalBase _ portais base =
-    all (\portal -> posicaoPortal portal /= posicaoBase base) portais
-{-|
-Verifica se a base está posicionada sobre terreno do tipo Terra.
->>> posicionadoEmTerraBase mapaJogo baseExemplo
+Função que verifica se a base está posicionada sobre um terreno de terra.
+
+Verifica se o terreno onde a base está posicionada no mapa é do tipo `Terra`.
+
+=== Exemplo de utilização:
+>>> posicionadoEmTerraBase (mapaJogo jogo1) (baseJogo jogo1)
 True
 -}
 posicionadoEmTerraBase :: Mapa -> Base -> Bool
