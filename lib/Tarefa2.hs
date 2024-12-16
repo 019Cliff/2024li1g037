@@ -40,6 +40,25 @@ inimigosNoAlcance torre@Torre {posicaoTorre = (a,b), alcanceTorre = x} (inimigo@
 atingeInimigo :: Torre -> Inimigo -> Inimigo
 atingeInimigo = undefined
 
+{-|A função fogoEGelo caso tenha projeteis de Fogo e Gelo ativos retira-os da lista. 
+-}
+
+
+fogoEGelo :: [Projetil] -> [Projetil]
+fogoEGelo projeteis =
+    if not (null (encontraFogo projeteis)) && not (null (encontraGelo projeteis))
+    then filter (\p -> tipoProjetil p /= Fogo && tipoProjetil p /= Gelo) projeteis
+    else projeteis
+
+
+-- Devolve uma lista com apenas Gelo está na lista de projeteis 
+encontraGelo :: [Projetil] -> [Projetil]
+encontraGelo [] = []
+encontraGelo (x:xs) 
+                    | tipoProjetil x == Gelo = x : encontraGelo xs
+                    | otherwise = encontraGelo xs
+
+      
 
 {-| A função atingeFogoEResina caso tenha projeteis de Fogo e Resina ativos retira os de Resina e dobra a duração do de Fogo.
 -}
