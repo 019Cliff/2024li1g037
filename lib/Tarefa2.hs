@@ -9,72 +9,9 @@ Módulo para a realização da Tarefa 2 de LI1 em 2024/25. Este módulo implemen
 -}
 module Tarefa2 where
 
-type Posicao = (Float, Float)
-
-data Terreno = Relva | Agua | Terra
-type Mapa = [[Terreno]]
-
-type Creditos = Int
-data Base = Base {
-vidaBase :: Float,
-posicaoBase :: Posicao,
-creditosBase :: Creditos
-}
-
-type Distancia = Float
-type Tempo = Float
-data Duracao = Finita Tempo | Infinita
-data Torre = Torre {
-posicaoTorre :: Posicao,
-danoTorre :: Float,
-alcanceTorre :: Distancia,
-rajadaTorre :: Int,
-cicloTorre :: Tempo,
-tempoTorre :: Tempo,
-projetilTorre :: Projetil
-}
-
-data TipoProjetil = Fogo | Gelo | Resina
-data Projetil = Projetil {
-tipoProjetil :: TipoProjetil,
-duracaoProjetil :: Duracao
-}
+import LI12425
 
 
-
-data Direcao = Norte | Sul | Este | Oeste
-data Inimigo = Inimigo {
-posicaoInimigo :: Posicao,
-direcaoInimigo :: Direcao,
-vidaInimigo :: Float,
-velocidadeInimigo :: Float,
-ataqueInimigo :: Float,
-butimInimigo :: Creditos,
-projeteisInimigo :: [Projetil]
-}
-
-data Onda = Onda {
-inimigosOnda :: [Inimigo],
-cicloOnda :: Tempo,
-tempoOnda :: Tempo,
-entradaOnda :: Tempo
-}
-
-data Portal = Portal {
-posicaoPortal :: Posicao,
-ondasPortal :: [Onda]
-}
-
-type Loja = [(Creditos, Torre)]
-
-data Jogo = Jogo {
-baseJogo :: Base,
-portaisJogo :: [Portal],
-torresJogo :: [Torre],
-mapaJogo :: Mapa,
-inimigosJogo :: [Inimigo],
-lojaJogo :: Loja
-}
 
 {-| A funçao inimigosNoAlcance calcula os inimigos ao alcance de uma dada torre.
 
@@ -99,11 +36,46 @@ inimigosNoAlcance torre@Torre {posicaoTorre = (a,b), alcanceTorre = x} (inimigo@
   
 
 
---atualiza o estado de um inimigo assumindo que este acaba de ser atingido por um projetil de uma torre
+{-| atualiza o estado de um inimigo assumindo que este acaba de ser atingido por um projetil de uma torre -}
 atingeInimigo :: Torre -> Inimigo -> Inimigo
 atingeInimigo = undefined
 
-{-| A funçao ativaInimigo e coloca o próximo inimigo a ser lançado por um portal em jogo
+
+{-| A função atingeFogoEResina caso tenha projeteis de Fogo e Resina ativos retira os de Resina e dobra a duração do de Fogo.
+-}
+
+
+atingeFogoEResina :: [Projetil] -> [Projetil]
+atingeFogoEResina projeteis =
+      if not (null (encontraFogo projeteis)) && not (null (encontraResina projeteis))  
+      then Projetil Fogo novaDuracao : filter (\x -> tipoProjetil x /= Resina) projeteis
+      else projeteis 
+       where
+    novaDuracao = dobroDuracao (duracaoProjetil (head (encontraFogo projeteis)))
+  
+
+-- Devolve uma lista com apenas fogo está na lista de projeteis 
+encontraFogo :: [Projetil] -> [Projetil]
+encontraFogo [] = []
+encontraFogo (x:xs) 
+                    | tipoProjetil x == Fogo = x : encontraFogo xs
+                    | otherwise = encontraFogo xs
+
+
+-- Verifica se resina está na lista de projeteis 
+encontraResina :: [Projetil] -> [Projetil]
+encontraResina [] = []
+encontraResina (x:xs) 
+                    | tipoProjetil x == Resina = x : encontraResina xs
+                    | otherwise = encontraResina xs
+
+
+--Dobra a duraçao de um projetil
+dobroDuracao :: Duracao -> Duracao
+dobroDuracao (Finita t1) = Finita (t1 * 2)
+dobroDuracao Infinita = Infinita
+
+{-| A funçao ativaInimigo coloca o próximo inimigo a ser lançado por um portal em jogo.
 
 ==Exemplo:
 
