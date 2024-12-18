@@ -10,8 +10,13 @@ import LI12425
 import Data.List 
 
 mapa1 :: [[Terreno]]
-mapa1 = [[Terra, Terra, Relva], 
-         [Relva, Terra, Terra]]
+mapa1 = [ [Terra, Terra, Relva, Agua, Agua, Agua],
+          [Relva, Terra, Relva, Agua, Relva, Relva],
+          [Relva, Terra, Relva, Agua, Relva, Terra],
+          [Relva, Terra, Relva, Agua, Relva, Terra],
+          [Relva, Terra, Terra, Terra, Terra, Terra],
+          [Agua, Agua, Agua, Agua, Relva, Relva]
+        ]
 
 base1 :: Base
 base1 = Base { posicaoBase = (1, 1), creditosBase = 100, vidaBase = 100.0 }
@@ -253,16 +258,16 @@ validaInimigos jogo = all validaInimigo (inimigosJogo jogo)
   where
     -- Verifica as condições para cada inimigo
     validaInimigo inimigo =
-      vidaInimigo inimigo > 0 &&                      -- Vida positiva
-      velocidadeInimigo inimigo >= 0 &&              -- Velocidade não negativa
-      validaProjeteis (projeteisInimigo inimigo) &&  -- Lista de projéteis normalizada
-      not (sobrepoeTorres inimigo (torresJogo jogo)) -- Não sobrepõe torres
+      vidaInimigo inimigo > 0 &&                     
+      velocidadeInimigo inimigo >= 0 &&              
+      validaProjeteis (projeteisInimigo inimigo) &&  
+      not (sobrepoeTorres inimigo (torresJogo jogo)) 
 
     -- Verifica se os projéteis do inimigo estão normalizados
     validaProjeteis projeteis =
       let tipos = map tipoProjetil projeteis
-      in length (nub tipos) == length tipos &&       -- Sem projéteis duplicados
-         not (incompatíveis tipos)                  -- Sem projéteis incompatíveis
+      in length (nub tipos) == length tipos &&      
+         not (incompatíveis tipos)                  
 
     -- Verifica incompatibilidade de projéteis
     incompatíveis tipos =
@@ -360,17 +365,17 @@ True
 -}
 validaBase :: Jogo -> Bool
 validaBase jogo =
-  baseSobreTerra (mapaJogo jogo) (baseJogo jogo) &&  -- Base está sobre terra
-  creditosBase (baseJogo jogo) >= 0 &&              -- Créditos não negativos
-  not (sobrepoeTorreOuPortal (baseJogo jogo) (torresJogo jogo) (portaisJogo jogo)) -- Não sobrepõe torre/portal
+  baseSobreTerra (mapaJogo jogo) (baseJogo jogo) &&  
+  creditosBase (baseJogo jogo) >= 0 &&              
+  not (sobrepoeTorreOuPortal (baseJogo jogo) (torresJogo jogo) (portaisJogo jogo))
   where
-    -- Verifica se a base está sobre terra no mapa
+    
     baseSobreTerra mapa base =
       case terrenoPorPosicao (posicaoBase base) mapa of
         Just Terra -> True
         _          -> False
 
-    -- Verifica se a base sobrepõe alguma torre ou portal
+    
     sobrepoeTorreOuPortal base torres portais =
       let posBase = posicaoBase base
       in any (\torre -> posicaoTorre torre == posBase) torres ||
