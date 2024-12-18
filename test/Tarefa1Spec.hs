@@ -1,9 +1,9 @@
 module Tarefa1Spec (testesTarefa1) where
 
 import Test.HUnit
-import Tarefa1  -- Supondo que o código principal está no módulo Tarefa1
+import Tarefa1  
 import LI12425
--- Testes
+    
 
 testesTarefa1 :: Test
 testesTarefa1 =
@@ -34,4 +34,5 @@ testesTarefa1 =
         "ciclosNaoNegativos" ~: True ~=? ciclosNaoNegativos (torresJogo jogo1),
         "naoSobrepostas" ~: True ~=? naoSobrepostas (torresJogo jogo1),
         "validaBase" ~: True ~=? validaBase jogo1
-      ]
+      ] 
+
