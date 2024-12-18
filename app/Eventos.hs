@@ -5,3 +5,4 @@ import ImmutableTowers
 
 reageEventos :: Event -> ImmutableTowers -> ImmutableTowers
 reageEventos _ it = it
+

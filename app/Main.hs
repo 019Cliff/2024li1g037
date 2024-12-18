@@ -9,7 +9,8 @@ import Tarefa3
 import Eventos
 import Desenhar
 import Tempo
--- Representa o estado do jogo.
+
+
 data EstadoJogo = EstadoJogo
   { mapa :: Mapa
   , moedas :: Int
