@@ -38,8 +38,23 @@ estadoInicialJogo = EstadoJogo
   , base = base1
   }
 
+-- Dimensões da janela
+janelaLargura, janelaAltura :: Int
+janelaLargura = 1920
+janelaAltura = 1080
+
+-- Número de blocos do mapa (ajuste conforme o tamanho do seu mapa)
+mapaLargura, mapaAltura :: Int
+mapaLargura = 40  -- Número de blocos na largura do mapa
+mapaAltura = 27   -- Número de blocos na altura do mapa
+
+-- Tamanho de cada bloco
+tamanhoBloco :: Float
+tamanhoBloco = fromIntegral (min (janelaLargura `div` mapaLargura) (janelaAltura `div` mapaAltura))
+
+-- Definindo a janela
 janela :: Display
-janela = InWindow "Immutable Towers" (1920, 1080) (0, 0)
+janela = InWindow "Immutable Towers" (janelaLargura, janelaAltura) (0, 0)
 
 fundo :: Color
 fundo = white
@@ -55,7 +70,6 @@ desenhaApp app = case estadoAtual app of
   MenuPrincipal -> desenhaMenu
   Jogando jogo -> desenhaJogo jogo
   Sair -> Blank
-
 
 desenhaMenu :: Picture
 desenhaMenu = Pictures
@@ -76,11 +90,11 @@ desenhaMapa :: Mapa -> Picture
 desenhaMapa mapa = Pictures $ concatMap desenhaLinha (zip [0..] mapa)
   where
     desenhaLinha (y, linha) = map (desenhaTerreno y) (zip [0..] linha)
-    desenhaTerreno y (x, terreno) = Translate (x * 40) (y * 40) (desenhaTerrenoBase terreno)
-    desenhaTerrenoBase Relva = Color green (rectangleSolid 40 40)
-    desenhaTerrenoBase Terra = Color (makeColorI 165 42 42 255) (rectangleSolid 40 40)
-    desenhaTerrenoBase Agua = Color blue (rectangleSolid 40 40)
-
+    desenhaTerreno y (x, terreno) = 
+        Translate (fromIntegral (x * mapaLargura)) (fromIntegral (y * mapaAltura)) (desenhaTerrenoBase terreno)
+    desenhaTerrenoBase Relva = Color green (rectangleSolid tamanhoBloco tamanhoBloco)
+    desenhaTerrenoBase Terra = Color (makeColorI 165 42 42 255) (rectangleSolid tamanhoBloco tamanhoBloco)
+    desenhaTerrenoBase Agua = Color blue (rectangleSolid tamanhoBloco tamanhoBloco)
 
 desenhaTorres :: [Torre] -> Picture
 desenhaTorres torres = Pictures $ map desenhaTorre torres
@@ -89,7 +103,6 @@ desenhaTorres torres = Pictures $ map desenhaTorre torres
       where
         (x, y) = posicaoTorre torre
 
-
 desenhaInimigos :: [Inimigo] -> Picture
 desenhaInimigos inimigos = Pictures $ map desenhaInimigo inimigos
   where
@@ -97,12 +110,10 @@ desenhaInimigos inimigos = Pictures $ map desenhaInimigo inimigos
       where
         (x, y) = posicaoInimigo inimigo
 
-
 desenhaBase :: Base -> Picture
 desenhaBase base = Translate x y . Color blue $ Circle 20
   where
     (x, y) = posicaoBase base
-
 
 reageEventosApp :: Event -> EstadoApp -> EstadoApp
 reageEventosApp (EventKey (SpecialKey KeyEnter) Down _ _) app =
@@ -123,12 +134,10 @@ reageEventosApp evt app = case estadoAtual app of
   Jogando jogo -> app { estadoAtual = Jogando (reageEventosJogo evt jogo) }
   _ -> app
 
-
 reageTempoApp :: Float -> EstadoApp -> EstadoApp
 reageTempoApp dt app = case estadoAtual app of
   Jogando jogo -> app { estadoAtual = Jogando (reageTempoJogo dt jogo) }
   _ -> app
-
 
 reageEventosJogo :: Event -> EstadoJogo -> EstadoJogo
 reageEventosJogo (EventKey (MouseButton LeftButton) Up _ _) estado = estado
@@ -146,3 +155,4 @@ verificaFimDeJogo jogo = terminouJogo Jogo
   , lojaJogo = []
   , portaisJogo = []
   }
+
