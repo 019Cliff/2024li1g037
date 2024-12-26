@@ -4,127 +4,120 @@ Description : Auxiliares do Jogo
 Copyright   : Tomás Branco Dias <a107323@alunos.uminho.pt>
               Ines Braga da Silva <a112819@alunos.uminho.pt>
 
-Módulo para a realização da Tarefa 2 de LI1 em 2024/25. Este módulo implementa funções auxiliares que são usadas para o desenvolvimento da mecânica de jogo.
+
+Módulo para a realização da Tarefa 2 de LI1 em 2024/25. Este módulo implementa funções auxiliares que são usadas para o desenvolvimento da mecânica de jogo
 -}
 module Tarefa2 where
 
 import LI12425
 
-{-|
-A função `inimigosNoAlcance` calcula os inimigos ao alcance de uma dada torre.
 
-== Exemplo:
->>> inimigosNoAlcance Torre {posicaoTorre = (1.5,1.5), alcanceTorre = 2, danoTorre = 10, rajadaTorre = 1, cicloTorre = 0, tempoTorre = 0, projetilTorre = Projetil Fogo (Finita 5)} []
-[]
->>> inimigosNoAlcance Torre {posicaoTorre = (1.5,1.5), alcanceTorre = 2, danoTorre = 10, rajadaTorre = 1, cicloTorre = 0, tempoTorre = 0, projetilTorre = Projetil Fogo (Finita 5)} [Inimigo {posicaoInimigo = (0.5,0.5), direcaoInimigo = Norte, velocidadeInimigo = 1, ataqueInimigo = 5, butimInimigo = 10, vidaInimigo = 100, projeteisInimigo = []}]
-[Inimigo {posicaoInimigo = (0.5,0.5), direcaoInimigo = Norte, velocidadeInimigo = 1, ataqueInimigo = 5, butimInimigo = 10, vidaInimigo = 100.0, projeteisInimigo = []}]
+
+{-| A funçao inimigosNoAlcance calcula os inimigos ao alcance de uma dada torre.
+
+==Exemplo:
+ >>>inimigosNoAlcance torre@Torre {posicaoTorre = (1.5,1.5), alcanceTorre = 2} [] 
+ []
+
+>>>inimigosNoAlcance torre@Torre {posicaoTorre = (1.5,1.5), alcanceTorre = 2}  [inimigo@Inimigo {posicaoInimigo = (0.5,0.5)}]
+inimigosNoAlcance torre@Torre {posicaoTorre = (1.5,1.5), alcanceTorre = 2} [inimigo@Inimigo {posicaoInimigo = (0.5,0.5)}]
+
+
+>>>inimigosNoAlcance torre@Torre {posicaoTorre = (1.5,1.5), alcanceTorre = 2}  [inimigo@Inimigo {posicaoInimigo = (0.5,0.5),inimigo@Inimigo {posicaoInimigo = (4.5,4.5)}, inimigo@Inimigo { posicaoInimigo = (1.5,1.5)}]
+ [inimigo@Inimigo {posicaoInimigo = (0.5, 0.5)}, inimigo@Inimigo {posicaoInimigo = (1.5, 1.5)}]
+
+
 -}
 inimigosNoAlcance :: Torre -> [Inimigo] -> [Inimigo]
-inimigosNoAlcance Torre {posicaoTorre = (x, y), alcanceTorre = alcance} inimigos =
-  filter (\Inimigo {posicaoInimigo = (a, b)} -> sqrt ((x - a) ** 2 + (y - b) ** 2) <= alcance) inimigos
+inimigosNoAlcance torre@Torre {posicaoTorre = (a,b), alcanceTorre = x} [] = []
+inimigosNoAlcance torre@Torre {posicaoTorre = (a,b), alcanceTorre = x} (inimigo@Inimigo {posicaoInimigo = (x1,y1)} :is)
+      |sqrt ((x1 - a) ^ 2 + (y1 - b) ^ 2) <= x = inimigo : inimigosNoAlcance torre is
+      | otherwise = inimigosNoAlcance torre is
+  
 
-{-|
-A função `atingeInimigo` calcula o dano de uma torre em um inimigo, atualizando a vida do inimigo e adicionando um projétil de fogo.
 
-== Exemplo:
->>> atingeInimigo Torre {posicaoTorre = (0, 0), alcanceTorre = 2, danoTorre = 10, rajadaTorre = 1, cicloTorre = 0, tempoTorre = 0, projetilTorre = Projetil Fogo (Finita 5)} Inimigo {posicaoInimigo = (0.5,0.5), direcaoInimigo = Norte, velocidadeInimigo = 1, ataqueInimigo = 5, butimInimigo = 10, vidaInimigo = 100, projeteisInimigo = []}
-Inimigo {posicaoInimigo = (0.5,0.5), direcaoInimigo = Norte, velocidadeInimigo = 1, ataqueInimigo = 5, butimInimigo = 10, vidaInimigo = 90.0, projeteisInimigo = [Projetil Fogo (Finita 5)]}
--}
+{-| atualiza o estado de um inimigo assumindo que este acaba de ser atingido por um projetil de uma torre -}
 atingeInimigo :: Torre -> Inimigo -> Inimigo
-atingeInimigo Torre {danoTorre = dano, projetilTorre = Projetil tipo duracao} inimigo@Inimigo {vidaInimigo = vida, projeteisInimigo = projeteis} =
-    let novaVida = max 0 (vida - dano)
-        novosProjeteis = Projetil tipo duracao : projeteis
-    in inimigo {vidaInimigo = novaVida, projeteisInimigo = novosProjeteis}
+atingeInimigo  = undefined 
 
-{-|
-A função `somaDuracao` soma as durações de dois projéteis.
 
-== Exemplo:
->>> somaDuracao (Finita 3) (Finita 5)
-Finita 8.0
->>> somaDuracao Infinita (Finita 5)
-Infinita
+{-| A função atingeFogoEResina caso tenha projeteis de Fogo e Resina ativos retira os de Resina e dobra a duração do de Fogo.
 -}
-somaDuracao :: Duracao -> Duracao -> Duracao
-somaDuracao (Finita t1) (Finita t2) = Finita (t1 + t2)
-somaDuracao Infinita _ = Infinita
-somaDuracao _ Infinita = Infinita
 
-{-|
-A função `fogoEGelo` remove os projéteis de Fogo e Gelo da lista caso ambos estejam ativos.
 
-== Exemplo:
->>> fogoEGelo [Projetil Fogo (Finita 5), Projetil Gelo (Finita 3)]
-[]
--}
-fogoEGelo :: [Projetil] -> [Projetil]
-fogoEGelo projeteis =
-    if not (null (encontraTipo Fogo projeteis)) && not (null (encontraTipo Gelo projeteis))
-    then filter (\p -> tipoProjetil p /= Fogo && tipoProjetil p /= Gelo) projeteis
-    else projeteis
-
-encontraTipo :: TipoProjetil -> [Projetil] -> [Projetil]
-encontraTipo tipo = filter ((== tipo) . tipoProjetil)
-
-{-|
-A função `atingeFogoEResina` retira projéteis de Resina e dobra a duração dos projéteis de Fogo, caso ambos estejam ativos.
-
-== Exemplo:
->>> atingeFogoEResina [Projetil Fogo (Finita 5), Projetil Resina (Finita 2)]
-[Projetil Fogo (Finita 10)]
--}
 atingeFogoEResina :: [Projetil] -> [Projetil]
 atingeFogoEResina projeteis =
-    if not (null (encontraTipo Fogo projeteis)) && not (null (encontraTipo Resina projeteis))
-    then map (\p -> if tipoProjetil p == Fogo then Projetil Fogo (dobroDuracao (duracaoProjetil p)) else p)
-         (filter (\p -> tipoProjetil p /= Resina) projeteis)
-    else projeteis
+      if not (null (encontraFogo projeteis)) && not (null (encontraResina projeteis))  
+      then Projetil Fogo novaDuracao : filter (\x -> tipoProjetil x /= Resina) projeteis
+      else projeteis 
+       where
+    novaDuracao = dobroDuracao (duracaoProjetil (head (encontraFogo projeteis)))
+  
 
-{-|
-Dobra a duração de um projétil.
--}
+-- Devolve uma lista com apenas fogo está na lista de projeteis 
+encontraFogo :: [Projetil] -> [Projetil]
+encontraFogo [] = []
+encontraFogo (x:xs) 
+                    | tipoProjetil x == Fogo = x : encontraFogo xs
+                    | otherwise = encontraFogo xs
+
+
+-- Verifica se resina está na lista de projeteis 
+encontraResina :: [Projetil] -> [Projetil]
+encontraResina [] = []
+encontraResina (x:xs) 
+                    | tipoProjetil x == Resina = x : encontraResina xs
+                    | otherwise = encontraResina xs
+
+
+--Dobra a duraçao de um projetil
 dobroDuracao :: Duracao -> Duracao
-dobroDuracao (Finita t) = Finita (t * 2)
+dobroDuracao (Finita t1) = Finita (t1 * 2)
 dobroDuracao Infinita = Infinita
 
-{-|
-A função `ativaInimigo` coloca o próximo inimigo a ser lançado por um portal em jogo.
+{-| A funçao ativaInimigo coloca o próximo inimigo a ser lançado por um portal em jogo.
 
-== Exemplo:
->>> ativaInimigo Portal {posicaoPortal = (0, 0.5), ondasPortal = [Onda {inimigosOnda = [Inimigo {posicaoInimigo = (0,0), direcaoInimigo = Norte, velocidadeInimigo = 1, ataqueInimigo = 5, butimInimigo = 10, vidaInimigo = 100, projeteisInimigo = []}, Inimigo {posicaoInimigo = (1,1), direcaoInimigo = Sul, velocidadeInimigo = 1, ataqueInimigo = 5, butimInimigo = 15, vidaInimigo = 80, projeteisInimigo = []}]}]} []
-(Portal {posicaoPortal = (0, 0.5), ondasPortal = [Onda {inimigosOnda = [Inimigo {posicaoInimigo = (1,1), direcaoInimigo = Sul, velocidadeInimigo = 1, ataqueInimigo = 5, butimInimigo = 15, vidaInimigo = 80, projeteisInimigo = []}]}]}, [Inimigo {posicaoInimigo = (0,0), direcaoInimigo = Norte, velocidadeInimigo = 1, ataqueInimigo = 5, butimInimigo = 10, vidaInimigo = 100, projeteisInimigo = []}])
+==Exemplo:
+
+>>>ativaInimigo Portal {posicaoPortal = (0, 0.5), ondasPortal = (onda@Onda {inimigosOnda = [inimigo3, inimigo4, inimigo5]} : os)} [inimigo1, inimigo2]
+(Portal {posicaoPortal = (0, 0.5), ondasPortal = onda {inimigosOnda = [inimigo4, inimigo5]} : os}, [inimigo1, inimigo2, inimigo3])
+
+>>>ativaInimigo Portal {posicaoPortal = (0, 0.5), ondasPortal = (onda@Onda {inimigosOnda = [] } : os)} inimigosjogo
+(Portal {posicaoPortal = (0, 0.5), ondasPortal = onda {inimigosOnda = is} : os}, inimigosjogo)
+
+>>> ativaInimigo Portal {posicaoPortal = (x, y), ondasPortal = []} [inimigo1,inimigo2]
+             (Portal {posicaoPortal = (x, y), ondasPortal = []}, [inimigo1,inimigo2])
+ 
 -}
 ativaInimigo :: Portal -> [Inimigo] -> (Portal, [Inimigo])
-ativaInimigo portal@Portal {ondasPortal = []} inimigos = (portal, inimigos)
-ativaInimigo portal@Portal {ondasPortal = (Onda {inimigosOnda = []} : outrasOndas)} inimigos =
-    (portal {ondasPortal = outrasOndas}, inimigos)
-ativaInimigo portal@Portal {ondasPortal = (Onda {inimigosOnda = (i:is), cicloOnda = ciclo, tempoOnda = tempo, entradaOnda = entrada} : outrasOndas)} inimigos =
-    let novaOnda = Onda {inimigosOnda = is, cicloOnda = ciclo, tempoOnda = tempo, entradaOnda = entrada}
-        novoPortal = portal {ondasPortal = novaOnda : outrasOndas}
-    in (novoPortal, i : inimigos)
+ativaInimigo Portal {posicaoPortal = (x, y), ondasPortal = []} inimigosjogo =
+             (Portal {posicaoPortal = (x, y), ondasPortal = []}, inimigosjogo)
+ativaInimigo Portal {posicaoPortal = (x,y), ondasPortal = (onda@Onda {inimigosOnda = []} : os)} inimigosjogo =
+             ( Portal {posicaoPortal = (x,y), ondasPortal = onda {inimigosOnda = []} : os}, inimigosjogo) 
+ativaInimigo Portal {posicaoPortal = (x,y), ondasPortal = (onda@Onda {inimigosOnda = (i:is)} : os)} inimigosjogo = 
+             (Portal {posicaoPortal = (x,y), ondasPortal = onda {inimigosOnda = is}: os}, inimigosjogo  ++ [i])      
 
 
--- Ajustando os valores padrão para os campos adicionais de Onda
-novaOndaPadrao :: [Inimigo] -> Onda
-novaOndaPadrao inimigos = Onda {inimigosOnda = inimigos, cicloOnda = 0, tempoOnda = 0, entradaOnda = 0}
 
--- Função auxiliar para corrigir formatação de números
-formatarInimigo :: Inimigo -> Inimigo
-formatarInimigo inimigo@Inimigo {vidaInimigo = vida, velocidadeInimigo = vel, ataqueInimigo = atk} = 
-    inimigo 
-        { vidaInimigo = fromIntegral (round (vida :: Float) :: Int) :: Float
-        , velocidadeInimigo = fromIntegral (round (vel :: Float) :: Int) :: Float
-        , ataqueInimigo = fromIntegral (round (atk :: Float) :: Int) :: Float
-        }
+{-| A funçao terminouJogo decide se o jogo terminou, ou seja, se o jogador ganhou ou perdeu o jogo.
+Para isso são utilizadas outras duas funçoes a ganhouJogo e a perdeuJogo.
 
-{-|
-A função `terminouJogo` decide se o jogo terminou, ou seja, se o jogador ganhou ou perdeu o jogo.
+==Exemplo:
+>>>terminouJogo Jogo {baseJogo = Base {vidaBase = 15}, inimigosJogo = [] }
+True
+>>>terminouJogo Jogo {baseJogo = Base {vidaBase = 0}, inimigosJogo = = [Inimigo {posicaoInimigo = (2.5,2.5), vidaInimigo = 25}]}
+ True
+>>>terminouJogo Jogo {baseJogo = Base {vidaBase = 15}, inimigosJogo = [Inimigo {posicaoInimigo = (2.5,2.5), vidaInimigo = 25}]}
+False 
+
+Nota: No exemplo 1 foi uma vitória, no 2 uma derrota 
 -}
 terminouJogo :: Jogo -> Bool
 terminouJogo jogo = ganhouJogo jogo || perdeuJogo jogo
-
-ganhouJogo :: Jogo -> Bool
-ganhouJogo Jogo {baseJogo = Base {vidaBase = vida}, inimigosJogo = inimigos} = vida > 0 && null inimigos
+ 
+ganhouJogo :: Jogo -> Bool 
+ganhouJogo Jogo {baseJogo = Base {vidaBase = x}, inimigosJogo = inimigos} = x > 0 && null inimigos --nao haver mais inimigos e a torre ter vida assinala a vitória do jogador
 
 perdeuJogo :: Jogo -> Bool
-perdeuJogo Jogo {baseJogo = Base {vidaBase = vida}} = vida <= 0
+perdeuJogo Jogo {baseJogo = Base {vidaBase = x}} = x <= 0 --A base náo ter vida assinala a perda do jogo
+

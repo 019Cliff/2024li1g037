@@ -155,3 +155,4 @@ verificaFimDeJogo jogo = terminouJogo Jogo
   , lojaJogo = []
   , portaisJogo = []
   }
+
