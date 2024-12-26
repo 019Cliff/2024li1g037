@@ -10,7 +10,7 @@ import Eventos
 import Desenhar
 import Tempo
 
-
+-- Estado do Jogo
 data EstadoJogo = EstadoJogo
   { mapa :: Mapa
   , moedas :: Int
@@ -19,16 +19,25 @@ data EstadoJogo = EstadoJogo
   , base :: Base
   }
 
+-- Estado do Menu
+data EstadoMenu = MenuPrincipal | Jogando EstadoJogo | Jogar |  Sair 
 
-data EstadoMenu = MenuPrincipal | Jogando EstadoJogo | Sair 
-
+-- Estado Geral da Aplicação
 data EstadoApp = EstadoApp
   { estadoAtual :: EstadoMenu
+  , imgFundo :: Picture
+  , imgJogar :: Picture
   }
 
+-- Estado inicial da aplicação
 estadoInicialApp :: EstadoApp
-estadoInicialApp = EstadoApp { estadoAtual = MenuPrincipal }
+estadoInicialApp = EstadoApp
+  { estadoAtual = MenuPrincipal
+  , imgFundo = undefined -- Imagem carregada de fundo
+  , imgJogar = undefined -- Imagem carregada do botão jogar
+  }
 
+-- Estado inicial do jogo
 estadoInicialJogo :: EstadoJogo
 estadoInicialJogo = EstadoJogo
   { mapa = mapa1
@@ -43,16 +52,16 @@ janelaLargura, janelaAltura :: Int
 janelaLargura = 1920
 janelaAltura = 1080
 
--- Número de blocos do mapa (ajuste conforme o tamanho do seu mapa)
+-- Número de blocos no mapa
 mapaLargura, mapaAltura :: Int
-mapaLargura = 40  -- Número de blocos na largura do mapa
-mapaAltura = 27   -- Número de blocos na altura do mapa
+mapaLargura = 40
+mapaAltura = 27
 
 -- Tamanho de cada bloco
 tamanhoBloco :: Float
 tamanhoBloco = fromIntegral (min (janelaLargura `div` mapaLargura) (janelaAltura `div` mapaAltura))
 
--- Definindo a janela
+-- Configuração da janela
 janela :: Display
 janela = InWindow "Immutable Towers" (janelaLargura, janelaAltura) (0, 0)
 
@@ -62,21 +71,39 @@ fundo = white
 fr :: Int
 fr = 60
 
-main :: IO ()
-main = play janela fundo fr estadoInicialApp desenhaApp reageEventosApp reageTempoApp
+-- Carregar imagem de fundo do menu
+fundoMenu :: IO Picture
+fundoMenu = loadBMP "/home/cliff/2024li1g037/app/fundo_1_.bmp"
 
+iconeJogar :: IO Picture 
+iconeJogar = loadBMP "/home/cliff/2024li1g037/app/button.bmp"
+
+-- Função principal
+main :: IO ()
+main = do
+  imgFundo <- fundoMenu
+  imgJogar <- iconeJogar
+  let estadoInicial = EstadoApp { estadoAtual = MenuPrincipal, imgFundo = imgFundo, imgJogar = imgJogar }
+  play janela fundo fr estadoInicial desenhaApp reageEventosApp reageTempoApp
+
+-- Desenho da aplicação
 desenhaApp :: EstadoApp -> Picture
 desenhaApp app = case estadoAtual app of
-  MenuPrincipal -> desenhaMenu
+  MenuPrincipal -> desenhaMenu (imgFundo app)
   Jogando jogo -> desenhaJogo jogo
+  Jogar -> desenhaMenu (imgJogar app)
   Sair -> Blank
 
-desenhaMenu :: Picture
-desenhaMenu = Pictures
-  [ Translate (-300) 100 . Scale 0.5 0.5 . Color black $ Text "Menu Principal"
-  , Translate (-200) 0 . Scale 0.3 0.3 . Color blue $ Text "1. Jogar (Enter ou Clique)"
-  , Translate (-200) (-50) . Scale 0.3 0.3 . Color red $ Text "2. Sair (Esc ou Clique)"
+desenhaMenu :: Picture -> Picture
+desenhaMenu imgFundo = Pictures
+  [ Scale escalaX escalaY imgFundo
+  , Translate (-800) 200 . Scale 0.8 0.8 . Color black $ Text "Menu Principal"
+  , Translate (-800) 50 . Scale 0.5 0.5 . Color (makeColorI 0 0 255 255) $ Text "1. Jogar (Enter ou Clique)"
+  , Translate (-800) (-100) . Scale 0.5 0.5 . Color (makeColorI 255 0 0 255) $ Text "2. Sair (Esc ou Clique)"
   ]
+  where
+    escalaX = fromIntegral janelaLargura / 1920
+    escalaY = fromIntegral janelaAltura / 1080
 
 desenhaJogo :: EstadoJogo -> Picture
 desenhaJogo estado = Pictures
@@ -115,6 +142,7 @@ desenhaBase base = Translate x y . Color blue $ Circle 20
   where
     (x, y) = posicaoBase base
 
+-- Reação aos eventos
 reageEventosApp :: Event -> EstadoApp -> EstadoApp
 reageEventosApp (EventKey (SpecialKey KeyEnter) Down _ _) app =
   case estadoAtual app of
@@ -130,15 +158,12 @@ reageEventosApp (EventKey (SpecialKey KeyEsc) Down _ _) app =
   case estadoAtual app of
     MenuPrincipal -> app { estadoAtual = Sair }
     _ -> app
-reageEventosApp evt app = case estadoAtual app of
-  Jogando jogo -> app { estadoAtual = Jogando (reageEventosJogo evt jogo) }
-  _ -> app
+reageEventosApp _ app = app
 
 reageTempoApp :: Float -> EstadoApp -> EstadoApp
-reageTempoApp dt app = case estadoAtual app of
-  Jogando jogo -> app { estadoAtual = Jogando (reageTempoJogo dt jogo) }
-  _ -> app
+reageTempoApp _ app = app
 
+-- Reações específicas do jogo
 reageEventosJogo :: Event -> EstadoJogo -> EstadoJogo
 reageEventosJogo (EventKey (MouseButton LeftButton) Up _ _) estado = estado
 reageEventosJogo _ estado = estado
@@ -155,4 +180,3 @@ verificaFimDeJogo jogo = terminouJogo Jogo
   , lojaJogo = []
   , portaisJogo = []
   }
-
