@@ -290,9 +290,7 @@ True
 validaTorres :: Jogo -> Bool
 validaTorres jogo =
     posicionadoEmRelvaTorre (mapaJogo jogo) (torresJogo jogo) &&
-    naoSobrepostosTorreBase (map posicaoTorre (torresJogo jogo)) (baseJogo jogo) (torresJogo jogo) (portaisJogo jogo) (mapaJogo jogo) &&
-    all (\torre -> alcanceTorre torre > 0) (torresJogo jogo)
-
+    naoSobrepostosTorreBase (map posicaoTorre (torresJogo jogo)) (baseJogo jogo) (torresJogo jogo) (portaisJogo jogo) (mapaJogo jogo)
 
 {-|
 Função que verifica se todas as torres estão posicionadas sobre o terreno de relva.
