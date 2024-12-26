@@ -38,7 +38,7 @@ inimigosNoAlcance torre@Torre {posicaoTorre = (a,b), alcanceTorre = x} (inimigo@
 
 {-| atualiza o estado de um inimigo assumindo que este acaba de ser atingido por um projetil de uma torre -}
 atingeInimigo :: Torre -> Inimigo -> Inimigo
-atingeInimigo  = undefined 
+atingeInimigo = undefined
 
 
 {-| A função atingeFogoEResina caso tenha projeteis de Fogo e Resina ativos retira os de Resina e dobra a duração do de Fogo.
