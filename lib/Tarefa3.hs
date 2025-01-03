@@ -35,28 +35,21 @@ disparosTorre  torre inimigos =
     then (atacaInimigo inimigos, atualizaTorre torre) 
     else (inimigos, torre)
 
-{-| A funçao atualizaTorre atualiza o parametro tempoTorre sempre que disparar reseta para cicloTorre da torre, caso contrario minimui 
-com o decorrer do tempo.
+{-| A funçao atualizaTorre atualiza o parametro tempoTorre  em funçao da passagem de tempo, sempre que disparar reseta para cicloTorre da torre, caso contrario minimui 
+com o decorrer do tempo. 
 
 == Exemplo
 
 >>> atualizaTorre torre
 
-
-atualizaTorre :: Torre -> Torre
-atualizaTorre torre = 
-    | tempoTorre torre > 0  = torre tempoTorre - tempo  
-    | otherwise = tempoTorre torre == cicloTorre torre
- 
-
-Decrementar o valor de tempoTorre com o passar do tempo, garantindo que a torre esteja pronta para disparar quando este valor chegar a 0 ou menos.
-Resetar o valor de tempoTorre para cicloTorre sempre que a torre disparar, como parte do mecanismo de "cooldown
 -}
  
-atualizaTorre :: Torre -> Torre
-atualizaTorre torre 
-    | tempoTorre torre > 0  = torre { tempoTorre = max 0 (tempoTorre - tempo)} 
-    | otherwise tempoTorre torre == 0 = cicloTorre torre
+atualizaTorre :: Tempo -> Torre -> Torre
+atualizaTorre tempo torre 
+    | tempoTorre torre > 0  = torre { tempoTorre = max 0 (tempoTorre torre - tempo)} 
+    | otherwise = torre { tempoTorre = cicloTorre torre } 
+
+
 
 {-| A funçao atacaInimigos atualiza os níveis de vida dos mesmos, conforme o dano de ataque da torre. 
 
@@ -67,7 +60,7 @@ atualizaTorre torre
 
 -}
 atacaInimigo :: Torre -> [Inimigo] -> [Inimigo]
-atacaInimigo torre inimigos =  atingeInimigos inimigos (inimigosAtingdos torre inimigos)
+atacaInimigo torre inimigos =  atingeInimigos inimigos (inimigosAtingidos torre inimigos)
 
 
 {- A funçao inimigosAtingidos seleciona o número de alvos da torre em funçao da sua rajada quando os inimigos estão no alcance desta.
@@ -84,3 +77,48 @@ inimigosAtingidos torre inimigos = take (rajadaTorre torre) (inimigosNoAlcance t
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{-| A função atualizaOnda considera os parametros cicloOnda e tempoOnda em funçao da passagem de tempo.
+
+== Exemplo
+
+>>> atualizaOnda tempo Onda
+...
+-}
+ 
+atualizaOnda :: Tempo -> Onda -> Onda
+atualizaOnda tempo onda 
+    | tempoOnda onda > 0  = onda { tempoOnda = max 0 (tempoOnda onda - tempo)} 
+    | otherwise = onda { tempoOnda = cicloOnda onda }
