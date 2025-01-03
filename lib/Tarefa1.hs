@@ -1,13 +1,15 @@
 {-|
 Módulo      : Tarefa1
 Descrição   : Invariantes do Jogo
+Copyright   : Tomás Branco Dias <a107323@alunos.uminho.pt>
+              Ines Braga da Silva <a112819@alunos.uminho.pt>
 
 Este módulo implementa funções para verificar as invariantes de um jogo, como a validade
 dos portais, torres, inimigos e base.
 -}
 module Tarefa1 where
 import LI12425 
-import Data.List 
+import Data.List
 
 mapa1 :: [[Terreno]]
 mapa1 = [ [Terra, Terra, Relva, Agua, Agua, Agua],
