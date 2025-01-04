@@ -59,8 +59,10 @@ atualizaTorre tempo torre
 [inimigo1,inimigo2,inimigo3]
 
 -}
+
+
 atacaInimigo :: Torre -> [Inimigo] -> [Inimigo]
-atacaInimigo torre inimigos =  atingeInimigos inimigos (inimigosAtingidos torre inimigos)
+atacaInimigo torre inimigos = atingeInimigo inimigos (inimigosAtingidos torre inimigos)
 
 
 {- A funçao inimigosAtingidos seleciona o número de alvos da torre em funçao da sua rajada quando os inimigos estão no alcance desta.
@@ -92,25 +94,46 @@ inimigosAtingidos torre inimigos = take (rajadaTorre torre) (inimigosNoAlcance t
 
 
 
+{-| A função portalComOndasAtivas filtra as ondas ativas de um portal, ou seja,aquelas cujo parametro entradaOnda seja igual ou inferior
+a 0 (zero) e que poderá lançar inimigos. 
+
+== Exemplo
+
+>>> portalComOndasAtivas tempo Onda
+...
+-}
+portalComOndasAtivas :: Portal -> Portal
+portalComOndasAtivas portal = portal { ondasPortal = filter (\onda -> entradaOnda onda <= 0 )  (ondasPortal portal) }
 
 
 
+{-| Aplica a portalComOndasAtivas listas de portais.
+
+== Exemplo
+
+>>> portaisComOndasAtivas tempo Onda
+...
+-}
+portaisComOndasAtivas :: [Portal] -> [Portal]
+portaisComOndasAtivas portais = map (portalComOndasAtivas) portais
+
+
+{-| A função ordemNaturalDosInimigos determina a ordem de saida dos inimigos de uma onda determinada pela ordem natural da lista 
+de inimigos.
+
+== Exemplo
+
+>>> ordemNaturalDosInimigos tempo Onda
+...
+-}
 
 
 
+ordemNaturalDosInimigos :: Onda -> [Inimigo]
+ordemNaturalDosInimigos onda = inimigosOnda onda 
 
 
-
-
-
-
-
-
-
-
-
-
-{-| A função atualizaOnda considera os parametros cicloOnda e tempoOnda em funçao da passagem de tempo.
+{-| A função atualizaOnda atualiza as ondas do portal em funçao do tempo considera os parametros cicloOnda e tempoOnda em funçao da passagem de tempo.
 
 == Exemplo
 
@@ -122,3 +145,17 @@ atualizaOnda :: Tempo -> Onda -> Onda
 atualizaOnda tempo onda 
     | tempoOnda onda > 0  = onda { tempoOnda = max 0 (tempoOnda onda - tempo)} 
     | otherwise = onda { tempoOnda = cicloOnda onda }
+
+{-| A função atualizaPortal atualiza os portais em funçao do tempo, aplicando a atualizaOnda na lista de ondas do portal.
+
+== Exemplo
+
+>>> atualizaOnda tempo Onda
+...
+-}
+atualizaPortal :: Tempo -> Portal -> Portal 
+atualizaPortal tempo portal = portal { ondasPortal = map (atualizaOnda tempo) (ondasPortal portal) }
+
+
+
+
