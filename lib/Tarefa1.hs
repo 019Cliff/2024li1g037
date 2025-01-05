@@ -1,15 +1,13 @@
 {-|
 Módulo      : Tarefa1
 Descrição   : Invariantes do Jogo
-Copyright   : Tomás Branco Dias <a107323@alunos.uminho.pt>
-              Ines Braga da Silva <a112819@alunos.uminho.pt>
 
 Este módulo implementa funções para verificar as invariantes de um jogo, como a validade
 dos portais, torres, inimigos e base.
 -}
 module Tarefa1 where
 import LI12425 
-import Data.List
+import Data.List 
 
 mapa1 :: [[Terreno]]
 mapa1 = [ [Terra, Terra, Relva, Agua, Agua, Agua],
@@ -289,9 +287,7 @@ True
 validaTorres :: Jogo -> Bool
 validaTorres jogo =
     posicionadoEmRelvaTorre (mapaJogo jogo) (torresJogo jogo) &&
-    naoSobrepostosTorreBase (map posicaoTorre (torresJogo jogo)) (baseJogo jogo) (torresJogo jogo) (portaisJogo jogo) (mapaJogo jogo) &&
-    all (\torre -> alcanceTorre torre > 0) (torresJogo jogo)
-
+    naoSobrepostosTorreBase (map posicaoTorre (torresJogo jogo)) (baseJogo jogo) (torresJogo jogo) (portaisJogo jogo) (mapaJogo jogo)
 
 {-|
 Função que verifica se todas as torres estão posicionadas sobre o terreno de relva.
