@@ -12,20 +12,25 @@ module Tarefa3 where
 import LI12425
 
 import Tarefa2 
+import Distribution.Compat.Prelude (undefined)
+
 
 {-| A funçao atualizaJogo atualiza o estado do jogo em funçao do tempo.
 
 
 == Exemplo
 
->>>
+>>>atualizaJogo 
 -}
 
 atualizaJogo :: Tempo -> Jogo -> Jogo
 atualizaJogo = undefined
 
 {-| A funçao disparosTorre atualiza a torre gerindo os disparos automaticos e os inimigos atingidos
+== Exemplo
 
+>>>disparosTorre
+...
 -}
 
 
@@ -77,8 +82,113 @@ inimigosAtingidos ::  Torre -> [Inimigo] -> [Inimigo]
 inimigosAtingidos torre inimigos = take (rajadaTorre torre) (inimigosNoAlcance torre inimigos)
 
 
+{-| A funcao movimentacaoInimigo atualiza a posicao de forma que estes se 
+movam em direção à base, com a posição ajustada pela velocidade e os efeitos dos projéteis.
+==Exemplo
+>>> movimentacaoInimigo
+...
+-}
+
+movimentacaoInimigo :: Tempo -> [Inimigo] -> Posicao -> [Inimigo]
+movimentacaoInimigo tempo inimigos posicao = undefined 
+
+{-| A funcao movimenta calcula uma posicao nova em funçao da distancia e direcao que serão percorridas.
+==Exemplo
+
+>>>movimenta (0,0) Norte 5
+(0,5) 
+
+-}
+
+movimenta :: Posicao -> Direcao -> Distancia -> Posicao
+movimenta (x,y) direcao distancia = novaposicao
+        where 
+            novaposicao =  case direcao of  
+                            Norte -> (x, y + distancia)
+                            Sul -> (x, y - distancia)
+                            Oeste -> (x - distancia, y)
+                            Este -> (x + distancia, y)
+
+{-| A funcao ajustaVelocidade ajusta a velocidade do inimigo com atençao aos efeitos dos projeteis.
+
+==Exemplo
+
+>>>ajustaVelocidade
+...
+-}
+
+ajustaVelocidade :: Inimigo -> Velocidade
+ajustaVelocidade inimigo = undefined
 
 
+{-| A funcao calculaDistancia calcula a distancia percorrida em funçao do tempo e velocidade do inimigo.
+
+==Exemplo
+
+>>>calculaDistancia 5.0 2.0
+10
+
+-}
+
+calculaDistancia :: Velocidade -> Tempo -> Distancia
+calculaDistancia velocidade tempo = distancia
+    where
+        distancia = tempo * velocidade
+
+{-| A funcao atualizaInimigoPosicao atualiza a posição do inimigo em funçao do tempo.
+
+==Exemplo
+
+>>>atualizaInimigoPosicao
+...
+
+-}
+
+
+atualizaInimigoPosicao :: Tempo -> Posicao -> Inimigo -> Inimigo
+atualizaInimigoPosicao  = undefined
+    
+
+
+{-| A funcao atualizaInimigos a posiçao de uma lista de inimigos em funçao do tempo.
+
+==Exemplo
+
+>>>atualizaInimigos 
+...
+
+-}
+
+atualizaInimigos :: Tempo -> Posicao -> [Inimigo] -> [Inimigo]
+atualizaInimigos tempo posicao inimigos = undefined
+
+
+{-|A função efeitosInimigos aplica os efeitos dos projeteis nos inimigos.
+
+==Exemplo
+>>> efeitosInimigos
+...
+
+
+-}
+
+efeitosInimigos :: [Inimigo] -> [Projetil] -> [Inimigo]
+ inimigos projeteis = undefined
+
+
+{-|A função adicionaButimAosCreditos quando a vida do inimigo é menor ou igual a zero então adiciona o butim do inimigo 
+aos créditos da base do jogador. 
+
+
+==Exemplo
+>>>adicionaButimAosCreditos
+...
+-}
+
+
+
+adicionaButimAosCreditosUmInimigo :: Inimigo -> Base -> Base  
+adicionaButimAosCreditosUmInimigo = undefined
 
 
 {-|A função retiraInimigoEmFunçaoDaVida retira o inimigo da lista de inimigos ativos se a vida deste for igual ou menor que zero.
@@ -91,24 +201,6 @@ inimigosAtingidos torre inimigos = take (rajadaTorre torre) (inimigosNoAlcance t
 
 retiraInimigoEmFunçaoDaVida :: [Inimigo] -> [Inimigo]
 retiraInimigoEmFunçaoDaVida inimigos = filter (\inimigo -> vida inimigo > 0 ) inimigos
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 {-| A função eliminaDaListaDeATivos retira os inimigos da lista de inimigos, quando estes atingem a base.
 
