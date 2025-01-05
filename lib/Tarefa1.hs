@@ -26,9 +26,6 @@ base1 = Base { posicaoBase = (1, 1), creditosBase = 100, vidaBase = 100.0 }
 portal1 :: Portal
 portal1 = Portal { posicaoPortal = (0, 0), ondasPortal = [] }
 
-projetil1 :: Projetil
-projetil1 = Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0 }
-
 inimigo1 :: Inimigo
 inimigo1 = Inimigo { posicaoInimigo = (0, 0), direcaoInimigo = Este, velocidadeInimigo = 1.0, vidaInimigo = 100.0, ataqueInimigo = 10.0, butimInimigo = 50, projeteisInimigo = []}
 
