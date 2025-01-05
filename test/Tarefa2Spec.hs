@@ -3,6 +3,7 @@ module Tarefa2Spec (testesTarefa2) where
 import Test.HUnit
 
 import Tarefa2
+import Tarefa1
 import LI12425
 
 
@@ -10,43 +11,48 @@ testesTarefa2 :: Test
 testesTarefa2 =
   TestLabel "Testes Tarefa 2" $
     test
-      [ "inimigosNoAlcance (sem inimigos)" ~: [] ~=? inimigosNoAlcance (torre (1.5, 1.5) 2) [], 
-        "inimigosNoAlcance (com 1 inimigo)" ~:[Inimigo (0.5, 0.5)] ~=? inimigosNoAlcance (torre (1.5, 1.5) 2) [inimigo (0.5, 0.5)],
-        "inimigosNoAlcance (com 3 inimigos)" ~: [Inimigo (0.5, 0.5), Inimigo (1.5, 1.5)] ~=? inimigosNoAlcance (torre (1.5, 1.5) 2) [Inimigo (0.5, 0.5), Inimigo (4.5, 4.5), Inimigo (1.5, 1.5)] ,
-        "atingeInimigo (sinergia de FogoEGelo) " ~:  ~=? ,
-        "atingeInimigo (sinergia de FogoEResina)" ~:  ~=? , 
-        "atingeInimigo (sinergia de ProjeteisIguais)" ~:  ~=? ,
-        "atualizaLista" ~: [Resina, Gelo] ~=? [Resina] Gelo,
-        "fogoEGelo" ~: [Resina] ~=? [Fogo, Resina, Gelo],
-        "fogoEGelo (com lista vazia)" ~:  []  ~=? [],
-        "encontraGelo" ~: [Gelo, Gelo, Gelo] ~=? [Gelo, Resina, Gelo, Gelo, Fogo, Fogo],
-        "encontraGelo (com lista vazia)" ~: [] ~=? [],
-        "atingeFogoEResina" ~: [Fogo] ~=? [Gelo, Resina, Gelo, Gelo, Fogo],
-        "atingeFogoEResina" ~: [Gelo, Resina, Gelo] ~=? [Gelo, Resina, Gelo],
-        "encontraFogo" ~: [Fogo, Fogo] ~=? [Gelo, Resina, Gelo, Gelo, Fogo, Fogo],
-        "encontraFogo (com lista vazia)" ~: [] ~=? [],
-        "encontraFogo " ~: [Resina] ~=? [Gelo, Resina, Gelo, Gelo, Fogo, Fogo],
-        "encontraResina (com lista vazia)" ~: [] ~=? [],
-        "duplicaDuracao" ~: Finita 10.0 ~=? Finita 5.0,
-        "duplicaDuracao (com duraçao infinita) " ~: Infinita ~=? Infinita,
-        "dividePorTipoProjetil" ~: ([Fogo,Fogo,Fogo,Fogo],[Gelo,Gelo],[Resina,Resina]) ~=? [Fogo, Gelo, Fogo, Fogo, Resina, Fogo, Gelo, Resina],
-        "somaDuracaoDeListaProjeteisIguais (Com dois fogos)" ~: Finita 10.0 ~=? [Projetil { tipoProjetil = Fogo, duracaoProjetil = Finita 5.0 }, Projetil { tipoProjetil = Fogo, duracaoProjetil = Finita 5.0 }],
-        "somaDuracaoDeListaProjeteisIguais (Com dois gelos)" ~: Finita 8.0 ~=? [Projetil { tipoProjetil = Gelo, duracaoProjetil = Finita 4.0}, Projetil { tipoProjetil = Gelo, duracaoProjetil = Finita 4.0 }],   
-        "somaDuracaoDeListaProjeteisIguais (Com dois diferentes)" ~: Finita 9.0 ~=?  [Projetil { tipoProjetil = Fogo, duracaoProjetil = Finita 5.0 }, Projetil { tipoProjetil = Gelo, duracaoProjetil = Finita 4.0 }],
-        " extraiDuracoes (com dois com duraçao finita) " ~: [Finita 5.0, Finita 4.0] ~=?  [Projetil { tipoProjetil = Fogo, duracaoProjetil = Finita 5.0 }, Projetil { tipoProjetil = Gelo, duracaoProjetil = Finita 4.0 }],
-        " extraiDuracoes (com um com duraçao infinita) " ~: [Finita 5.0, Infinita] ~=?[Projetil { tipoProjetil = Fogo, duracaoProjetil = Finita 5.0 }, Projetil { tipoProjetil = Resina, duracaoProjetil = Infinita }] ,
-        "somaDuracao (com duas finitas)" ~: Finita 25 ~=?  (Finita 5) (Finita 20),
-        "somaDuracao (com uma infinita)" ~: Infinita ~=? (Finita 10) Infinita,
-        "verificaIguais (com diferentes)" ~: False ~=? [Fogo, Gelo, Fogo],
-        "verificaIguais (com iguais)" ~: True ~=? [Gelo, Gelo, Gelo],
-        "projeteisIguais (com 2 projeteis iguais)" ~: [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 10.0}] ~=? [Projetil { tipoProjetil = Fogo, duracaoProjetil = Finita 5.0 }, Projetil { tipoProjetil = Fogo, duracaoProjetil = Finita 5.0 }],
-        "projeteisIguais (com 2 diferentes)" ~: [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0}, Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 8.0 }] ~=?  [Projetil { tipoProjetil = Fogo, duracaoProjetil = Finita 5.0 }, Projetil { tipoProjetil = Gelo, duracaoProjetil = Finita 4.0 }, Projetil { tipoProjetil = Gelo, duracaoProjetil = Finita 4.0 }],
-        "projeteisIguais (com resina)" ~: [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0}, Projetil {tipoProjetil = Resina, duracaoProjetil = Infinita}]
- ~=? [Projetil { tipoProjetil = Fogo, duracaoProjetil = Finita 5.0 }, Projetil { tipoProjetil = Gelo, duracaoProjetil = 3 }, Projetil { tipoProjetil = Resina, duracaoProjetil = Infinita }],
-        "ativiaInimigo (com 3 inimigos na onda do portal)" ~: (Portal {posicaoPortal = (0, 0.5), ondasPortal = []}, [inimigo1,inimigo2]) ~=? Portal {posicaoPortal = (0, 0.5), ondasPortal = (onda@Onda {inimigosOnda = [inimigo3, inimigo4, inimigo5]} : os)} [inimigo1, inimigo2], 
-        "ativiaInimigo (sem ondas no portal)" ~: (Portal {posicaoPortal = (0, 0.5), ondasPortal = onda {inimigosOnda = is} : os}, inimigosjogo) ~=? Portal {posicaoPortal = (0, 0.5), ondasPortal = (onda@Onda {inimigosOnda = [] } : os)} inimigosjogo, 
-        "ativiaInimigo (sem inimigos na onda do portal)" ~: (Portal {posicaoPortal = (0, 0.5), ondasPortal = []}, [inimigo1,inimigo2]) ~=? Portal {posicaoPortal = (0, 0.5), ondasPortal = []} [inimigo1,inimigo2], 
-        "terminouJogo (derrota)" ~: True ~=? terminouJogo Jogo {baseJogo = Base {vidaBase = 0}, inimigosJogo = [Inimigo {posicaoInimigo = (2.5,2.5), vidaInimigo = 25}]}, 
-        "terminouJogo (vitoria)" ~: True ~=? terminouJogo Jogo {baseJogo = Base {vidaBase = 15}, inimigosJogo = [] }           
+      [ 
+        "inimigosNoAlcance" ~: [] ~=? inimigosNoAlcance torre2 [], 
+        "inimigosNoAlcance" ~: [Inimigo {posicaoInimigo = (0.0,0.0), direcaoInimigo = Este, vidaInimigo = 100.0, velocidadeInimigo = 1.0, ataqueInimigo = 10.0, butimInimigo = 50, projeteisInimigo = []}] ~=? inimigosNoAlcance torre2 [inimigo1],
+        "atingeInimigo " ~: Inimigo {posicaoInimigo = (0.0,0.0), direcaoInimigo = Este, vidaInimigo = 99.0, velocidadeInimigo = 1.0, ataqueInimigo = 10.0, butimInimigo = 50, projeteisInimigo = [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0}]}  ~=? atingeInimigo torre2 inimigo1,
+        "fogoEGelo" ~: [Projetil {tipoProjetil = Resina, duracaoProjetil = Finita 4.0}] ~=? fogoEGelo [projetil1, projetil2, projetil3],
+        "fogoEGelo (com lista vazia)" ~:  []  ~=? fogoEGelo [],
+        "encontraGelo" ~: [Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0},Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0}] ~=? encontraGelo [projetil2, projetil3, projetil2],
+        "encontraGelo (com lista vazia)" ~: [] ~=? encontraGelo [],
+        "atingeFogoEResina" ~: [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 10.0}] ~=? atingeFogoEResina [projetil1, projetil3, projetil2],
+        "atingeFogoEResina" ~: [Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0}] ~=? atingeFogoEResina [projetil2],
+        "encontraFogo" ~: [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0},Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0}] ~=? encontraFogo [projetil1, projetil2, projetil1],
+        "encontraFogo (com lista vazia)" ~: [] ~=? encontraFogo [],
+        "encontraResina" ~: [Projetil {tipoProjetil = Resina, duracaoProjetil = Finita 4.0},Projetil {tipoProjetil = Resina, duracaoProjetil = Finita 4.0}] ~=? encontraResina [projetil3, projetil2, projetil3],
+        "encontraResina (com lista vazia)" ~: [] ~=? encontraResina [],
+        "duplicaDuracao" ~: Finita 10.0 ~=? duplicaDuracao (Finita 5.0),
+        "duplicaDuracao (com duraçao infinita) " ~: Infinita ~=? duplicaDuracao Infinita,
+        "dividePorTipoProjetil" ~: ([],[],[])  ~=? dividePorTipoProjetil [] ,
+        "dividePorTipoProjetil" ~: ([Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0}],[Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0}],[Projetil {tipoProjetil = Resina, duracaoProjetil = Finita 4.0}])~=? dividePorTipoProjetil [projetil1, projetil2, projetil3],
+        "somaDuracoes Infinita" ~: Infinita ~=?  somaDuracoes [Finita 5.0, Infinita],
+        "somaDuracoes (tres diferentes)" ~: Finita 12.0 ~=?  somaDuracoes [Finita 5.0, Finita 3.0, Finita 4.0],
+        "verificaIguais (com iguais)" ~: True  ~=? verificaIguais [projetil1, projetil2, projetil1],
+        "verificaIguais (com diferentes)" ~: False ~=? verificaIguais [projetil2, projetil3],
+        "ativiaInimigo (com 3 inimigos na onda do portal)" ~: (Portal {posicaoPortal = (0.0,0.0), ondasPortal = []},[]) ~=? ativaInimigo portal1 [], 
+        "terminouJogo (derrota)" ~: True ~=? terminouJogo jogo1 {baseJogo = base1 {vidaBase = 0}},
+        "terminouJogo (vitoria)" ~: False ~=? terminouJogo jogo1           
         ]
 
+instance Eq Inimigo where
+  (Inimigo {posicaoInimigo = p1, direcaoInimigo = d1, vidaInimigo = v1, velocidadeInimigo = vel1, ataqueInimigo = a1, butimInimigo = b1, projeteisInimigo = proj1}) 
+    == (Inimigo {posicaoInimigo = p2, direcaoInimigo = d2, vidaInimigo = v2, velocidadeInimigo = vel2, ataqueInimigo = a2, butimInimigo = b2, projeteisInimigo = proj2}) =
+    p1 == p2 && d1 == d2 && v1 == v2 && vel1 == vel2 && a1 == a2 && b1 == b2 && proj1 == proj2
+
+instance Eq Projetil where
+  (Projetil {tipoProjetil = t1, duracaoProjetil = d1}) 
+    == (Projetil {tipoProjetil = t2, duracaoProjetil = d2}) =
+    t1 == t2 && d1 == d2
+
+instance Eq Portal where
+  (Portal {posicaoPortal = p1, ondasPortal = o1}) 
+    == (Portal {posicaoPortal = p2, ondasPortal = o2}) =
+    p1 == p2 && o1 == o2
+
+instance Eq Onda where
+  (Onda inimigos1 ciclo1 tempo1 entrada1) == (Onda inimigos2 ciclo2 tempo2 entrada2) =
+    inimigos1 == inimigos2 && ciclo1 == ciclo2 && tempo1 == tempo2 && entrada1 == entrada2
