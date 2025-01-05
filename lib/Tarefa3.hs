@@ -81,6 +81,16 @@ inimigosAtingidos torre inimigos = take (rajadaTorre torre) (inimigosNoAlcance t
 
 
 
+{-|A função retiraInimigoEmFunçaoDaVida retira o inimigo da lista de inimigos ativos se a vida deste for igual ou menor que zero.
+
+==Exemplo
+>>>retiraInimigoEmFunçaoDaVida
+...
+
+-}
+
+retiraInimigoEmFunçaoDaVida :: [Inimigo] -> [Inimigo]
+retiraInimigoEmFunçaoDaVida inimigos = filter (\inimigo -> vida inimigo > 0 ) inimigos
 
 
 
@@ -92,6 +102,26 @@ inimigosAtingidos torre inimigos = take (rajadaTorre torre) (inimigosNoAlcance t
 
 
 
+
+
+
+
+
+
+
+
+{-| A função eliminaDaListaDeATivos retira os inimigos da lista de inimigos, quando estes atingem a base.
+
+
+==Exemplo
+>>>eliminaDaListaDeATivos
+...
+-}
+
+
+eliminaDaListaDeATivos :: [Inimigo] -> Base -> [Inimigo]
+eliminaDaListaDeATivos inimigos base@Base {posicaoBase = (x,y)} =  
+    filter (\inimigo -> posicao inimigo /= (x,y)) inimigos
 
 {-| A função inimigoAtingeBase atualiza a vida da base caso esta seja atingida por um inimigo.
 
@@ -174,7 +204,5 @@ atualizaOnda tempo onda
 -}
 atualizaPortal :: Tempo -> Portal -> Portal 
 atualizaPortal tempo portal = portal { ondasPortal = map (atualizaOnda tempo) (ondasPortal portal) }
-
-
 
 
