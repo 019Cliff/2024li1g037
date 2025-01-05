@@ -35,8 +35,8 @@ disparosTorre  torre inimigos =
     then (atacaInimigo inimigos, atualizaTorre torre) 
     else (inimigos, torre)
 
-{-| A funçao atualizaTorre atualiza o parametro tempoTorre  em funçao da passagem de tempo, sempre que disparar reseta para cicloTorre da torre, caso contrario minimui 
-com o decorrer do tempo. 
+{-| A funçao atualizaTorre atualiza o parametro tempoTorre em funçao da passagem de tempo, sempre que disparar reseta para cicloTorre da torre,
+ caso contrario minimui com o decorrer do tempo. 
 
 == Exemplo
 
@@ -62,7 +62,7 @@ atualizaTorre tempo torre
 
 
 atacaInimigo :: Torre -> [Inimigo] -> [Inimigo]
-atacaInimigo torre inimigos = atingeInimigo inimigos (inimigosAtingidos torre inimigos)
+atacaInimigo torre inimigos = map (atingeInimigo inimigos) (inimigosAtingidos torre inimigos)
 
 
 {- A funçao inimigosAtingidos seleciona o número de alvos da torre em funçao da sua rajada quando os inimigos estão no alcance desta.
@@ -88,6 +88,24 @@ inimigosAtingidos torre inimigos = take (rajadaTorre torre) (inimigosNoAlcance t
 
 
 
+
+
+
+
+
+{-| A função inimigoAtingeBase atualiza a vida da base caso esta seja atingida por um inimigo.
+
+
+== Exemplo
+
+>>>inimigoAtingeBase base inimigo 
+(...)
+
+-}
+
+inimigoAtingeBase :: Base -> Inimigo -> Base
+inimigoAtingeBase base@Base { vidaBase = vida } 
+               inimigo@Inimigo { ataqueInimigo = dano} = base {vidaBase = max 0 (vida - dano)}
 
 
 
@@ -150,8 +168,9 @@ atualizaOnda tempo onda
 
 == Exemplo
 
->>> atualizaOnda tempo Onda
+>>> atualizaPortal tempo Onda
 ...
+
 -}
 atualizaPortal :: Tempo -> Portal -> Portal 
 atualizaPortal tempo portal = portal { ondasPortal = map (atualizaOnda tempo) (ondasPortal portal) }
