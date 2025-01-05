@@ -12,7 +12,6 @@ module Tarefa3 where
 import LI12425
 
 import Tarefa2 
-import Distribution.Compat.Prelude (undefined)
 
 
 {-| A funçao atualizaJogo atualiza o estado do jogo em funçao do tempo.
