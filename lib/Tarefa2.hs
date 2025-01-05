@@ -9,12 +9,7 @@ Módulo para a realização da Tarefa 2 de LI1 em 2024/25. Este módulo implemen
 module Tarefa2 where
 
 import LI12425
-
-base1 :: Base
-base1 = Base { posicaoBase = (1, 1), creditosBase = 100, vidaBase = 100.0 }
-
-portal1 :: Portal
-portal1 = Portal { posicaoPortal = (0, 0), ondasPortal = [] }
+import Tarefa1
 
 projetil1 :: Projetil
 projetil1 = Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0 }
@@ -25,33 +20,27 @@ projetil2 = Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0 }
 projetil3 :: Projetil
 projetil3 = Projetil {tipoProjetil = Resina, duracaoProjetil = Finita 4.0 }
 
-inimigo1 :: Inimigo
-inimigo1 = Inimigo { posicaoInimigo = (0, 0), direcaoInimigo = Este, velocidadeInimigo = 1.0, vidaInimigo = 100.0, ataqueInimigo = 10.0, butimInimigo = 50, projeteisInimigo = []}
-
-torre1 :: Torre
-torre1 = Torre { posicaoTorre = (0, 1), alcanceTorre = 2.0, rajadaTorre = 3, cicloTorre = 1.0, danoTorre = 1.0, tempoTorre = 2.0, projetilTorre = projetil1 }
-
-jogo1 :: Jogo
-jogo1 = Jogo {mapaJogo = mapa1, baseJogo = base1, portaisJogo = [portal1], inimigosJogo = [inimigo1], torresJogo = [torre1], lojaJogo = [(50, torre1)]}
+torre2 :: Torre
+torre2 = Torre { posicaoTorre = (0, 1), alcanceTorre = 2.0, rajadaTorre = 3, cicloTorre = 1.0, danoTorre = 1.0, tempoTorre = 2.0, projetilTorre = projetil1 }
 
 {-| A função inimigosNoAlcance calcula os inimigos ao alcance de uma dada torre.
 
 == Exemplo:
- >>> inimigosNoAlcance torre1 []
+ >>> inimigosNoAlcance torre2 []
  []
- >>> inimigosNoAlcance torre1 [inimigo1]
- [inimigo1]
+ >>> inimigosNoAlcance torre2 [inimigo1]
+[Inimigo {posicaoInimigo = (0.0,0.0), direcaoInimigo = Este, vidaInimigo = 100.0, velocidadeInimigo = 1.0, ataqueInimigo = 10.0, butimInimigo = 50, projeteisInimigo = []}]
 -}
 inimigosNoAlcance :: Torre -> [Inimigo] -> [Inimigo]
 inimigosNoAlcance Torre {posicaoTorre = (x, y), alcanceTorre = alcance} inimigos =
   filter (\Inimigo {posicaoInimigo = (a, b)} -> sqrt ((x - a) ** 2 + (y - b) ** 2) <= alcance) inimigos
-
+  
 {-| A função atingeInimigo atualiza o estado de um inimigo assumindo que este acaba de ser atingido por um projetil de uma torre.
 A vida do inimigo diminui tanto quanto o dano que o projetil da torre causa, e o projetil é adicionado à lista de projeteis ativos do inimigo.
 
 == Exemplo:
->>> atingeInimigo torre1 inimigo1
-inimigo1 {vidaInimigo = 99.0, projeteisInimigo = [projetil1]}
+>>> atingeInimigo torre2 inimigo1
+Inimigo {posicaoInimigo = (0.0,0.0), direcaoInimigo = Este, vidaInimigo = 99.0, velocidadeInimigo = 1.0, ataqueInimigo = 10.0, butimInimigo = 50, projeteisInimigo = [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0}]}
 -}
 atingeInimigo :: Torre -> Inimigo -> Inimigo
 atingeInimigo Torre {danoTorre = dano, projetilTorre = projetilNovo} inimigo@Inimigo {vidaInimigo = vida, projeteisInimigo = projeteis} =
@@ -64,7 +53,7 @@ atingeInimigo Torre {danoTorre = dano, projetilTorre = projetilNovo} inimigo@Ini
 
 == Exemplo:
 >>> fogoEGelo [projetil1, projetil2, projetil3]
-[projetil3]
+[Projetil {tipoProjetil = Resina, duracaoProjetil = Finita 4.0}]
 >>> fogoEGelo []
 []
 -}
@@ -78,7 +67,7 @@ fogoEGelo projeteis =
 
 == Exemplo:
 >>> encontraGelo [projetil2, projetil3, projetil2]
-[projetil2, projetil2]
+[Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0},Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0}]
 >>> encontraGelo []
 []
 -}
@@ -91,7 +80,7 @@ encontraGelo = filter (\p -> tipoProjetil p == Gelo)
 >>> atingeFogoEResina [projetil1, projetil3, projetil2]
 [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 10.0}]
 >>> atingeFogoEResina [projetil2]
-[projetil2]
+[Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0}]
 -}
 atingeFogoEResina :: [Projetil] -> [Projetil]  
 atingeFogoEResina projeteis =
@@ -104,7 +93,7 @@ atingeFogoEResina projeteis =
 
 == Exemplo:
 >>> encontraFogo [projetil1, projetil2, projetil1]
-[projetil1, projetil1]
+[Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0},Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0}]
 >>> encontraFogo []
 []
 -}
@@ -115,7 +104,7 @@ encontraFogo = filter (\p -> tipoProjetil p == Fogo)
 
 == Exemplo:
 >>> encontraResina [projetil3, projetil2, projetil3]
-[projetil3, projetil3]
+[Projetil {tipoProjetil = Resina, duracaoProjetil = Finita 4.0},Projetil {tipoProjetil = Resina, duracaoProjetil = Finita 4.0}]
 >>> encontraResina []
 []
 -}
@@ -137,19 +126,8 @@ duplicaDuracao Infinita   = Infinita
 {-| Divide uma lista de projeteis em três listas diferentes de acordo com o tipo de projetil.
 
 == Exemplo:
->>> dividePorTipoProjetil [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 3.0}, Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 2.0}, Projetil {tipoProjetil = Resina, duracaoProjetil = Finita 1.0}]
-([Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 3.0}],[Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 2.0}],[Projetil {tipoProjetil = Resina, duracaoProjetil = Finita 1.0}])
->>> dividePorTipoProjetil []
-([],[],[])
--}
-
-{-| Divide uma lista de projeteis em três listas diferentes de acordo com o tipo de projetil.
-
-== Exemplo:
 >>> dividePorTipoProjetil [projetil1, projetil2, projetil3]
-([Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0}],
- [Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0}],
- [Projetil {tipoProjetil = Resina, duracaoProjetil = Finita 4.0}])
+([Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0}],[Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0}],[Projetil {tipoProjetil = Resina, duracaoProjetil = Finita 4.0}])
 >>> dividePorTipoProjetil []
 ([],[],[])
 -}
@@ -192,10 +170,8 @@ verificaIguais projeteis =
 
 == Exemplo:
 >>> ativaInimigo portal1 []
-(Portal {posicaoPortal = (0,0), ondasPortal = []},
- [Inimigo {posicaoInimigo = (0,0), direcaoInimigo = Este, vidaInimigo = 100.0, velocidadeInimigo = 1.0, ataqueInimigo = 10.0, butimInimigo = 50, projeteisInimigo = []}])
->>> ativaInimigo portal1 []
-(Portal {posicaoPortal = (0,0), ondasPortal = []},[])
+(Portal {posicaoPortal = (0.0,0.0), ondasPortal = []},[])
+
 -}
 ativaInimigo :: Portal -> [Inimigo] -> (Portal, [Inimigo])
 ativaInimigo portal@Portal {ondasPortal = []} inimigos = (portal, inimigos)
