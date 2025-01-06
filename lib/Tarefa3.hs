@@ -11,7 +11,7 @@ module Tarefa3 where
 
 import LI12425
 
-import Tarefa2 
+import Tarefa2
 
 
 {-| A funçao atualizaJogo atualiza o estado do jogo em funçao do tempo.
@@ -34,9 +34,9 @@ atualizaJogo = undefined
 
 
 disparosTorre :: Torre -> [Inimigo] -> ([Inimigo], Torre)
-disparosTorre  torre inimigos = 
+disparosTorre  torre inimigos =
     if  tempoTorre <= 0 torre && inimigosNoAlcance inimigos
-    then (atacaInimigo inimigos, atualizaTorre torre) 
+    then (atacaInimigo inimigos, atualizaTorre torre)
     else (inimigos, torre)
 
 {-| A funçao atualizaTorre atualiza o parametro tempoTorre em funçao da passagem de tempo, sempre que disparar reseta para cicloTorre da torre,
@@ -45,13 +45,14 @@ disparosTorre  torre inimigos =
 == Exemplo
 
 >>> atualizaTorre torre
+...
 
 -}
- 
+
 atualizaTorre :: Tempo -> Torre -> Torre
-atualizaTorre tempo torre 
-    | tempoTorre torre > 0  = torre { tempoTorre = max 0 (tempoTorre torre - tempo)} 
-    | otherwise = torre { tempoTorre = cicloTorre torre } 
+atualizaTorre tempo torre
+    | tempoTorre torre > 0  = torre { tempoTorre = max 0 (tempoTorre torre - tempo)}
+    | otherwise = torre { tempoTorre = cicloTorre torre }
 
 
 
@@ -89,7 +90,7 @@ movam em direção à base, com a posição ajustada pela velocidade e os efeito
 -}
 
 movimentacaoInimigo :: Tempo -> [Inimigo] -> Posicao -> [Inimigo]
-movimentacaoInimigo tempo inimigos posicao = undefined 
+movimentacaoInimigo tempo inimigos posicao = undefined
 
 {-| A funcao movimenta calcula uma posicao nova em funçao da distancia e direcao que serão percorridas.
 ==Exemplo
@@ -101,8 +102,8 @@ movimentacaoInimigo tempo inimigos posicao = undefined
 
 movimenta :: Posicao -> Direcao -> Distancia -> Posicao
 movimenta (x,y) direcao distancia = novaposicao
-        where 
-            novaposicao =  case direcao of  
+        where
+            novaposicao =  case direcao of
                             Norte -> (x, y + distancia)
                             Sul -> (x, y - distancia)
                             Oeste -> (x - distancia, y)
@@ -146,7 +147,7 @@ calculaDistancia velocidade tempo = distancia
 
 atualizaInimigoPosicao :: Tempo -> Posicao -> Inimigo -> Inimigo
 atualizaInimigoPosicao  = undefined
-    
+
 
 
 {-| A funcao atualizaInimigos a posiçao de uma lista de inimigos em funçao do tempo.
@@ -175,19 +176,40 @@ efeitosInimigos :: [Inimigo] -> [Projetil] -> [Inimigo]
  inimigos projeteis = undefined
 
 
-{-|A função adicionaButimAosCreditos quando a vida do inimigo é menor ou igual a zero então adiciona o butim do inimigo 
-aos créditos da base do jogador. 
+{-| A funçao extraiButins extraí os butins dos inimigos de uma lista de inimigos e coloca-as numa 
+ lista.
 
-
-==Exemplo
->>>adicionaButimAosCreditos
+ ==Exemplo
+>>>extraiButins
 ...
 -}
 
+extraiButins :: [Inimigo] -> [Creditos]
+extraiButins inimigos = [ butimInimigo inimigo | inimigo <- inimigos , vidaInimigo inimigo <= 0]
+
+{-| A função adicionaOsCreditosABase devolve uma base com os seus creditos atualizados somando a lista de butins 
+dos inimigos extraidos com os creditos da base.
+
+==Exemplo
+>>>adicionaOsCreditosABase
+...
+
+-}
+
+adicionaOsCreditosABase :: [Creditos] -> Base -> Base
+adicionaOsCreditosABase butins base@(Base {creditosBase = credito }) = base{creditosBase = novosCreditos }
+     where
+       novosCreditos = credito + sum butins
 
 
-adicionaButimAosCreditosUmInimigo :: Inimigo -> Base -> Base  
-adicionaButimAosCreditosUmInimigo = undefined
+{-| A funçao adicionaButimAosCreditosInimigos combina as duas funçoes de forma a facilitar a soma 
+==Exemplo
+>>>adicionaButimAosCreditosInimigos
+...
+-}
+adicionaButimAosCreditosInimigos :: [Inimigo] -> Base -> Base
+adicionaButimAosCreditosInimigos inimigos base = adicionaOsCreditosABase (extraiButins inimigos) base
+
 
 
 {-|A função retiraInimigoEmFunçaoDaVida retira o inimigo da lista de inimigos ativos se a vida deste for igual ou menor que zero.
@@ -199,7 +221,7 @@ adicionaButimAosCreditosUmInimigo = undefined
 -}
 
 retiraInimigoEmFunçaoDaVida :: [Inimigo] -> [Inimigo]
-retiraInimigoEmFunçaoDaVida inimigos = filter (\inimigo -> vida inimigo > 0 ) inimigos
+retiraInimigoEmFunçaoDaVida = filter (\inimigo -> vida inimigo > 0 )
 
 {-| A função eliminaDaListaDeATivos retira os inimigos da lista de inimigos, quando estes atingem a base.
 
@@ -211,7 +233,7 @@ retiraInimigoEmFunçaoDaVida inimigos = filter (\inimigo -> vida inimigo > 0 ) i
 
 
 eliminaDaListaDeATivos :: [Inimigo] -> Base -> [Inimigo]
-eliminaDaListaDeATivos inimigos base@Base {posicaoBase = (x,y)} =  
+eliminaDaListaDeATivos inimigos base@Base {posicaoBase = (x,y)} =
     filter (\inimigo -> posicao inimigo /= (x,y)) inimigos
 
 {-| A função inimigoAtingeBase atualiza a vida da base caso esta seja atingida por um inimigo.
@@ -225,7 +247,7 @@ eliminaDaListaDeATivos inimigos base@Base {posicaoBase = (x,y)} =
 -}
 
 inimigoAtingeBase :: Base -> Inimigo -> Base
-inimigoAtingeBase base@Base { vidaBase = vida } 
+inimigoAtingeBase base@Base { vidaBase = vida }
                inimigo@Inimigo { ataqueInimigo = dano} = base {vidaBase = max 0 (vida - dano)}
 
 
@@ -254,7 +276,7 @@ portalComOndasAtivas portal = portal { ondasPortal = filter (\onda -> entradaOnd
 ...
 -}
 portaisComOndasAtivas :: [Portal] -> [Portal]
-portaisComOndasAtivas portais = map (portalComOndasAtivas) portais
+portaisComOndasAtivas = map (portalComOndasAtivas)
 
 
 {-| A função ordemNaturalDosInimigos determina a ordem de saida dos inimigos de uma onda determinada pela ordem natural da lista 
@@ -269,7 +291,7 @@ de inimigos.
 
 
 ordemNaturalDosInimigos :: Onda -> [Inimigo]
-ordemNaturalDosInimigos onda = inimigosOnda onda 
+ordemNaturalDosInimigos = inimigosOnda
 
 
 {-| A função atualizaOnda atualiza as ondas do portal em funçao do tempo considera os parametros cicloOnda e tempoOnda em funçao da passagem de tempo.
@@ -279,10 +301,10 @@ ordemNaturalDosInimigos onda = inimigosOnda onda
 >>> atualizaOnda tempo Onda
 ...
 -}
- 
+
 atualizaOnda :: Tempo -> Onda -> Onda
-atualizaOnda tempo onda 
-    | tempoOnda onda > 0  = onda { tempoOnda = max 0 (tempoOnda onda - tempo)} 
+atualizaOnda tempo onda
+    | tempoOnda onda > 0  = onda { tempoOnda = max 0 (tempoOnda onda - tempo)}
     | otherwise = onda { tempoOnda = cicloOnda onda }
 
 {-| A função atualizaPortal atualiza os portais em funçao do tempo, aplicando a atualizaOnda na lista de ondas do portal.
@@ -293,7 +315,7 @@ atualizaOnda tempo onda
 ...
 
 -}
-atualizaPortal :: Tempo -> Portal -> Portal 
+atualizaPortal :: Tempo -> Portal -> Portal
 atualizaPortal tempo portal = portal { ondasPortal = map (atualizaOnda tempo) (ondasPortal portal) }
 
 
