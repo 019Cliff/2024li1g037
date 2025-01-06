@@ -27,14 +27,22 @@ data EstadoApp = EstadoApp
   { estadoAtual :: EstadoMenu
   , imgFundo :: Picture
   , imgJogar :: Picture
+  , imgRelva :: Picture
+  , imgTerra :: Picture
+  , imgAgua :: Picture
+  , dimRelva :: (Float, Float) -- Largura, altura da imagem
+  , dimTerra :: (Float, Float)
+  , dimAgua :: (Float, Float)
   }
+
+
 
 -- Estado inicial da aplicação
 estadoInicialApp :: EstadoApp
 estadoInicialApp = EstadoApp
   { estadoAtual = MenuPrincipal
-  , imgFundo = undefined -- Imagem carregada de fundo
-  , imgJogar = undefined -- Imagem carregada do botão jogar
+  , imgFundo = undefined 
+  , imgJogar = undefined
   }
 
 -- Estado inicial do jogo
@@ -76,53 +84,76 @@ fundoMenu :: IO Picture
 fundoMenu = loadBMP "/home/cliff/2024li1g037/app/fundo_1_.bmp"
 
 iconeJogar :: IO Picture 
-iconeJogar = loadBMP "/home/cliff/2024li1g037/app/button.bmp"
+iconeJogar = loadBMP "/home/cliff/2024li1g037/app/button-game-a-cartoon-congratulations-for-your-vector-30227498-removebg-preview.bmp"
+
 
 -- Função principal
 main :: IO ()
 main = do
   imgFundo <- fundoMenu
   imgJogar <- iconeJogar
-  let estadoInicial = EstadoApp { estadoAtual = MenuPrincipal, imgFundo = imgFundo, imgJogar = imgJogar }
+  imgRelva <- loadBMP "/home/cliff/2024li1g037/app/images.bmp"
+  imgTerra <- loadBMP "/home/cliff/2024li1g037/app/terra_textura.bmp"
+  imgAgua <- loadBMP "/home/cliff/2024li1g037/app/6da00a37f26551f688dcc04367d7c73c_1.bmp"
+  let estadoInicial = EstadoApp { estadoAtual = MenuPrincipal, imgFundo = imgFundo, imgJogar = imgJogar, imgRelva = imgRelva, imgAgua = imgAgua, imgTerra = imgTerra , dimRelva = (225, 225), dimTerra = (980, 980), dimAgua = (1366, 768) }
   play janela fundo fr estadoInicial desenhaApp reageEventosApp reageTempoApp
 
 -- Desenho da aplicação
 desenhaApp :: EstadoApp -> Picture
 desenhaApp app = case estadoAtual app of
-  MenuPrincipal -> desenhaMenu (imgFundo app)
-  Jogando jogo -> desenhaJogo jogo
-  Jogar -> desenhaMenu (imgJogar app)
-  Sair -> Blank
+  MenuPrincipal -> desenhaMenu (imgFundo app) (imgJogar app)
+  Jogando jogo -> desenhaJogo jogo app
 
-desenhaMenu :: Picture -> Picture
-desenhaMenu imgFundo = Pictures
-  [ Scale escalaX escalaY imgFundo
-  , Translate (-800) 200 . Scale 0.8 0.8 . Color black $ Text "Menu Principal"
-  , Translate (-800) 50 . Scale 0.5 0.5 . Color (makeColorI 0 0 255 255) $ Text "1. Jogar (Enter ou Clique)"
-  , Translate (-800) (-100) . Scale 0.5 0.5 . Color (makeColorI 255 0 0 255) $ Text "2. Sair (Esc ou Clique)"
+desenhaMenu :: Picture -> Picture -> Picture
+desenhaMenu imgFundo imgJogar = Pictures
+  [ Scale escalaX escalaY imgFundo,
+    Translate 0 (-350) (Scale escalaX escalaY imgJogar)
   ]
   where
     escalaX = fromIntegral janelaLargura / 1920
     escalaY = fromIntegral janelaAltura / 1080
 
-desenhaJogo :: EstadoJogo -> Picture
-desenhaJogo estado = Pictures
-  [ desenhaMapa (mapa estado)
+desenhaJogo :: EstadoJogo -> EstadoApp -> Picture
+desenhaJogo estado app = Pictures
+  [ desenhaMapa app (mapa estado)
   , desenhaTorres (torres estado)
   , desenhaInimigos (inimigos estado)
   , desenhaBase (base estado)
   ]
 
-desenhaMapa :: Mapa -> Picture
-desenhaMapa mapa = Pictures $ concatMap desenhaLinha (zip [0..] mapa)
-  where
-    desenhaLinha (y, linha) = map (desenhaTerreno y) (zip [0..] linha)
-    desenhaTerreno y (x, terreno) = 
-        Translate (fromIntegral (x * mapaLargura)) (fromIntegral (y * mapaAltura)) (desenhaTerrenoBase terreno)
-    desenhaTerrenoBase Relva = Color green (rectangleSolid tamanhoBloco tamanhoBloco)
-    desenhaTerrenoBase Terra = Color (makeColorI 165 42 42 255) (rectangleSolid tamanhoBloco tamanhoBloco)
-    desenhaTerrenoBase Agua = Color blue (rectangleSolid tamanhoBloco tamanhoBloco)
 
+
+desenhaMapa :: EstadoApp -> Mapa -> Picture
+desenhaMapa app mapa = Pictures $ concatMap (desenhaLinha app) (zip [0 ..] mapa)
+  where
+    desenhaLinha app (y, linha) = map (desenhaTerreno app y) (zip [0 ..] linha)
+
+    desenhaTerreno app y (x, terreno) =
+      Translate (fromIntegral x * tamanhoBloco) (fromIntegral y * tamanhoBloco) (desenhaTerrenoBase terreno app)
+
+desenhaTerrenoBase :: Terreno -> EstadoApp -> Picture
+desenhaTerrenoBase Relva app = 
+  Scale escalaX escalaY (imgRelva app)
+  where
+    (largura, altura) = dimRelva app
+    escalaX = tamanhoBloco / largura
+    escalaY = tamanhoBloco / altura
+
+desenhaTerrenoBase Terra app = 
+  Scale escalaX escalaY (imgTerra app)
+  where
+    (largura, altura) = dimTerra app
+    escalaX = tamanhoBloco / largura
+    escalaY = tamanhoBloco / altura
+
+desenhaTerrenoBase Agua app = 
+  Scale escalaX escalaY (imgAgua app)
+  where
+    (largura, altura) = dimAgua app
+    escalaX = tamanhoBloco / largura
+    escalaY = tamanhoBloco / altura
+
+   
 desenhaTorres :: [Torre] -> Picture
 desenhaTorres torres = Pictures $ map desenhaTorre torres
   where
