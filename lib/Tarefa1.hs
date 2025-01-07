@@ -12,55 +12,26 @@ import LI12425
 import Data.List 
 
 mapa1 :: [[Terreno]]
-mapa1 = [
-    [t, t, t, t, t, t,t, t, t, t, t, t, t,t, t, t, t, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, a, a, a, r, r, r, r, r, r, r, r],
-    [t, r, r, r, r, r,r, r, r, r, r, r ,r,r ,r, r, r, t, r, r, r, r, r, r, r, a, a ,a, r, r, r, r, r , r,r , r],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, a, a, a, r, r, r, r, r, r, r, r],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, a, a, a, r, r, r, r, r, r, r, r],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, a, a, a,a, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, a, a, a,a, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, a, a, a,a, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, a, a, a,a, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, a, a, a,a, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, a, a, a,a, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, a, a, a, a, a, a, a, a, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, a, a, a, a, a, a, a, a, r, r, r, r, r, r, r, r, r, r],
-    [r, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, a, a, a, a, a, a, a, a, r, r, r, r, r, r, r, r, r, r],
-    [r, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, a, a, a, a, a, a, a, a, r, r, r, r, r, r, r, r, r, r],
-    [r, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, a, a, a, a, a, a, a, a, r, r, r, r, r, r, r, r, r, r],
-    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [r, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [r, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
-    [r, t, t, t, t, t,t, t, t, t, t, t, t,t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t]
-    ]
+mapa1 = [ [t, t, r, a, a, a],
+          [r, t, r, a, r, r],
+          [r, t, r, a, r, t],
+          [r, t, r, a, r, t],
+          [r, t, t, t, t, t],
+          [a, a, a, a, r, r]
+        ]
     where
         t = Terra
         r = Relva
         a = Agua
 
 base1 :: Base
-base1 = Base { posicaoBase = (-20.5,13), creditosBase = 100, vidaBase = 100.0 }
+base1 = Base { posicaoBase = (1, 1), creditosBase = 100, vidaBase = 100.0 }
 
 portal1 :: Portal
-portal1 = Portal { posicaoPortal = (15, 8.5), ondasPortal = [] }
+portal1 = Portal { posicaoPortal = (0, 0), ondasPortal = [] }
 
 inimigo1 :: Inimigo
-inimigo1 = Inimigo { posicaoInimigo = (-20, 10), direcaoInimigo = Este, velocidadeInimigo = 1.0, vidaInimigo = 100.0, ataqueInimigo = 10.0, butimInimigo = 50, projeteisInimigo = []}
+inimigo1 = Inimigo { posicaoInimigo = (0, 0), direcaoInimigo = Este, velocidadeInimigo = 1.0, vidaInimigo = 100.0, ataqueInimigo = 10.0, butimInimigo = 50, projeteisInimigo = []}
 
 torre1 :: Torre
 torre1 = Torre { posicaoTorre = (0, 1), alcanceTorre = 2.0, rajadaTorre = 3, cicloTorre = 1.0, danoTorre = 1.0, tempoTorre = 2.0 }
