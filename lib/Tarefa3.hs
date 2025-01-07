@@ -13,7 +13,6 @@ import LI12425
 
 import Tarefa2
 
-import Tarefa1
 
 torre3 :: Torre
 torre3 = Torre { posicaoTorre = (0, 1), alcanceTorre = 2.0, rajadaTorre = 2, cicloTorre = 1.0, danoTorre = 1.0, tempoTorre = 4.0, projetilTorre = projetil2 }
@@ -125,17 +124,110 @@ ajustaVelocidade :: Inimigo -> Velocidade
 ajustaVelocidade inimigo = undefined
 
 
-{-|A função efeitosInimigos aplica os efeitos dos projeteis nos inimigos.
+{-| A funcao projeteisalteramVelocidade ajusta a velocidade do inimigo considerando os efeitos dos projeteis.
 
 ==Exemplo
->>> efeitosInimigos
-...
 
+>>>projeteisalteramVelocidade 
 
 -}
 
-efeitosInimigos :: [Inimigo] -> [Projetil] -> [Inimigo]
- inimigos projeteis = undefined
+
+projeteisalteramVelocidade :: Inimigo -> Inimigo
+projeteisalteramVelocidade i@Inimigo {velocidadeInimigo = velocidade, projeteisInimigo = projeteisAtivos} = 
+    i {velocidadeInimigo = novaVelocidade, projeteisAtivos = novosProjeteis}
+    where 
+        novaVelocidade = alteraVelocidade (projeteisAtivos)
+        novosProjeteis = filtraProjeteisExpirados (map (\projetil-> duracaoReduzida projetil tempo) projeteisAtivos)
+
+
+
+{-| A funçao alteraVelocidade altera a velocidade do inimigo conforme o tipo de projetil ativo.
+
+== Exemplo:
+>>>alteraVelocidade
+-}
+alteraVelocidade :: Inimigo -> Projetil -> Inimigo
+alteraVelocidade inimigo projetil =
+     case tipoProjetil projetil of 
+      Gelo -> inimigo { velocidadeInimigo = 0 }
+      Fogo -> inimigo 
+      Resina -> inimigo {velocidadeInimigo = max 0 (velocidadenormal inimigo - fatorResina)}
+ 
+
+
+
+{-|  A funçao acabaEfeito atualiza a lista de projeteis do inimigo , os projteis de fogo e gelo quando 
+ têm duraçoes = Finita 0.0 sao removidos e os efeitos deixam de atuar.
+
+== Exemplo:
+>>>acabaEfeito
+-}
+acabaEfeito :: Inimigo -> Inimigo
+acabaEfeito projetilInimigo inimigo = novoInimigo
+   where
+     novoInimigo = inimigo {projeteisInimigo = filtraProjeteisExpirados (projetilInimigo Inimigo)} 
+
+
+{-| A funcao duracaoReduzida atualiza a duração do projetil com o decorrer do tempo, sendo no maximo igual a zero.
+
+== Exemplo:
+>>>duracaoReduzida projetil1 1.0
+
+-}
+
+duracaoReduzida :: Projetil -> Tempo -> Projetil
+duracaoReduzida projetil tempo = projetil {duracaoProjetil = novaDuracao}
+  where
+     novaDuracao = atualizaProjetilComOTempo projetil tempo
+
+
+ {-| A funcao atualizaProjetilComOTempo atualiza o projetil (a sua duração) com o passar do tempo .
+  
+== Exemplo:
+>>> atualizaProjetilComOTempo
+ -}
+
+ 
+atualizaProjetilComOTempo :: Projetil -> Tempo -> Projetil
+atualizaProjetilComOTempo projetil tempo =
+  case  duracaoProjetil projetil of
+    Finita -> Projetil {duracaoProjetil = max 0 (duracaoProjetil - tempo)}
+    Infinita -> Projetil {duracaoProjetil = Infinita}
+
+          
+
+
+       
+
+{-| A função filtraProjeteisExpirados filtra de uma lista de projeteis os projeteis com duraçao finita igual a zero.
+
+== Exemplo:
+>>>filtraProjeteisExpirados [projetil1, projetil2, projetil4]
+[projetil1, projetil2]
+
+-}
+
+filtraProjeteisExpirados :: [Projetil] -> [Projetil] 
+filtraProjeteisExpirados projeteis = filter (\p -> duracaoProjetil p \= Finita 0.0 ) projeteis
+
+
+{-| A funçao removeEfeito retira do inimigos os efeitos dos projeteis no caso da duração dos projeteis
+terem expirados.
+
+== Exemplo:
+
+>>> removeEfeito 
+
+-}
+
+removeEfeito :: Inimigo -> Inimigo 
+removeEfeito inimigo = undefined
+
+
+
+
+
 
 
 {-| A funçao extraiButins extraí os butins dos inimigos de uma lista de inimigos e coloca-as numa 
@@ -312,5 +404,3 @@ Portal {portal1 = Portal { posicaoPortal = (0, 3), ondasPortal = [Onda = {inimig
 -}
 atualizaPortal :: Tempo -> Portal -> Portal
 atualizaPortal tempo portal = portal { ondasPortal = map (atualizaOnda tempo) (ondasPortal portal) }
-
-
