@@ -52,12 +52,12 @@ estadoInicialApp = EstadoApp
 -- Estado inicial do jogo
 estadoInicialJogo :: EstadoJogo
 estadoInicialJogo = EstadoJogo
-  { mapa = mapa1
-  , moedas = creditosBase base1
+  { mapa = mapag
+  , moedas = creditosBase baseg
   , torres = []
-  , inimigos = [inimigo1]
-  , base = base1
-  , portais = [portal1] -- Inicialize com os portais desejados
+  , inimigos = [inimigog]
+  , base = baseg
+  , portais = [portalg] -- Inicialize com os portais desejados
   }
 
 
@@ -128,7 +128,7 @@ desenhaJogo estado app = Pictures
   , desenhaInimigos (inimigos estado) app
   , desenhaBase (base estado) app
   , Pictures (map (`desenhaPortal` app) (portais estado)) -- Desenha todos os portais
-  , desenhaPortal portal1 app
+  , desenhaPortal portalg app
 
   ]
 
@@ -244,3 +244,55 @@ verificaFimDeJogo jogo = terminouJogo Jogo
   , lojaJogo = []
   , portaisJogo = []
   }
+
+-- mapa e dados definidos para o jogo --
+baseg :: Base
+baseg = Base { posicaoBase = (-20.5,13), creditosBase = 100, vidaBase = 100.0 }
+
+portalg :: Portal
+portalg = Portal { posicaoPortal = (15, 8.5), ondasPortal = [] }
+
+inimigog :: Inimigo
+inimigog = Inimigo { posicaoInimigo = (-20, 10), direcaoInimigo = Este, velocidadeInimigo = 1.0, vidaInimigo = 100.0, ataqueInimigo = 10.0, butimInimigo = 50, projeteisInimigo = []}
+
+mapag :: [[Terreno]]
+mapag = [
+    [t, t, t, t, t, t,t, t, t, t, t, t, t,t, t, t, t, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, a, a, a, r, r, r, r, r, r, r, r],
+    [t, r, r, r, r, r,r, r, r, r, r, r ,r,r ,r, r, r, t, r, r, r, r, r, r, r, a, a ,a, r, r, r, r, r , r,r , r],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, a, a, a, r, r, r, r, r, r, r, r],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, a, a, a, r, r, r, r, r, r, r, r],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, a, a, a,a, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, a, a, a,a, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, a, a, a,a, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, a, a, a,a, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, a, a, a,a, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, a, a, a,a, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, a, a, a, a, a, a, a, a, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, a, a, a, a, a, a, a, a, r, r, r, r, r, r, r, r, r, r],
+    [r, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, a, a, a, a, a, a, a, a, r, r, r, r, r, r, r, r, r, r],
+    [r, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, a, a, a, a, a, a, a, a, r, r, r, r, r, r, r, r, r, r],
+    [r, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, a, a, a, a, a, a, a, a, r, r, r, r, r, r, r, r, r, r],
+    [t, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [r, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [r, r, r, r, r, r,r, r, r, r, r, r, r,r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r],
+    [r, t, t, t, t, t,t, t, t, t, t, t, t,t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t]
+    ]
+    where
+        t = Terra
+        r = Relva
+        a = Agua
