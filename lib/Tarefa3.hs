@@ -13,39 +13,68 @@ import LI12425
 
 import Tarefa2
 
+import Tarefa1
+
+torre3 :: Torre
+torre3 = Torre { posicaoTorre = (0, 1), alcanceTorre = 2.0, rajadaTorre = 2, cicloTorre = 1.0, danoTorre = 1.0, tempoTorre = 4.0, projetilTorre = projetil2 }
+
+projetil4 :: Projetil
+projetil4 = Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 0.0 }
+
+inimigo4 :: Inimigo
+inimigo4 = Inimigo { posicaoInimigo = (4, 1), direcaoInimigo = Sul, velocidadeInimigo = 1.0, vidaInimigo = 0.0, ataqueInimigo = 10.0, butimInimigo = 50, projeteisInimigo = [Fogo]}
+
+inimigo5 :: Inimigo
+inimigo5 = Inimigo { posicaoInimigo = (4, 1), direcaoInimigo = Sul, velocidadeInimigo = 1.0, vidaInimigo = 0.0, ataqueInimigo = 10.0, butimInimigo = 50, projeteisInimigo = [Fogo]}
+
+onda1 :: Onda
+onda1 = Onda {inimigosOnda = [inimigo2,inimigo3], cicloOnda = 2.0, tempoOnda = 3.0, entradaOnda = 5.0 }
+
+portal2 :: Portal
+portal2 = Portal {posicaoPortal = (0, 3), ondasPortal = [onda1,onda2]}
+
+onda2 :: Onda
+onda2 = Onda {inimigosOnda = [inimigo5], cicloOnda = 2.0, tempoOnda = 3.0, entradaOnda = 0.0 }
+
+
 
 {-| A funçao atualizaJogo atualiza o estado do jogo em funçao do tempo.
 
 
 == Exemplo
 
->>>atualizaJogo 
+>>>atualizaJogo jogo1
+
+
 -}
 
 atualizaJogo :: Tempo -> Jogo -> Jogo
-atualizaJogo = undefined
+atualizaJogo tempo jogo = novoJogo
+     where 
+        novoJogo = undefined
 
-{-| A funçao disparosTorre atualiza a torre gerindo os disparos automaticos e os inimigos atingidos
+{-| A funçao disparosTorre atualiza a torre gerindo os disparos automaticos e os inimigos atingidos.
 == Exemplo
 
->>>disparosTorre
-...
+>>>disparosTorre torre1 [inimigo1, inimigo2]
+(,)
 -}
 
 
-disparosTorre :: Torre -> [Inimigo] -> ([Inimigo], Torre)
+disparosTorre :: Torre -> [Inimigo] -> (Torre, [Inimigo])
 disparosTorre  torre inimigos =
-    if  tempoTorre <= 0 torre && inimigosNoAlcance inimigos
-    then (atacaInimigo inimigos, atualizaTorre torre)
-    else (inimigos, torre)
+    if  tempoTorre torre <= 0 && inimigosNoAlcance inimigos
+    then (atualizaTorre torre, atacaInimigo inimigos)
+    else (torre, inimigos)
 
-{-| A funçao atualizaTorre atualiza o parametro tempoTorre em funçao da passagem de tempo, sempre que disparar reseta para cicloTorre da torre,
- caso contrario minimui com o decorrer do tempo. 
+{-| A funçao atualizaTorre atualiza o parametro tempoTorre em funçao da passagem de tempo, sempre que disparar
+reseta para cicloTorre da torre, caso contrario minimui com o decorrer do tempo. 
 
 == Exemplo
 
->>> atualizaTorre torre
-...
+>>> atualizaTorre 1.0 torre3
+Torre { posicaoTorre = (0, 1), alcanceTorre = 2.0, rajadaTorre = 2, cicloTorre = 1.0, danoTorre = 1.0, tempoTorre = 4.0, projetilTorre = projetil2 }
+
 
 -}
 
@@ -60,8 +89,8 @@ atualizaTorre tempo torre
 
 ==Exemplo
 
->>> atacaInimigos torre [inimigo1, inimigo2, inimigo3]
-[inimigo1,inimigo2,inimigo3]
+>>> atacaInimigos torre1 [inimigo1, inimigo2, inimigo3]
+[inimigo1,inimigo2, inimigo3]
 
 -}
 
@@ -74,7 +103,7 @@ atacaInimigo torre inimigos = map (atingeInimigo inimigos) (inimigosAtingidos to
 
 == Exemplo
 
->>> inimigosAtingidos torre {rajadaTorre = 2, posicaoTorre = }  [inimigo1, inimigo2, inimigo3]
+>>> inimigosAtingidos torre3 [inimigo1, inimigo2, inimigo3]
 [inimigo1, inimigo2]
 -}
 
@@ -82,32 +111,7 @@ inimigosAtingidos ::  Torre -> [Inimigo] -> [Inimigo]
 inimigosAtingidos torre inimigos = take (rajadaTorre torre) (inimigosNoAlcance torre inimigos)
 
 
-{-| A funcao movimentacaoInimigo atualiza a posicao de forma que estes se 
-movam em direção à base, com a posição ajustada pela velocidade e os efeitos dos projéteis.
-==Exemplo
->>> movimentacaoInimigo
-...
--}
 
-movimentacaoInimigo :: Tempo -> [Inimigo] -> Posicao -> [Inimigo]
-movimentacaoInimigo tempo inimigos posicao = undefined
-
-{-| A funcao movimenta calcula uma posicao nova em funçao da distancia e direcao que serão percorridas.
-==Exemplo
-
->>>movimenta (0,0) Norte 5
-(0,5) 
-
--}
-
-movimenta :: Posicao -> Direcao -> Distancia -> Posicao
-movimenta (x,y) direcao distancia = novaposicao
-        where
-            novaposicao =  case direcao of
-                            Norte -> (x, y + distancia)
-                            Sul -> (x, y - distancia)
-                            Oeste -> (x - distancia, y)
-                            Este -> (x + distancia, y)
 
 {-| A funcao ajustaVelocidade ajusta a velocidade do inimigo com atençao aos efeitos dos projeteis.
 
@@ -119,48 +123,6 @@ movimenta (x,y) direcao distancia = novaposicao
 
 ajustaVelocidade :: Inimigo -> Velocidade
 ajustaVelocidade inimigo = undefined
-
-
-{-| A funcao calculaDistancia calcula a distancia percorrida em funçao do tempo e velocidade do inimigo.
-
-==Exemplo
-
->>>calculaDistancia 5.0 2.0
-10
-
--}
-
-calculaDistancia :: Velocidade -> Tempo -> Distancia
-calculaDistancia velocidade tempo = distancia
-    where
-        distancia = tempo * velocidade
-
-{-| A funcao atualizaInimigoPosicao atualiza a posição do inimigo em funçao do tempo.
-
-==Exemplo
-
->>>atualizaInimigoPosicao
-...
-
--}
-
-
-atualizaInimigoPosicao :: Tempo -> Posicao -> Inimigo -> Inimigo
-atualizaInimigoPosicao  = undefined
-
-
-
-{-| A funcao atualizaInimigos a posiçao de uma lista de inimigos em funçao do tempo.
-
-==Exemplo
-
->>>atualizaInimigos 
-...
-
--}
-
-atualizaInimigos :: Tempo -> Posicao -> [Inimigo] -> [Inimigo]
-atualizaInimigos tempo posicao inimigos = undefined
 
 
 {-|A função efeitosInimigos aplica os efeitos dos projeteis nos inimigos.
@@ -180,8 +142,8 @@ efeitosInimigos :: [Inimigo] -> [Projetil] -> [Inimigo]
  lista.
 
  ==Exemplo
->>>extraiButins
-...
+>>>extraiButins [inimigo1, inimigo2, inimigo3]
+[50, 50, 100]
 -}
 
 extraiButins :: [Inimigo] -> [Creditos]
@@ -191,8 +153,8 @@ extraiButins inimigos = [ butimInimigo inimigo | inimigo <- inimigos , vidaInimi
 dos inimigos extraidos com os creditos da base.
 
 ==Exemplo
->>>adicionaOsCreditosABase
-...
+>>>adicionaOsCreditosABase [50,50,100] base1
+Base { posicaoBase = (1, 1), creditosBase = 300, vidaBase = 100.0 }
 
 -}
 
@@ -204,8 +166,8 @@ adicionaOsCreditosABase butins base@(Base {creditosBase = credito }) = base{cred
 
 {-| A funçao adicionaButimAosCreditosInimigos combina as duas funçoes de forma a facilitar a soma 
 ==Exemplo
->>>adicionaButimAosCreditosInimigos
-...
+>>>adicionaButimAosCreditosInimigos [inimigo1, inimigo2] base1 
+Base { posicaoBase = (1, 1), creditosBase = 300, vidaBase = 100.0 }
 -}
 adicionaButimAosCreditosInimigos :: [Inimigo] -> Base -> Base
 adicionaButimAosCreditosInimigos inimigos base = adicionaOsCreditosABase (extraiButins inimigos) base
@@ -215,34 +177,37 @@ adicionaButimAosCreditosInimigos inimigos base = adicionaOsCreditosABase (extrai
 {-|A função retiraInimigoEmFunçaoDaVida retira o inimigo da lista de inimigos ativos se a vida deste for igual ou menor que zero.
 
 ==Exemplo
->>>retiraInimigoEmFunçaoDaVida
-...
+>>>retiraInimigoEmFunçaoDaVida [inimigo1, inimigo4]
+[inimigo1]
 
 -}
 
 retiraInimigoEmFunçaoDaVida :: [Inimigo] -> [Inimigo]
 retiraInimigoEmFunçaoDaVida = filter (\inimigo -> vida inimigo > 0 )
 
-{-| A função eliminaDaListaDeATivos retira os inimigos da lista de inimigos, quando estes atingem a base.
+{-| A função eliminaDaListaDeAtivos retira os inimigos da lista de inimigos quando estes atingem a base.
 
 
 ==Exemplo
->>>eliminaDaListaDeATivos
-...
+>>> eliminaDaListaDeAtivos base1 [inimigo2, inimigo1]
+inimigo1
+
+ 
 -}
 
 
-eliminaDaListaDeATivos :: [Inimigo] -> Base -> [Inimigo]
-eliminaDaListaDeATivos inimigos base@Base {posicaoBase = (x,y)} =
-    filter (\inimigo -> posicao inimigo /= (x,y)) inimigos
+eliminaDaListaDeAtivos :: [Inimigo] -> Base -> [Inimigo]
+eliminaDaListaDeAtivos inimigos base =
+    filter (\inimigo -> not (verificainimigoAtingeBase inimigo base)) inimigos
+
 
 {-| A função inimigoAtingeBase atualiza a vida da base caso esta seja atingida por um inimigo.
 
 
 == Exemplo
 
->>>inimigoAtingeBase base inimigo 
-(...)
+>>>inimigoAtingeBase base1 inimigo2
+Base { posicaoBase = (1, 1), creditosBase = 100, vidaBase = 90.0 }
 
 -}
 
@@ -251,6 +216,32 @@ inimigoAtingeBase base@Base { vidaBase = vida }
                inimigo@Inimigo { ataqueInimigo = dano} = base {vidaBase = max 0 (vida - dano)}
 
 
+{-! A funçao verificainimigoAtingeBase verifica se o inimigo atingiu a base, ou seja, se deu um dano maior q 0.
+
+== Exemplo:
+>>> verificainimigoAtingeBase inimigo2 base1
+True
+
+-}
+
+verificainimigoAtingeBase :: Inimigo -> Base -> Bool
+verificainimigoAtingeBase inimigo base 
+   |danoinimigo inimigo > 0 = True
+   |otherwise = False
+
+{-| A funçao ajustaDistancia atualiza a distancia percorrida pelo inimigo 
+ajustada em função dos efeitos e do parametro velocidadeInimigo 
+
+== Exemplo:
+
+>>> ajustaDistancia 5 2.0
+
+-}
+
+ajustaDistancia :: Distancia -> Tempo -> Distancia
+ajustaDistancia distancia tempo = novadistancia
+          where 
+            novadistancia = tempo * velocidadeinimigo
 
 
 
@@ -260,8 +251,9 @@ a 0 (zero) e que poderá lançar inimigos.
 
 == Exemplo
 
->>> portalComOndasAtivas tempo Onda
-...
+>>> portalComOndasAtivas portal2
+Portal {portal1 = Portal { posicaoPortal = (0, 3), ondasPortal = [onda1]}
+
 -}
 portalComOndasAtivas :: Portal -> Portal
 portalComOndasAtivas portal = portal { ondasPortal = filter (\onda -> entradaOnda onda <= 0 )  (ondasPortal portal) }
@@ -272,8 +264,9 @@ portalComOndasAtivas portal = portal { ondasPortal = filter (\onda -> entradaOnd
 
 == Exemplo
 
->>> portaisComOndasAtivas tempo Onda
-...
+>>> portaisComOndasAtivas [portal1, portal2]
+[portal1,Portal {portal1 = Portal { posicaoPortal = (0, 3), ondasPortal = [onda1]}]
+
 -}
 portaisComOndasAtivas :: [Portal] -> [Portal]
 portaisComOndasAtivas = map (portalComOndasAtivas)
@@ -284,8 +277,8 @@ de inimigos.
 
 == Exemplo
 
->>> ordemNaturalDosInimigos tempo Onda
-...
+>>> ordemNaturalDosInimigos onda1
+[inimigo2,inimigo3]
 -}
 
 
@@ -294,12 +287,13 @@ ordemNaturalDosInimigos :: Onda -> [Inimigo]
 ordemNaturalDosInimigos = inimigosOnda
 
 
-{-| A função atualizaOnda atualiza as ondas do portal em funçao do tempo considera os parametros cicloOnda e tempoOnda em funçao da passagem de tempo.
+{-| A função atualizaOnda atualiza as ondas do portal em funçao do tempo considera os parametros cicloOnda 
+e tempoOnda em funçao da passagem de tempo.
 
 == Exemplo
 
->>> atualizaOnda tempo Onda
-...
+>>> atualizaOnda 4.0 onda1
+Onda {inimigosOnda = [inimigo2,inimigo3], cicloOnda = 2.0, tempoOnda = 2.0, entradaOnda = 5.0 } 
 -}
 
 atualizaOnda :: Tempo -> Onda -> Onda
@@ -311,8 +305,9 @@ atualizaOnda tempo onda
 
 == Exemplo
 
->>> atualizaPortal tempo Onda
-...
+>>> atualizaPortal 2.0 portal2
+Portal {portal1 = Portal { posicaoPortal = (0, 3), ondasPortal = [Onda = {inimigosOnda = [inimigo2,inimigo3], cicloOnda = 2.0, tempoOnda = 1.0, entradaOnda = 5.0 }
+,Onda = {inimigosOnda = [inimigo5], cicloOnda = 2.0, tempoOnda = 1.0, entradaOnda = 5.0 } ]}
 
 -}
 atualizaPortal :: Tempo -> Portal -> Portal
