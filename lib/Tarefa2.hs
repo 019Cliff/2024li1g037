@@ -36,7 +36,7 @@ inimigosNoAlcance Torre {posicaoTorre = (x, y), alcanceTorre = alcance} inimigos
   filter (\Inimigo {posicaoInimigo = (a, b)} -> sqrt ((x - a) ** 2 + (y - b) ** 2) <= alcance) inimigos
   
 {-| A função atingeInimigo atualiza o estado de um inimigo assumindo que este acaba de ser atingido por um projetil de uma torre.
-A vida do inimigo diminui tanto quanto o dano que o projetil da torre causa, e o projetil é adicionado à lista de projeteis ativos do inimigo.
+A vida do inimigo diminui tanto quanto o dano que o projetil da torre causa, e as sinergias entre projéteis são aplicadas.
 
 == Exemplo:
 >>> atingeInimigo torre2 inimigo1
@@ -44,9 +44,10 @@ Inimigo {posicaoInimigo = (0.0,0.0), direcaoInimigo = Este, vidaInimigo = 99.0, 
 -}
 atingeInimigo :: Torre -> Inimigo -> Inimigo
 atingeInimigo Torre {danoTorre = dano, projetilTorre = projetilNovo} inimigo@Inimigo {vidaInimigo = vida, projeteisInimigo = projeteis} =
-  inimigo {
+  let projeteisAtualizados = atualizarProjetis projetilNovo projeteis
+  in inimigo {
     vidaInimigo = max 0 (vida - dano),
-    projeteisInimigo = projetilNovo : projeteis
+    projeteisInimigo = projeteisAtualizados
   }
 
 {-| A função fogoEGelo remove projeteis de Fogo e Gelo ativos simultaneamente.
@@ -166,7 +167,24 @@ verificaIguais projeteis =
   let (fogos, gelos, resinas) = dividePorTipoProjetil projeteis
   in length fogos > 1 || length gelos > 1 || length resinas > 1
 
-{-| Ativa o próximo inimigo a ser lançado por um portal.
+{-| Agrupa projéteis do mesmo tipo e soma as suas durações.
+
+== Exemplo:
+>>> somaProjetil [Projetil Fogo (Finita 5.0), Projetil Fogo (Finita 5.0), Projetil Gelo (Finita 3.0)]
+[Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 10.0},Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0}]
+>>> somaProjetil []
+[]
+-}
+
+somaProjetil :: [Projetil] -> [Projetil]
+somaProjetil [] = []
+somaProjetil (p:ps) =
+  let mesmosTipo = filter (\x -> tipoProjetil x == tipoProjetil p) ps
+      duracaoTotal = somaDuracoes (duracaoProjetil p : map duracaoProjetil mesmosTipo)
+      restantes = filter (\x -> tipoProjetil x /= tipoProjetil p) ps
+  in Projetil (tipoProjetil p) duracaoTotal : somaProjetil restantes
+
+{-| A função ativaInimigo move o próximo inimigo a ser lançado por um portal para a lista de inimigos ativos.
 
 == Exemplo:
 >>> ativaInimigo portal1 []
@@ -176,11 +194,55 @@ verificaIguais projeteis =
 ativaInimigo :: Portal -> [Inimigo] -> (Portal, [Inimigo])
 ativaInimigo portal@Portal {ondasPortal = []} inimigos = (portal, inimigos)
 ativaInimigo portal@Portal {ondasPortal = (onda@Onda {inimigosOnda = []} : outrasOndas)} inimigos =
-  (portal {ondasPortal = outrasOndas}, inimigos)
+  (portal, inimigos)
 ativaInimigo portal@Portal {ondasPortal = (onda@Onda {inimigosOnda = (i:is), cicloOnda = ciclo, tempoOnda = tempo, entradaOnda = entrada} : outrasOndas)} inimigos =
   let novaOnda = Onda {inimigosOnda = is, cicloOnda = ciclo, tempoOnda = tempo, entradaOnda = entrada}
-      novasOndas = if null is then outrasOndas else (novaOnda : outrasOndas)
+      novasOndas = if null is then outrasOndas else novaOnda : outrasOndas
   in (portal {ondasPortal = novasOndas}, inimigos ++ [i])
+
+{-| A função 'atualizarProjetis' lida com as sinergias entre os projéteis de uma torre e os projéteis já presentes no inimigo.
+ 
+Ela aplica as interações entre os tipos de projéteis e atualiza a lista de projéteis de acordo com essas sinergias:
+- Se houver projéteis de Fogo e Gelo simultaneamente, ambos são removidos.
+- Se houver projéteis de Resina e Fogo, a duração do Fogo é duplicada e o projétil de Resina é removido.
+- Se já houver projéteis do mesmo tipo, suas durações são somadas.
+
+Esta função retorna a lista de projéteis atualizada, com base nessas interações.
+
+== Exemplo:
+
+>>> atualizarProjetis (Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 3.0}) [Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 2.0}, Projetil {tipoProjetil = Resina, duracaoProjetil = Finita 4.0}]
+[Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 2.0},Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 3.0}]
+                                    
+
+Neste exemplo, a função remove o projétil de Gelo (pois Fogo e Gelo não podem coexistir) e dobra a duração do projétil de Fogo, devido à presença de Resina.
+
+>>> atualizarProjetis (Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 3.0}) [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0}]
+[Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0},Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 3.0}]                                         
+3. Caso sem interações especiais:
+>>> atualizarProjetis (Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0}) [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 2.0}]
+[Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 2.0}, Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0}]
+-- Não há interações especiais entre Fogo e Gelo, então ambos são mantidos na lista sem modificações.
+
+4. Caso em que o novo projétil não interage com os existentes:
+>>> atualizarProjetis (Projetil {tipoProjetil = Resina, duracaoProjetil = Finita 4.0}) [Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 2.0}]
+[Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 2.0}, Projetil {tipoProjetil = Resina, duracaoProjetil = Finita 4.0}]
+
+-- Teste: Somando projéteis do tipo Fogo
+>>> atualizarProjetis (Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 3.0}) [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 2.0}]
+[Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0}]
+
+-}
+atualizarProjetis :: Projetil -> [Projetil] -> [Projetil]
+atualizarProjetis projetilNovo projeteis =
+  let (fogos, gelos, resinas) = dividePorTipoProjetil projeteis
+      -- Caso haja projéteis de Fogo e Gelo ao mesmo tempo, ambos são removidos
+      projeteisSemFogoEGelo = fogoEGelo (fogos ++ gelos)
+      -- Caso haja Resina e Fogo, dobra a duração do Fogo e remove Resina
+      projeteisComFogoEResina = atingeFogoEResina projeteisSemFogoEGelo
+      -- Se já houver projéteis iguais, soma as durações
+      projeteisSomados = somaProjetil projeteisComFogoEResina
+  in projeteisSomados ++ [projetilNovo]
 
 {-| A função terminouJogo decide se o jogo terminou, ou seja, se o jogador ganhou ou perdeu o jogo.
 Para isso são utilizadas outras duas funções a ganhouJogo e a perdeuJogo.
