@@ -17,7 +17,9 @@ data EstadoJogo = EstadoJogo
   , torres :: [Torre]
   , inimigos :: [Inimigo]
   , base :: Base
+  , portais :: [Portal] -- Adicionar portais aqui
   }
+
 
 -- Estado do Menu
 data EstadoMenu = MenuPrincipal | Jogando EstadoJogo | Jogar |  Sair 
@@ -30,11 +32,13 @@ data EstadoApp = EstadoApp
   , imgRelva :: Picture
   , imgTerra :: Picture
   , imgAgua :: Picture
+  , imgBase :: Picture
+  , imgPortal :: Picture
+  , imgInimigo :: Picture
   , dimRelva :: (Float, Float) -- Largura, altura da imagem
   , dimTerra :: (Float, Float)
   , dimAgua :: (Float, Float)
   }
-
 
 
 -- Estado inicial da aplicação
@@ -53,12 +57,14 @@ estadoInicialJogo = EstadoJogo
   , torres = []
   , inimigos = [inimigo1]
   , base = base1
+  , portais = [portal1] -- Inicialize com os portais desejados
   }
+
 
 -- Dimensões da janela
 janelaLargura, janelaAltura :: Int
-janelaLargura = 1920
-janelaAltura = 1080
+janelaLargura = round (fromIntegral mapaLargura * tamanhoBloco)
+janelaAltura = round (fromIntegral mapaAltura * tamanhoBloco)
 
 -- Número de blocos no mapa
 mapaLargura, mapaAltura :: Int
@@ -67,11 +73,11 @@ mapaAltura = 27
 
 -- Tamanho de cada bloco
 tamanhoBloco :: Float
-tamanhoBloco = fromIntegral (min (janelaLargura `div` mapaLargura) (janelaAltura `div` mapaAltura))
+tamanhoBloco = fromIntegral (min (1920 `div` mapaLargura) (1080 `div` mapaAltura))
 
 -- Configuração da janela
 janela :: Display
-janela = InWindow "Immutable Towers" (janelaLargura, janelaAltura) (0, 0)
+janela = InWindow "Immutable Towers" (janelaLargura, janelaAltura) (0,0)
 
 fundo :: Color
 fundo = white
@@ -86,7 +92,6 @@ fundoMenu = loadBMP "/home/cliff/2024li1g037/app/fundo_1_.bmp"
 iconeJogar :: IO Picture 
 iconeJogar = loadBMP "/home/cliff/2024li1g037/app/button-game-a-cartoon-congratulations-for-your-vector-30227498-removebg-preview.bmp"
 
-
 -- Função principal
 main :: IO ()
 main = do
@@ -95,7 +100,10 @@ main = do
   imgRelva <- loadBMP "/home/cliff/2024li1g037/app/images.bmp"
   imgTerra <- loadBMP "/home/cliff/2024li1g037/app/terra_textura.bmp"
   imgAgua <- loadBMP "/home/cliff/2024li1g037/app/6da00a37f26551f688dcc04367d7c73c_1.bmp"
-  let estadoInicial = EstadoApp { estadoAtual = MenuPrincipal, imgFundo = imgFundo, imgJogar = imgJogar, imgRelva = imgRelva, imgAgua = imgAgua, imgTerra = imgTerra , dimRelva = (225, 225), dimTerra = (980, 980), dimAgua = (1366, 768) }
+  imgBase <- loadBMP "/home/cliff/2024li1g037/app/tower_image-removebg-preview.bmp"   
+  imgPortal <- loadBMP "/home/cliff/2024li1g037/app/portal.bmp" 
+  imgInimigo <- loadBMP "/home/cliff/2024li1g037/app/enemy-clipart-little-monster-holding-a-gun-in-one-hand_546721_wh860_2_-removebg-preview.bmp"
+  let estadoInicial = EstadoApp { estadoAtual = MenuPrincipal, imgFundo = imgFundo, imgJogar = imgJogar, imgRelva = imgRelva, imgAgua = imgAgua, imgTerra = imgTerra , dimRelva = (225, 225), dimTerra = (980, 980), dimAgua = (1366, 768), imgBase = imgBase, imgPortal = imgPortal, imgInimigo = imgInimigo }
   play janela fundo fr estadoInicial desenhaApp reageEventosApp reageTempoApp
 
 -- Desenho da aplicação
@@ -117,17 +125,22 @@ desenhaJogo :: EstadoJogo -> EstadoApp -> Picture
 desenhaJogo estado app = Pictures
   [ desenhaMapa app (mapa estado)
   , desenhaTorres (torres estado)
-  , desenhaInimigos (inimigos estado)
-  , desenhaBase (base estado)
+  , desenhaInimigos (inimigos estado) app
+  , desenhaBase (base estado) app
+  , Pictures (map (`desenhaPortal` app) (portais estado)) -- Desenha todos os portais
+  , desenhaPortal portal1 app
+
   ]
 
 
 
-desenhaMapa :: EstadoApp -> Mapa -> Picture
-desenhaMapa app mapa = Pictures $ concatMap (desenhaLinha app) (zip [0 ..] mapa)
-  where
-    desenhaLinha app (y, linha) = map (desenhaTerreno app y) (zip [0 ..] linha)
 
+desenhaMapa :: EstadoApp -> Mapa -> Picture
+desenhaMapa app mapa = Translate offsetX offsetY $ Pictures $ concatMap (desenhaLinha app) (zip [0 ..] mapa)
+  where
+    offsetX = - fromIntegral janelaLargura / 2
+    offsetY = - fromIntegral janelaAltura / 2
+    desenhaLinha app (y, linha) = map (desenhaTerreno app y) (zip [0 ..] linha)
     desenhaTerreno app y (x, terreno) =
       Translate (fromIntegral x * tamanhoBloco) (fromIntegral y * tamanhoBloco) (desenhaTerrenoBase terreno app)
 
@@ -153,7 +166,7 @@ desenhaTerrenoBase Agua app =
     escalaX = tamanhoBloco / largura
     escalaY = tamanhoBloco / altura
 
-   
+
 desenhaTorres :: [Torre] -> Picture
 desenhaTorres torres = Pictures $ map desenhaTorre torres
   where
@@ -161,17 +174,36 @@ desenhaTorres torres = Pictures $ map desenhaTorre torres
       where
         (x, y) = posicaoTorre torre
 
-desenhaInimigos :: [Inimigo] -> Picture
-desenhaInimigos inimigos = Pictures $ map desenhaInimigo inimigos
+desenhaInimigos :: [Inimigo] -> EstadoApp -> Picture
+desenhaInimigos inimigos app = Pictures $ map (desenhaInimigo app) inimigos
   where
-    desenhaInimigo inimigo = Translate x y $ Color black $ Circle 10
+    desenhaInimigo :: EstadoApp -> Inimigo -> Picture
+    desenhaInimigo app inimigo = Translate x y $ Scale (escalaX*3.5) (escalaY*3.5) (imgInimigo app)
       where
-        (x, y) = posicaoInimigo inimigo
+        (x, y) = (fst (posicaoInimigo inimigo) * tamanhoBloco, snd (posicaoInimigo inimigo) * tamanhoBloco)
+        (larguraInimigo, alturaInimigo) = (860, 860) -- Substitua pelas dimensões reais da imagem do inimigo
+        escalaX = tamanhoBloco / larguraInimigo
+        escalaY = tamanhoBloco / alturaInimigo
 
-desenhaBase :: Base -> Picture
-desenhaBase base = Translate x y . Color blue $ Circle 20
+
+desenhaBase :: Base -> EstadoApp -> Picture
+desenhaBase base app = Translate x y $ Scale (escalaX*2) (escalaY*3) (imgBase app)
   where
-    (x, y) = posicaoBase base
+    (x, y) = (fst (posicaoBase base) * tamanhoBloco, snd (posicaoBase base) * tamanhoBloco)
+    (larguraBase, alturaBase) = (471, 530) -- Substitua pelos tamanhos reais da imagem da base em pixels
+    escalaX = tamanhoBloco / larguraBase
+    escalaY = tamanhoBloco / alturaBase
+
+
+desenhaPortal :: Portal -> EstadoApp -> Picture
+desenhaPortal portal app = Translate x y $ Scale (escalaX*1.5) (escalaY*2) (imgPortal app)
+  where
+    (x, y) = (fst (posicaoPortal portal) * tamanhoBloco, snd (posicaoPortal portal) * tamanhoBloco)
+    (larguraPortal, alturaPortal) = (500, 500) -- Substitua pelos tamanhos reais da imagem do portal em pixels
+    escalaX = tamanhoBloco / larguraPortal
+    escalaY = tamanhoBloco / alturaPortal
+
+
 
 -- Reação aos eventos
 reageEventosApp :: Event -> EstadoApp -> EstadoApp
@@ -201,6 +233,7 @@ reageEventosJogo _ estado = estado
 
 reageTempoJogo :: Float -> EstadoJogo -> EstadoJogo
 reageTempoJogo _ estado = estado
+
 
 verificaFimDeJogo :: EstadoJogo -> Bool
 verificaFimDeJogo jogo = terminouJogo Jogo
