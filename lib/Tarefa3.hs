@@ -14,6 +14,8 @@ import LI12425
 import Tarefa2
 
 
+
+
 torre3 :: Torre
 torre3 = Torre { posicaoTorre = (0, 1), alcanceTorre = 2.0, rajadaTorre = 2, cicloTorre = 1.0, danoTorre = 1.0, tempoTorre = 4.0, projetilTorre = projetil2 }
 
@@ -37,20 +39,23 @@ onda2 = Onda {inimigosOnda = [inimigo5], cicloOnda = 2.0, tempoOnda = 3.0, entra
 
 
 
-{-| A funçao atualizaJogo atualiza o estado do jogo em funçao do tempo.
+{-| A funçao atualizaJogo atualiza o estado do jogo em funçao do tempo, utiliza funçoes que atualizam cada parametro.
 
 
 == Exemplo
 
->>>atualizaJogo jogo1
+>>>atualizaJogo jogo1 1.0
 
 
 -}
 
-atualizaJogo :: Tempo -> Jogo -> Jogo
-atualizaJogo tempo jogo = novoJogo
-     where 
-        novoJogo = undefined
+ atualizaJogo :: Tempo -> Jogo -> Jogo
+atualizaJogo tempo jogo = jogo { 
+    torres = map (atualizaTorre tempo) (torres jogo), 
+    inimigos = map (atualizaInimigo tempo) (inimigos jogo) ,
+    portais = map (atualizaPortal tempo) (portais jogo),
+    base = atualizaBase  (base jogo) tempo
+  }
 
 {-| A funçao disparosTorre atualiza a torre gerindo os disparos automaticos e os inimigos atingidos.
 == Exemplo
@@ -60,11 +65,13 @@ atualizaJogo tempo jogo = novoJogo
 -}
 
 
+
 disparosTorre :: Torre -> [Inimigo] -> (Torre, [Inimigo])
 disparosTorre  torre inimigos =
-    if  tempoTorre torre <= 0 && inimigosNoAlcance inimigos
-    then (atualizaTorre torre, atacaInimigo inimigos)
+    if  tempoTorre torre <= 0 &&  not null (inimigosNoAlcance inimigos)
+    then (atualizaTorre (tempoTorre torre) torre, atacaInimigo torre inimigos)
     else (torre, inimigos)
+
 
 {-| A funçao atualizaTorre atualiza o parametro tempoTorre em funçao da passagem de tempo, sempre que disparar
 reseta para cicloTorre da torre, caso contrario minimui com o decorrer do tempo. 
@@ -112,16 +119,103 @@ inimigosAtingidos torre inimigos = take (rajadaTorre torre) (inimigosNoAlcance t
 
 
 
-{-| A funcao ajustaVelocidade ajusta a velocidade do inimigo com atençao aos efeitos dos projeteis.
 
-==Exemplo
+{-| A funçao deInimigoABase verifica que caso exista um percurso do inimigo à base então cria uma lista de direçoes 
+caso contrario dá erro.
 
->>>ajustaVelocidade
-...
+== Exemplo:
+
+>>>deInimigoABase 
+
+
+-}
+deInimigoABase :: Mapa -> Inimigo -> Base -> [Direcao]
+deInimigoABase mapa inimigo base =
+    if buscaCaminho mapa inimigo base [] 
+    then criarDirecoes mapa inimigo base
+    else error "Inimigo perdido!"
+
+
+{-| A funçao criarDirecoes cria uma lista de direcoes caso exista um percurso 
+
+
+== Exemplo:
+
+>>>criarDirecoes 
+
 -}
 
-ajustaVelocidade :: Inimigo -> Velocidade
-ajustaVelocidade inimigo = undefined
+criarDirecoes :: Mapa -> Inimigo -> Base -> [Direcao]
+criarDirecoes mapa inimigo base = 
+ dePosicoesParaDirecoes posicaoInimigo inimigo percurso
+   where 
+    percurso = calculaOPercurso mapa posicaoInimigo posicaoBase [] 
+    posicaoInimigo = posicaoInimigo inimigo
+    posicaoBase = posicaoBase base
+
+
+ {-|A funçao calculaOPercurso retorna uma lista de posições do percurso a seguir. 
+
+ ==Exemplo
+
+ >>>calculaOPercurso
+ ERRO
+-} 
+calculaOPercurso :: Mapa -> Posicao -> Posicao -> [Posicao] -> [Posicao]
+calculaOPercurso mapa atualinimigo posbase visitados
+    | atualinimigo == posbase = [atualinimigo]
+    | not (posicaoValida mapa atualinimigo) = []
+    | atual `elem` visitados =  []
+    | terrenoPorPosicao atualinimigo mapa /= Just Terra =  []
+    | otherwise =
+        let visitados' = atualinimigo : visitados
+            vizinhos = adjacentes atualinimigo
+        in any (\pos -> calculaOPercurso mapa pos posbase visitados') vizinhos
+
+
+
+{-| A funçao dePosicoesParaDirecoes transforma uma posiçao uma direçao.
+
+-}
+dePosicaoParaDirecao :: Posicao -> Posicao -> Direcao 
+dePosicaoParaDirecao posicao proximaPosicao = 
+    case (posicao, proximaPosicao) of
+        ((x1, y1), (x2, y2))
+           |(y2 > y1) -> Norte
+           |(y2 < y1) -> Sul
+           |(x2 < x1  ) -> Oeste
+           |(x2 > x1 ) -> Este
+           | otherwise -> error  "As posições são iguais!"
+           
+{-|A funçao dePosicoesParaDirecoes transforma posições em direções.
+
+
+-}
+dePosicoesParaDirecoes :: [Posicao] -> [Direcao]
+dePosicoesParaDirecoes [] = []
+dePosicoesParaDirecoes [x] = []
+dePosicoesParaDirecoes [x1, x2] = [dePosicaoParaDirecao x1 x2]
+dePosicoesParaDirecoes (x1:x2:xs) = dePosicaoParaDirecao x1 x2 : dePosicaoParaDirecao (x2:xs)
+
+{-| A função movimentaInimigo atualiza uma posicao quando recebe uma direcao.
+
+
+== Exemplo:
+
+>>>movimenta 
+
+-}
+
+movimenta :: Inimigo -> Direcao -> Posicao
+movimenta posicaoInimigo inimigo direcao  = novaposicao
+        where 
+            novaposicao =  case direcao of  
+                            Norte -> (x, y + 1)
+                            Sul -> (x, y - 1)
+                            Oeste -> (x - 1, y)
+                            Este -> (x + 1, y)
+
+    
 
 
 {-| A funcao projeteisalteramVelocidade ajusta a velocidade do inimigo considerando os efeitos dos projeteis.
@@ -226,10 +320,6 @@ removeEfeito inimigo = undefined
 
 
 
-
-
-
-
 {-| A funçao extraiButins extraí os butins dos inimigos de uma lista de inimigos e coloca-as numa 
  lista.
 
@@ -292,6 +382,28 @@ eliminaDaListaDeAtivos :: [Inimigo] -> Base -> [Inimigo]
 eliminaDaListaDeAtivos inimigos base =
     filter (\inimigo -> not (verificainimigoAtingeBase inimigo base)) inimigos
 
+{-| A função atualizaInimigo atualiza o estado do inimigo com base na passagem do tempo, tem em consideraçao
+ o seu movimento, projeteis ativos que possam impactar a sua velocidade e a remocao deste efeito caso expire
+
+== Exemplo
+
+>>> atualizainimigo inimigo1 4.0
+
+-}
+
+atualizaInimigo :: Tempo -> Inimigo -> Inimigo
+atualizaInimigo tempo inimigo = removeEfeito (projeteisalteramVelocidade (movimentaInimigo tempo inimigo))
+
+
+{-| A funçao atualizaBase atualiza o estado da base em funçao dos butins que recebe pela derrota dos inimigos no decorrer do tempo.
+
+
+-}
+
+
+
+atualizaBase :: Base -> tempo -> Base
+atualizaBase base tempo = adicionaButimAosCreditosInimigos (extraiButins novosInimigos) (base jogo)
 
 {-| A função inimigoAtingeBase atualiza a vida da base caso esta seja atingida por um inimigo.
 
