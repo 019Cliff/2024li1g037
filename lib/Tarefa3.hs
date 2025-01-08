@@ -15,6 +15,7 @@ import Tarefa2
 
 import Tarefa1
 
+
 torre3 :: Torre
 torre3 = Torre { posicaoTorre = (0, 1), alcanceTorre = 2.0, rajadaTorre = 2, cicloTorre = 1.0, danoTorre = 1.0, tempoTorre = 4.0, projetilTorre = projetil2 }
 
@@ -38,20 +39,23 @@ onda2 = Onda {inimigosOnda = [inimigo5], cicloOnda = 2.0, tempoOnda = 3.0, entra
 
 
 
-{-| A funçao atualizaJogo atualiza o estado do jogo em funçao do tempo.
+{-| A funçao atualizaJogo atualiza o estado do jogo em funçao do tempo, utiliza funçoes que atualizam cada parametro.
 
 
 == Exemplo
 
->>>atualizaJogo jogo1
+>>>atualizaJogo jogo1 1.0
 
 
 -}
 
 atualizaJogo :: Tempo -> Jogo -> Jogo
-atualizaJogo tempo jogo = novoJogo
-     where 
-        novoJogo = undefined
+atualizaJogo tempo jogo = jogo { 
+    torres = map (atualizaTorre tempo) (torres jogo), 
+    inimigos = map (atualizaInimigo tempo) (inimigos jogo) ,
+    portais = map (atualizaPortal tempo) (portais jogo),
+    base = atualizaBase  (base jogo) tempo
+  }
 
 {-| A funçao disparosTorre atualiza a torre gerindo os disparos automaticos e os inimigos atingidos.
 == Exemplo
@@ -61,11 +65,13 @@ atualizaJogo tempo jogo = novoJogo
 -}
 
 
+
 disparosTorre :: Torre -> [Inimigo] -> (Torre, [Inimigo])
 disparosTorre  torre inimigos =
-    if  tempoTorre torre <= 0 && inimigosNoAlcance inimigos
-    then (atualizaTorre torre, atacaInimigo inimigos)
+    if  tempoTorre torre <= 0 &&  not null (inimigosNoAlcance inimigos)
+    then (atualizaTorre (tempoTorre torre) torre, atacaInimigo torre inimigos)
     else (torre, inimigos)
+
 
 {-| A funçao atualizaTorre atualiza o parametro tempoTorre em funçao da passagem de tempo, sempre que disparar
 reseta para cicloTorre da torre, caso contrario minimui com o decorrer do tempo. 
@@ -113,29 +119,194 @@ inimigosAtingidos torre inimigos = take (rajadaTorre torre) (inimigosNoAlcance t
 
 
 
-{-| A funcao ajustaVelocidade ajusta a velocidade do inimigo com atençao aos efeitos dos projeteis.
 
-==Exemplo
+{-| A funçao deInimigoABase verifica que caso exista um percurso do inimigo à base então cria uma lista de direçoes 
+caso contrario dá erro.
 
->>>ajustaVelocidade
-...
--}
+== Exemplo:
 
-ajustaVelocidade :: Inimigo -> Velocidade
-ajustaVelocidade inimigo = undefined
-
-
-{-|A função efeitosInimigos aplica os efeitos dos projeteis nos inimigos.
-
-==Exemplo
->>> efeitosInimigos
-...
+>>>deInimigoABase 
 
 
 -}
+deInimigoABase :: Mapa -> Inimigo -> Base -> [Direcao]
+deInimigoABase mapa inimigo base =
+    if buscaCaminho mapa inimigo base [] 
+    then criarDirecoes mapa inimigo base
+    else error "Inimigo perdido!"
 
-efeitosInimigos :: [Inimigo] -> [Projetil] -> [Inimigo]
- inimigos projeteis = undefined
+
+{-| A funçao criarDirecoes cria uma lista de direcoes caso exista um percurso 
+
+
+== Exemplo:
+
+>>>criarDirecoes 
+
+-}
+
+criarDirecoes :: Mapa -> Inimigo -> Base -> [Direcao]
+criarDirecoes mapa inimigo base = 
+ dePosicoesParaDirecoes posicaoInimigo inimigo percurso
+   where 
+    percurso = calculaOPercurso mapa posicaoInimigo posicaoBase [] 
+    posicaoInimigo = posicaoInimigo inimigo
+    posicaoBase = posicaoBase base
+
+ {-|A funçao calculaOPercurso retorna uma lista de posições do percurso a seguir. 
+
+ ==Exemplo
+
+ >>>calculaOPercurso
+ ERRO
+-} 
+
+calculaOPercurso :: Mapa -> Posicao -> Posicao -> [Posicao] -> [Posicao]
+calculaOPercurso mapa atualinimigo posbase visitados
+    | atualinimigo == posbase = [atualinimigo] 
+    | not (posicaoValida mapa atualinimigo) = [] 
+    | atualinimigo `elem` visitados = [] 
+    | terrenoPorPosicao atualinimigo mapa /= Just Terra = [] 
+    | otherwise =
+        let visitados' = atualinimigo : visitados
+            vizinhos = adjacentes atualinimigo
+            caminhos = map (\pos -> calculaOPercurso mapa pos posbase visitados') vizinhos
+            caminhoValido = filter (not . null) caminhos 
+        in if null caminhoValido
+            then [] 
+            else atualinimigo : head caminhoValido 
+
+{-| A funçao dePosicoesParaDirecoes transforma uma posiçao uma direçao.
+
+-}
+dePosicaoParaDirecao :: Posicao -> Posicao -> Direcao 
+dePosicaoParaDirecao posicao proximaPosicao = 
+    case (posicao, proximaPosicao) of
+        ((x1, y1), (x2, y2))
+           |(y2 > y1) -> Norte
+           |(y2 < y1) -> Sul
+           |(x2 < x1  ) -> Oeste
+           |(x2 > x1 ) -> Este
+           | otherwise -> error  "As posições são iguais!"
+           
+{-|A funçao dePosicoesParaDirecoes transforma posições em direções.
+
+
+-}
+dePosicoesParaDirecoes :: [Posicao] -> [Direcao]
+dePosicoesParaDirecoes [] = []
+dePosicoesParaDirecoes [x] = []
+dePosicoesParaDirecoes [x1, x2] = [dePosicaoParaDirecao x1 x2]
+dePosicoesParaDirecoes (x1:x2:xs) = dePosicaoParaDirecao x1 x2 : dePosicaoParaDirecao (x2:xs)
+
+{-| A função movimentaInimigo atualiza uma posicao quando recebe uma direcao.
+
+
+== Exemplo:
+
+>>>movimenta 
+
+-}
+
+movimenta :: Inimigo -> Direcao -> Posicao
+movimenta posicaoInimigo inimigo direcao  = novaposicao
+        where 
+            novaposicao =  case direcao of  
+                            Norte -> (x, y + 1)
+                            Sul -> (x, y - 1)
+                            Oeste -> (x - 1, y)
+                            Este -> (x + 1, y)
+
+    
+
+
+{-| A funcao projeteisalteramVelocidade ajusta a velocidade do inimigo considerando os efeitos dos projeteis.
+
+==Exemplo
+
+>>>projeteisalteramVelocidade 
+
+-}
+
+
+projeteisalteramVelocidade :: Inimigo -> Inimigo
+projeteisalteramVelocidade i@Inimigo {velocidadeInimigo = velocidade, projeteisInimigo = projeteisAtivos} = 
+    i {velocidadeInimigo = novaVelocidade, projeteisAtivos = novosProjeteis}
+    where 
+        novaVelocidade = alteraVelocidade (projeteisAtivos)
+        novosProjeteis = filtraProjeteisExpirados (map (\projetil-> duracaoReduzida projetil tempo) projeteisAtivos)
+
+
+
+{-| A funçao alteraVelocidade altera a velocidade do inimigo conforme o tipo de projetil ativo.
+
+== Exemplo:
+>>>alteraVelocidade
+-}
+alteraVelocidade :: Inimigo -> Projetil -> Inimigo
+alteraVelocidade inimigo projetil =
+     case tipoProjetil projetil of 
+      Gelo -> inimigo { velocidadeInimigo = 0 }
+      Fogo -> inimigo 
+      Resina -> inimigo {velocidadeInimigo = max 0 (velocidadenormal inimigo - fatorResina)}
+ 
+
+
+
+{-|  A funçao acabaEfeito atualiza a lista de projeteis do inimigo , os projteis de fogo e gelo quando 
+ têm duraçoes = Finita 0.0 sao removidos e os efeitos deixam de atuar.
+
+== Exemplo:
+>>>acabaEfeito
+-}
+acabaEfeito :: Inimigo -> Inimigo
+acabaEfeito projetilInimigo inimigo = novoInimigo
+   where
+     novoInimigo = inimigo {projeteisInimigo = filtraProjeteisExpirados (projetilInimigo Inimigo)} 
+
+
+{-| A funcao duracaoReduzida atualiza a duração do projetil com o decorrer do tempo, sendo no maximo igual a zero.
+
+== Exemplo:
+>>>duracaoReduzida projetil1 1.0
+
+-}
+
+duracaoReduzida :: Projetil -> Tempo -> Projetil
+duracaoReduzida projetil tempo = projetil {duracaoProjetil = novaDuracao}
+  where
+     novaDuracao = atualizaProjetilComOTempo projetil tempo
+
+
+ {-| A funcao atualizaProjetilComOTempo atualiza o projetil (a sua duração) com o passar do tempo .
+  
+== Exemplo:
+>>> atualizaProjetilComOTempo
+ -}
+
+ 
+atualizaProjetilComOTempo :: Projetil -> Tempo -> Projetil
+atualizaProjetilComOTempo projetil tempo =
+  case  duracaoProjetil projetil of
+    Finita -> Projetil {duracaoProjetil = max 0 (duracaoProjetil - tempo)}
+    Infinita -> Projetil {duracaoProjetil = Infinita}
+
+          
+
+
+       
+
+{-| A função filtraProjeteisExpirados filtra de uma lista de projeteis os projeteis com duraçao finita igual a zero.
+
+== Exemplo:
+>>>filtraProjeteisExpirados [projetil1, projetil2, projetil4]
+[projetil1, projetil2]
+
+-}
+
+filtraProjeteisExpirados :: [Projetil] -> [Projetil] 
+filtraProjeteisExpirados projeteis = filter (\p -> duracaoProjetil p \= Finita 0.0 ) projeteis
+
 
 
 {-| A funçao extraiButins extraí os butins dos inimigos de uma lista de inimigos e coloca-as numa 
@@ -200,6 +371,28 @@ eliminaDaListaDeAtivos :: [Inimigo] -> Base -> [Inimigo]
 eliminaDaListaDeAtivos inimigos base =
     filter (\inimigo -> not (verificainimigoAtingeBase inimigo base)) inimigos
 
+{-| A função atualizaInimigo atualiza o estado do inimigo com base na passagem do tempo, tem em consideraçao
+ o seu movimento, projeteis ativos que possam impactar a sua velocidade e a remocao deste efeito caso expire
+
+== Exemplo
+
+>>> atualizainimigo inimigo1 4.0
+
+-}
+
+atualizaInimigo :: Tempo -> Inimigo -> Inimigo
+atualizaInimigo tempo inimigo = removeEfeito (projeteisalteramVelocidade (movimentaInimigo tempo inimigo))
+
+
+{-| A funçao atualizaBase atualiza o estado da base em funçao dos butins que recebe pela derrota dos inimigos no decorrer do tempo.
+
+
+-}
+
+
+
+atualizaBase :: Base -> tempo -> Base
+atualizaBase base tempo = adicionaButimAosCreditosInimigos (extraiButins novosInimigos) (base jogo)
 
 {-| A função inimigoAtingeBase atualiza a vida da base caso esta seja atingida por um inimigo.
 
@@ -219,15 +412,17 @@ inimigoAtingeBase base@Base { vidaBase = vida }
 {-! A funçao verificainimigoAtingeBase verifica se o inimigo atingiu a base, ou seja, se deu um dano maior q 0.
 
 == Exemplo:
->>> verificainimigoAtingeBase inimigo2 base1
-True
+>>> verificainimigoAtingeBase 
 
 -}
 
 verificainimigoAtingeBase :: Inimigo -> Base -> Bool
 verificainimigoAtingeBase inimigo base 
-   |danoinimigo inimigo > 0 = True
+   |danoInimigo > 0 = True
    |otherwise = False
+    where
+        danoInimigo = (vidaBase base - ataqueInimigo inimigo)
+
 
 {-| A funçao ajustaDistancia atualiza a distancia percorrida pelo inimigo 
 ajustada em função dos efeitos e do parametro velocidadeInimigo 
@@ -312,5 +507,4 @@ Portal {portal1 = Portal { posicaoPortal = (0, 3), ondasPortal = [Onda = {inimig
 -}
 atualizaPortal :: Tempo -> Portal -> Portal
 atualizaPortal tempo portal = portal { ondasPortal = map (atualizaOnda tempo) (ondasPortal portal) }
-
 
