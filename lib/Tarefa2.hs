@@ -23,6 +23,17 @@ projetil3 = Projetil {tipoProjetil = Resina, duracaoProjetil = Finita 4.0 }
 torre2 :: Torre
 torre2 = Torre { posicaoTorre = (0, 1), alcanceTorre = 2.0, rajadaTorre = 3, cicloTorre = 1.0, danoTorre = 1.0, tempoTorre = 2.0, projetilTorre = projetil1 }
 
+inimigo2 :: Inimigo
+inimigo2 = Inimigo 
+  { posicaoInimigo = (1.0, 0.0)
+  , direcaoInimigo = Oeste
+  , vidaInimigo = 80.0
+  , velocidadeInimigo = 0.5
+  , ataqueInimigo = 15.0
+  , butimInimigo = 70
+  , projeteisInimigo = [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 3.0}, Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0}]
+  }
+
 {-| A função inimigosNoAlcance calcula os inimigos ao alcance de uma dada torre.
 
 == Exemplo:
@@ -199,6 +210,26 @@ ativaInimigo portal@Portal {ondasPortal = (onda@Onda {inimigosOnda = (i:is), cic
   let novaOnda = Onda {inimigosOnda = is, cicloOnda = ciclo, tempoOnda = tempo, entradaOnda = entrada}
       novasOndas = if null is then outrasOndas else novaOnda : outrasOndas
   in (portal {ondasPortal = novasOndas}, inimigos ++ [i])
+
+{-|
+A função 'removeEfeito' remove um efeito específico aplicado a um inimigo, caso ele esteja presente na sua lista de projéteis. 
+
+Ela verifica se há algum projétil na lista do inimigo correspondente ao tipo especificado e o remove. 
+Caso o tipo do projétil não esteja presente na lista, a função retorna o inimigo sem alterações.
+
+== Exemplo:
+
+>>> removeEfeito Fogo inimigo1
+Inimigo {posicaoInimigo = (0.0,0.0), direcaoInimigo = Este, vidaInimigo = 100.0, velocidadeInimigo = 1.0, ataqueInimigo = 10.0, butimInimigo = 50, projeteisInimigo = []}
+
+>>> removeEfeito Gelo inimigo2
+Inimigo {posicaoInimigo = (1.0,0.0), direcaoInimigo = Oeste, vidaInimigo = 80.0, velocidadeInimigo = 0.5, ataqueInimigo = 15.0, butimInimigo = 70, projeteisInimigo = [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 3.0}]}
+
+-}
+removeEfeito :: TipoProjetil -> Inimigo -> Inimigo
+removeEfeito tipo inimigo@Inimigo {projeteisInimigo = projeteis} =
+  let projeteisAtualizados = filter (\p -> tipoProjetil p /= tipo) projeteis
+  in inimigo {projeteisInimigo = projeteisAtualizados}
 
 {-| A função 'atualizarProjetis' lida com as sinergias entre os projéteis de uma torre e os projéteis já presentes no inimigo.
  
