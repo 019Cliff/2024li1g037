@@ -51,13 +51,17 @@ onda2 = Onda {inimigosOnda = [inimigo5], cicloOnda = 2.0, tempoOnda = 3.0, entra
 
 atualizaJogo :: Tempo -> Jogo -> Jogo
 atualizaJogo tempo jogo = jogo { 
-    torres = map (atualizaTorre tempo) (torres jogo), 
-    inimigos = map (atualizaInimigo tempo) (inimigos jogo) ,
-    portais = map (atualizaPortal tempo) (portais jogo),
-    base = atualizaBase  (base jogo) tempo
+    torresJogo = torresAtualizadas tempo (torresJogo jogo) (inimigosJogo jogo),  
+    inimigosJogo = map (atualizaInimigo tempo) (inimigosJogo jogo) ,
+    portaisJogo = map (atualizaPortal tempo) (portaisJogo jogo),
+    baseJogo = atualizaBase (baseJogo jogo) tempo (inimigosJogo jogo),
+    lojaJogo = lojaJogo jogo,
+    mapaJogo = mapaJogo jogo
+
   }
 
-{-| A funçao disparosTorre atualiza a torre gerindo os disparos automaticos e os inimigos atingidos.
+{-| A funçao disparosTorre atualiza a torre gerindo os disparos automaticos e os inimigos atingidos, trata de detetar e
+ atirar nos inimigos.
 == Exemplo
 
 >>>disparosTorre torre1 [inimigo1, inimigo2]
@@ -74,7 +78,7 @@ disparosTorre  torre inimigos =
 
 
 {-| A funçao atualizaTorre atualiza o parametro tempoTorre em funçao da passagem de tempo, sempre que disparar
-reseta para cicloTorre da torre, caso contrario minimui com o decorrer do tempo. 
+reseta para cicloTorre da torre, caso contrario diminui com o decorrer do tempo. 
 
 == Exemplo
 
@@ -105,6 +109,15 @@ atacaInimigo :: Torre -> [Inimigo] -> [Inimigo]
 atacaInimigo torre inimigos = map (atingeInimigo inimigos) (inimigosAtingidos torre inimigos)
 
 
+{-| A funçao torresAtualizadas atualiza o estado da torre, reunindo todas as funçoes anteriores.
+
+-}
+
+
+torresAtualizadas :: Tempo -> [Torre] -> [Inimigo] -> [Torre]
+torresAtualizadas tempo torres inimigos = map (atualizaTorre tempo) (map (disparosTorre inimigos) torres)
+
+
 {- A funçao inimigosAtingidos seleciona o número de alvos da torre em funçao da sua rajada quando os inimigos estão no alcance desta.
 
 == Exemplo
@@ -115,10 +128,6 @@ atacaInimigo torre inimigos = map (atingeInimigo inimigos) (inimigosAtingidos to
 
 inimigosAtingidos ::  Torre -> [Inimigo] -> [Inimigo]
 inimigosAtingidos torre inimigos = take (rajadaTorre torre) (inimigosNoAlcance torre inimigos)
-
-
-
-
 
 {-| A funçao deInimigoABase verifica que caso exista um percurso do inimigo à base então cria uma lista de direçoes 
 caso contrario dá erro.
@@ -145,7 +154,7 @@ deInimigoABase mapa inimigo base =
 
 -}
 
-criarDirecoes :: Mapa -> Inimigo -> Base -> [Direcao]
+criarDirecoes :: Mapa -> Inimigo -> Base -> [Posicao] -> [Direcao]
 criarDirecoes mapa inimigo base = 
  dePosicoesParaDirecoes posicaoInimigo inimigo percurso
    where 
@@ -217,8 +226,20 @@ movimenta posicaoInimigo inimigo direcao  = novaposicao
                             Oeste -> (x - 1, y)
                             Este -> (x + 1, y)
 
-    
 
+{-| A funçao atualizaMovimentoInimigo aplica a funçao movimenta a uma lista de posicoes. Assim o inimigo vai seguir cada direcao 
+atualizando sempre a sua posicao antiga.
+
+== Exemplo:
+
+>>> atualizaMovimentoInimigo inimigo1 [Norte, Sul, Este]
+
+
+-}
+
+atualizaMovimentoInimigo :: Inimigo -> [Direcao] -> Inimigo
+atualizaMovimentoInimigo inimigo [] = inimigo
+atualizaMovimentoInimigo inimigo (d:ds) = atualizaMovimentoInimigo (inimigo { posicaoInimigo = movimenta (posicaoInimigo inimigo) d }) ds
 
 {-| A funcao projeteisalteramVelocidade ajusta a velocidade do inimigo considerando os efeitos dos projeteis.
 
@@ -283,18 +304,12 @@ duracaoReduzida projetil tempo = projetil {duracaoProjetil = novaDuracao}
 == Exemplo:
 >>> atualizaProjetilComOTempo
  -}
-
  
 atualizaProjetilComOTempo :: Projetil -> Tempo -> Projetil
 atualizaProjetilComOTempo projetil tempo =
   case  duracaoProjetil projetil of
     Finita -> Projetil {duracaoProjetil = max 0 (duracaoProjetil - tempo)}
     Infinita -> Projetil {duracaoProjetil = Infinita}
-
-          
-
-
-       
 
 {-| A função filtraProjeteisExpirados filtra de uma lista de projeteis os projeteis com duraçao finita igual a zero.
 
@@ -306,8 +321,6 @@ atualizaProjetilComOTempo projetil tempo =
 
 filtraProjeteisExpirados :: [Projetil] -> [Projetil] 
 filtraProjeteisExpirados projeteis = filter (\p -> duracaoProjetil p \= Finita 0.0 ) projeteis
-
-
 
 {-| A funçao extraiButins extraí os butins dos inimigos de uma lista de inimigos e coloca-as numa 
  lista.
@@ -340,10 +353,9 @@ adicionaOsCreditosABase butins base@(Base {creditosBase = credito }) = base{cred
 >>>adicionaButimAosCreditosInimigos [inimigo1, inimigo2] base1 
 Base { posicaoBase = (1, 1), creditosBase = 300, vidaBase = 100.0 }
 -}
+
 adicionaButimAosCreditosInimigos :: [Inimigo] -> Base -> Base
 adicionaButimAosCreditosInimigos inimigos base = adicionaOsCreditosABase (extraiButins inimigos) base
-
-
 
 {-|A função retiraInimigoEmFunçaoDaVida retira o inimigo da lista de inimigos ativos se a vida deste for igual ou menor que zero.
 
@@ -363,9 +375,7 @@ retiraInimigoEmFunçaoDaVida = filter (\inimigo -> vida inimigo > 0 )
 >>> eliminaDaListaDeAtivos base1 [inimigo2, inimigo1]
 inimigo1
 
- 
 -}
-
 
 eliminaDaListaDeAtivos :: [Inimigo] -> Base -> [Inimigo]
 eliminaDaListaDeAtivos inimigos base =
@@ -380,19 +390,30 @@ eliminaDaListaDeAtivos inimigos base =
 
 -}
 
-atualizaInimigo :: Tempo -> Inimigo -> Inimigo
-atualizaInimigo tempo inimigo = removeEfeito (projeteisalteramVelocidade (movimentaInimigo tempo inimigo))
 
+  atualizaInimigo :: Tempo -> Inimigo -> Inimigo
+atualizaInimigo tempo inimigo =
+  retiraInimigoEmFunçãoDaVida $
+    ajustaDistancia
+      (filtraProjeteisExpirados
+        (projeteisAlteramVelocidade
+          (atualizaMovimentoInimigo inimigo direcoes)
+        )
+      )
+      tempo
+  where
+    direcoes = criarDirecoes mapa inimigo base []
 
 {-| A funçao atualizaBase atualiza o estado da base em funçao dos butins que recebe pela derrota dos inimigos no decorrer do tempo.
 
+== Exemplo:
 
 -}
 
+atualizaBase :: Base -> Tempo -> [Inimigo] -> Base
+atualizaBase base tempo [] = base
+atualizaBase base tempo (i:is) = adicionaOsCreditosABase (inimigoAtingeBase base i) (extraiButins (i:is))
 
-
-atualizaBase :: Base -> tempo -> Base
-atualizaBase base tempo = adicionaButimAosCreditosInimigos (extraiButins novosInimigos) (base jogo)
 
 {-| A função inimigoAtingeBase atualiza a vida da base caso esta seja atingida por um inimigo.
 
@@ -438,9 +459,6 @@ ajustaDistancia distancia tempo = novadistancia
           where 
             novadistancia = tempo * velocidadeinimigo
 
-
-
-
 {-| A função portalComOndasAtivas filtra as ondas ativas de um portal, ou seja,aquelas cujo parametro entradaOnda seja igual ou inferior
 a 0 (zero) e que poderá lançar inimigos. 
 
@@ -476,8 +494,6 @@ de inimigos.
 [inimigo2,inimigo3]
 -}
 
-
-
 ordemNaturalDosInimigos :: Onda -> [Inimigo]
 ordemNaturalDosInimigos = inimigosOnda
 
@@ -507,4 +523,4 @@ Portal {portal1 = Portal { posicaoPortal = (0, 3), ondasPortal = [Onda = {inimig
 -}
 atualizaPortal :: Tempo -> Portal -> Portal
 atualizaPortal tempo portal = portal { ondasPortal = map (atualizaOnda tempo) (ondasPortal portal) }
-
+ 
