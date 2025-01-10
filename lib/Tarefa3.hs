@@ -217,9 +217,6 @@ movimenta posicaoInimigo inimigo direcao  = novaposicao
                             Oeste -> (x - 1, y)
                             Este -> (x + 1, y)
 
-    
-
-
 {-| A funcao projeteisalteramVelocidade ajusta a velocidade do inimigo considerando os efeitos dos projeteis.
 
 ==Exemplo
