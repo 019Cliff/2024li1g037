@@ -134,7 +134,6 @@ desenhaJogo estado app = Pictures
 
 
 
-
 desenhaMapa :: EstadoApp -> Mapa -> Picture
 desenhaMapa app mapa = Translate offsetX offsetY $ Pictures $ concatMap (desenhaLinha app) (zip [0 ..] mapa)
   where
@@ -207,21 +206,19 @@ desenhaPortal portal app = Translate x y $ Scale (escalaX*1.5) (escalaY*2) (imgP
 
 -- Reação aos eventos
 reageEventosApp :: Event -> EstadoApp -> EstadoApp
-reageEventosApp (EventKey (SpecialKey KeyEnter) Down _ _) app =
-  case estadoAtual app of
-    MenuPrincipal -> app { estadoAtual = Jogando estadoInicialJogo }
-    _ -> app
 reageEventosApp (EventKey (MouseButton LeftButton) Down _ (x, y)) app =
   case estadoAtual app of
     MenuPrincipal
-      | y > -25 && y < 25 && x > -250 && x < 250 -> app { estadoAtual = Jogando estadoInicialJogo }
-      | y > -75 && y < -25 && x > -250 && x < 250 -> app { estadoAtual = Sair }
-    _ -> app
-reageEventosApp (EventKey (SpecialKey KeyEsc) Down _ _) app =
-  case estadoAtual app of
-    MenuPrincipal -> app { estadoAtual = Sair }
+      -- Verificar clique no botão "Jogar"
+      |  dentroDoBotao x y (-250, -270) (250, -170) -> app { estadoAtual = Jogando estadoInicialJogo }
+      -- Verificar clique no botão "Sair"
+      | dentroDoBotao x y (-250, -450) (250, -400) -> app { estadoAtual = Sair }
     _ -> app
 reageEventosApp _ app = app
+
+-- Função auxiliar para verificar se o clique está dentro de um botão
+dentroDoBotao :: Float -> Float -> (Float, Float) -> (Float, Float) -> Bool
+dentroDoBotao x y (xmin, ymin) (xmax, ymax) = x >= xmin && x <= xmax && y >= ymin && y <= ymax
 
 reageTempoApp :: Float -> EstadoApp -> EstadoApp
 reageTempoApp _ app = app
