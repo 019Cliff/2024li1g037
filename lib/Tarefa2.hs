@@ -233,49 +233,35 @@ removeEfeito tipo inimigo@Inimigo {projeteisInimigo = projeteis} =
 
 {-| A função 'atualizarProjetis' lida com as sinergias entre os projéteis de uma torre e os projéteis já presentes no inimigo.
  
-Ela aplica as interações entre os tipos de projéteis e atualiza a lista de projéteis de acordo com essas sinergias:
-- Se houver projéteis de Fogo e Gelo simultaneamente, ambos são removidos.
-- Se houver projéteis de Resina e Fogo, a duração do Fogo é duplicada e o projétil de Resina é removido.
-- Se já houver projéteis do mesmo tipo, suas durações são somadas.
-
-Esta função retorna a lista de projéteis atualizada, com base nessas interações.
-
 == Exemplo:
 
 >>> atualizarProjetis (Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 3.0}) [Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 2.0}, Projetil {tipoProjetil = Resina, duracaoProjetil = Finita 4.0}]
 [Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 2.0},Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 3.0}]
                                     
-
-Neste exemplo, a função remove o projétil de Gelo (pois Fogo e Gelo não podem coexistir) e dobra a duração do projétil de Fogo, devido à presença de Resina.
-
 >>> atualizarProjetis (Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 3.0}) [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0}]
-[Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0},Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 3.0}]3. Caso sem interações especiais:
+[Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0},Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 3.0}]
+
 >>> atualizarProjetis (Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0}) [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 2.0}]
-[Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 2.0}, Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0}]
+[Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 2.0},Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0}]
 -- Não há interações especiais entre Fogo e Gelo, então ambos são mantidos na lista sem modificações.
 
-4. Caso em que o novo projétil não interage com os existentes:
 >>> atualizarProjetis (Projetil {tipoProjetil = Resina, duracaoProjetil = Finita 4.0}) [Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 2.0}]
 [Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 2.0}, Projetil {tipoProjetil = Resina, duracaoProjetil = Finita 4.0}]
 
--- Teste: Somando projéteis do tipo Fogo
 >>> atualizarProjetis (Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 3.0}) [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 2.0}]
 [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0}]
 
 -}
+
 atualizarProjetis :: Projetil -> [Projetil] -> [Projetil]
 atualizarProjetis projetilNovo projeteis =
   let (fogos, gelos, resinas) = dividePorTipoProjetil projeteis
-      -- Caso haja projéteis de Fogo e Gelo ao mesmo tempo, ambos são removidos
       projeteisSemFogoEGelo = fogoEGelo (fogos ++ gelos)
-      -- Caso haja Resina e Fogo, dobra a duração do Fogo e remove Resina
       projeteisComFogoEResina = atingeFogoEResina projeteisSemFogoEGelo
-      -- Se já houver projéteis iguais, soma as durações
       projeteisSomados = somaProjetil projeteisComFogoEResina
   in projeteisSomados ++ [projetilNovo]
 
 {-| A função terminouJogo decide se o jogo terminou, ou seja, se o jogador ganhou ou perdeu o jogo.
-Para isso são utilizadas outras duas funções a ganhouJogo e a perdeuJogo.
 
 == Exemplo:
 >>> terminouJogo jogo1
@@ -285,8 +271,10 @@ True
 
 Nota: No exemplo 1 o jogo continua, no exemplo 2 foi uma derrota.
 -}
+
 terminouJogo :: Jogo -> Bool
 terminouJogo jogo = ganhouJogo jogo || perdeuJogo jogo
+
 ganhouJogo :: Jogo -> Bool 
 ganhouJogo Jogo {baseJogo = Base {vidaBase = x}, inimigosJogo = inimigos} = x > 0 && null inimigos
 
