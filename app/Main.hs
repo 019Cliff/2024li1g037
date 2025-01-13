@@ -10,6 +10,7 @@ import Eventos
 import Desenhar
 import Tempo
 
+
 -- Estado do Jogo
 data EstadoJogo = EstadoJogo
   { mapa :: Mapa
@@ -19,7 +20,6 @@ data EstadoJogo = EstadoJogo
   , base :: Base
   , portais :: [Portal] -- Adicionar portais aqui
   }
-
 
 -- Estado do Menu
 data EstadoMenu = MenuPrincipal | Jogando EstadoJogo | Jogar |  Sair 
@@ -40,7 +40,6 @@ data EstadoApp = EstadoApp
   , dimAgua :: (Float, Float)
   }
 
-
 -- Estado inicial da aplicação
 estadoInicialApp :: EstadoApp
 estadoInicialApp = EstadoApp
@@ -55,10 +54,32 @@ estadoInicialJogo = EstadoJogo
   { mapa = mapag
   , moedas = creditosBase baseg
   , torres = []
-  , inimigos = [inimigog]
+  , inimigos = map (\portal -> inicializaInimigo (posicaoPortal portal)) (portais estadoInicialJogo)
   , base = baseg
   , portais = [portalg] -- Inicialize com os portais desejados
   }
+
+
+inicializaInimigo :: Posicao -> Inimigo
+inicializaInimigo pos = Inimigo
+  { posicaoInimigo = pos
+  , direcaoInimigo = calculaDirecaoInicial mapag pos
+  , velocidadeInimigo = 2.0
+  , vidaInimigo = 100.0
+  , ataqueInimigo = 10.0
+  , butimInimigo = 50
+  , projeteisInimigo = []
+  }
+
+-- Função para calcular a direção inicial com base no mapa
+calculaDirecaoInicial :: Mapa -> Posicao -> Direcao
+calculaDirecaoInicial mapa (x, y) =
+  let (ix, iy) = (round x, round y)
+      vizinhos = [(Norte, (ix, iy - 1)), (Sul, (ix, iy + 1)), (Este, (ix + 1, iy)), (Oeste, (ix - 1, iy))]
+      terrenoValido (_, (cx, cy)) = cx >= 0 && cy >= 0 && cy < length mapa && cx < length (head mapa) && mapa !! cy !! cx == Terra
+  in case filter terrenoValido vizinhos of
+       [] -> Oeste -- Direção padrão se não houver caminhos válidos
+       (direcao, _):_ -> direcao
 
 
 -- Dimensões da janela
@@ -110,7 +131,10 @@ main = do
 desenhaApp :: EstadoApp -> Picture
 desenhaApp app = case estadoAtual app of
   MenuPrincipal -> desenhaMenu (imgFundo app) (imgJogar app)
-  Jogando jogo -> desenhaJogo jogo app
+  Jogando jogo
+    | verificaFimDeJogo jogo -> Translate (-200) 0 $ Scale 0.5 0.5 $ Text "Fim de Jogo"
+    | otherwise -> desenhaJogo jogo app
+  _ -> Blank
 
 desenhaMenu :: Picture -> Picture -> Picture
 desenhaMenu imgFundo imgJogar = Pictures
@@ -131,8 +155,6 @@ desenhaJogo estado app = Pictures
   , desenhaPortal portalg app
 
   ]
-
-
 
 desenhaMapa :: EstadoApp -> Mapa -> Picture
 desenhaMapa app mapa = Translate offsetX offsetY $ Pictures $ concatMap (desenhaLinha app) (zip [0 ..] mapa)
@@ -173,16 +195,16 @@ desenhaTorres torres = Pictures $ map desenhaTorre torres
       where
         (x, y) = posicaoTorre torre
 
+
 desenhaInimigos :: [Inimigo] -> EstadoApp -> Picture
 desenhaInimigos inimigos app = Pictures $ map (desenhaInimigo app) inimigos
   where
     desenhaInimigo :: EstadoApp -> Inimigo -> Picture
-    desenhaInimigo app inimigo = Translate x y $ Scale (escalaX*3.5) (escalaY*3.5) (imgInimigo app)
-      where
-        (x, y) = (fst (posicaoInimigo inimigo) * tamanhoBloco, snd (posicaoInimigo inimigo) * tamanhoBloco)
-        (larguraInimigo, alturaInimigo) = (860, 860) -- Substitua pelas dimensões reais da imagem do inimigo
-        escalaX = tamanhoBloco / larguraInimigo
-        escalaY = tamanhoBloco / alturaInimigo
+    desenhaInimigo app inimigo =
+      let (x, y) = posicaoInimigo inimigo
+          escala = tamanhoBloco / 860 -- Ajuste de escala
+      in Translate (x * tamanhoBloco) (y * tamanhoBloco) $ Scale escala escala (imgInimigo app)
+
 
 
 desenhaBase :: Base -> EstadoApp -> Picture
@@ -202,35 +224,58 @@ desenhaPortal portal app = Translate x y $ Scale (escalaX*1.5) (escalaY*2) (imgP
     escalaX = tamanhoBloco / larguraPortal
     escalaY = tamanhoBloco / alturaPortal
 
-
-
--- Reação aos eventos
 reageEventosApp :: Event -> EstadoApp -> EstadoApp
+reageEventosApp (EventKey (SpecialKey KeyEnter) Down _ _) app =
+  case estadoAtual app of
+    MenuPrincipal -> app { estadoAtual = Jogando estadoInicialJogo }
+    _ -> app
+
 reageEventosApp (EventKey (MouseButton LeftButton) Down _ (x, y)) app =
   case estadoAtual app of
     MenuPrincipal
-      -- Verificar clique no botão "Jogar"
-      |  dentroDoBotao x y (-250, -270) (250, -170) -> app { estadoAtual = Jogando estadoInicialJogo }
-      -- Verificar clique no botão "Sair"
+      | dentroDoBotao x y (-250, -270) (250, -170) -> app { estadoAtual = Jogando estadoInicialJogo }
       | dentroDoBotao x y (-250, -450) (250, -400) -> app { estadoAtual = Sair }
+    Jogando jogo ->
+      let (posX, posY) = (x / tamanhoBloco, y / tamanhoBloco)
+          novaTorre = Torre { posicaoTorre = (posX, posY), danoTorre = 5.0, alcanceTorre = 3.0, rajadaTorre = 1, cicloTorre = 1.0, tempoTorre = 0.0, projetilTorre = Projetil Fogo (Finita 3.0) }
+      in if moedas jogo >= 50 && terrenoValido (mapa jogo) (posX, posY)
+           then app { estadoAtual = Jogando jogo { torres = novaTorre : torres jogo, moedas = moedas jogo - 50 } }
+           else app
     _ -> app
+
 reageEventosApp _ app = app
+
+
+-- Função auxiliar para verificar se o terreno é válido para construção
+terrenoValido :: Mapa -> Posicao -> Bool
+terrenoValido mapa (x, y) =
+  let (ix, iy) = (round x, round y)
+  in ix >= 0 && iy >= 0 && iy < length mapa && ix < length (head mapa) && (mapa !! iy !! ix) == Relva
+
 
 -- Função auxiliar para verificar se o clique está dentro de um botão
 dentroDoBotao :: Float -> Float -> (Float, Float) -> (Float, Float) -> Bool
 dentroDoBotao x y (xmin, ymin) (xmax, ymax) = x >= xmin && x <= xmax && y >= ymin && y <= ymax
 
 reageTempoApp :: Float -> EstadoApp -> EstadoApp
-reageTempoApp _ app = app
+reageTempoApp dt app =
+  case estadoAtual app of
+    Jogando jogo ->
+      let -- Atualizar os inimigos
+          inimigosAtualizados = atualizaInimigos dt (mapa jogo) (inimigos jogo)
+          -- Atualizar a base e outros elementos do jogo
+          novaBase = atualizaJogo dt (torres jogo) inimigosAtualizados (head $ portais jogo) (base jogo)
+          novoJogo = jogo { inimigos = inimigosAtualizados, base = novaBase }
+      in app { estadoAtual = Jogando novoJogo }
+    _ -> app
 
 -- Reações específicas do jogo
 reageEventosJogo :: Event -> EstadoJogo -> EstadoJogo
 reageEventosJogo (EventKey (MouseButton LeftButton) Up _ _) estado = estado
 reageEventosJogo _ estado = estado
 
-reageTempoJogo :: Float -> EstadoJogo -> EstadoJogo
-reageTempoJogo _ estado = estado
-
+reageTempoJogo :: Float -> EstadoApp -> EstadoApp
+reageTempoJogo _ it = it
 
 verificaFimDeJogo :: EstadoJogo -> Bool
 verificaFimDeJogo jogo = terminouJogo Jogo
