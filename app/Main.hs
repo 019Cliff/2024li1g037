@@ -1,5 +1,4 @@
 module Main where
-
 import Graphics.Gloss.Interface.Pure.Game
 import Graphics.Gloss
 import LI12425
@@ -18,9 +17,27 @@ data EstadoJogo = EstadoJogo
   , torres :: [Torre]
   , inimigos :: [Inimigo]
   , base :: Base
-  , portais :: [Portal] -- Adicionar portais aqui
+  , portais :: [Portal]
+  , loja :: [TorreLoja]
+  , torreSelecionada :: Maybe TorreLoja -- Torre atualmente selecionada
   }
 
+lojaInicial :: [TorreLoja]
+lojaInicial =
+  [ TorreLoja TorreVermelha 50 red
+  , TorreLoja TorreAzul 75 blue
+  , TorreLoja TorreVerde 100 green
+  ]
+
+data TorreLoja = TorreLoja
+  { tipoTorre :: TipoTorre
+  , precoTorre :: Int
+  , corTorre :: Color
+  } deriving (Eq) -- Permite comparações com ==
+
+
+data TipoTorre = TorreVermelha | TorreAzul | TorreVerde
+  deriving (Eq, Show)
 -- Estado do Menu
 data EstadoMenu = MenuPrincipal | Jogando EstadoJogo | Jogar |  Sair 
 
@@ -35,10 +52,14 @@ data EstadoApp = EstadoApp
   , imgBase :: Picture
   , imgPortal :: Picture
   , imgInimigo :: Picture
-  , dimRelva :: (Float, Float) -- Largura, altura da imagem
+  , imgTorreVermelha :: Picture -- Nova imagem para a Torre Vermelha
+  , imgTorreAzul :: Picture     -- Nova imagem para a Torre Azul
+  , imgTorreVerde :: Picture    -- Nova imagem para a Torre Verde
+  , dimRelva :: (Float, Float)
   , dimTerra :: (Float, Float)
   , dimAgua :: (Float, Float)
   }
+
 
 -- Estado inicial da aplicação
 estadoInicialApp :: EstadoApp
@@ -56,15 +77,16 @@ estadoInicialJogo = EstadoJogo
   , torres = []
   , inimigos = map (\portal -> inicializaInimigo (posicaoPortal portal)) (portais estadoInicialJogo)
   , base = baseg
-  , portais = [portalg] -- Inicialize com os portais desejados
+  , portais = [portalg]
+  , loja = lojaInicial
+  , torreSelecionada = Nothing -- Nenhuma torre selecionada inicialmente
   }
-
 
 inicializaInimigo :: Posicao -> Inimigo
 inicializaInimigo pos = Inimigo
   { posicaoInimigo = pos
   , direcaoInimigo = calculaDirecaoInicial mapag pos
-  , velocidadeInimigo = 2.0
+  , velocidadeInimigo = 1.0
   , vidaInimigo = 100.0
   , ataqueInimigo = 10.0
   , butimInimigo = 50
@@ -121,10 +143,29 @@ main = do
   imgRelva <- loadBMP "/home/cliff/2024li1g037/app/images.bmp"
   imgTerra <- loadBMP "/home/cliff/2024li1g037/app/terra_textura.bmp"
   imgAgua <- loadBMP "/home/cliff/2024li1g037/app/6da00a37f26551f688dcc04367d7c73c_1.bmp"
-  imgBase <- loadBMP "/home/cliff/2024li1g037/app/tower_image-removebg-preview.bmp"   
-  imgPortal <- loadBMP "/home/cliff/2024li1g037/app/portal.bmp" 
+  imgBase <- loadBMP "/home/cliff/2024li1g037/app/tower_image-removebg-preview.bmp"
+  imgPortal <- loadBMP "/home/cliff/2024li1g037/app/portal.bmp"
   imgInimigo <- loadBMP "/home/cliff/2024li1g037/app/enemy-clipart-little-monster-holding-a-gun-in-one-hand_546721_wh860_2_-removebg-preview.bmp"
-  let estadoInicial = EstadoApp { estadoAtual = MenuPrincipal, imgFundo = imgFundo, imgJogar = imgJogar, imgRelva = imgRelva, imgAgua = imgAgua, imgTerra = imgTerra , dimRelva = (225, 225), dimTerra = (980, 980), dimAgua = (1366, 768), imgBase = imgBase, imgPortal = imgPortal, imgInimigo = imgInimigo }
+  imgTorreVermelha <- loadBMP "/home/cliff/2024li1g037/app/DALL_E-2025-01-13-13.52.34-A-simple-gray-tower-designed-for-a-tower-defense-game-removebg-preview.bmp"
+  imgTorreAzul <- loadBMP "/home/cliff/2024li1g037/app/DALL_E-2025-01-13-13.52.34-A-simple-gray-tower-designed-for-a-tower-defense-game-removebg-preview.bmp"
+  imgTorreVerde <- loadBMP "/home/cliff/2024li1g037/app/DALL_E-2025-01-13-13.52.34-A-simple-gray-tower-designed-for-a-tower-defense-game-removebg-preview.bmp"
+  let estadoInicial = EstadoApp 
+        { estadoAtual = MenuPrincipal
+        , imgFundo = imgFundo
+        , imgJogar = imgJogar
+        , imgRelva = imgRelva
+        , imgTerra = imgTerra
+        , imgAgua = imgAgua
+        , imgBase = imgBase
+        , imgPortal = imgPortal
+        , imgInimigo = imgInimigo
+        , imgTorreVermelha = imgTorreVermelha
+        , imgTorreAzul = imgTorreAzul
+        , imgTorreVerde = imgTorreVerde
+        , dimRelva = (225, 225)
+        , dimTerra = (980, 980)
+        , dimAgua = (1366, 768)
+        }
   play janela fundo fr estadoInicial desenhaApp reageEventosApp reageTempoApp
 
 -- Desenho da aplicação
@@ -145,15 +186,42 @@ desenhaMenu imgFundo imgJogar = Pictures
     escalaX = fromIntegral janelaLargura / 1920
     escalaY = fromIntegral janelaAltura / 1080
 
+desenhaLoja :: [TorreLoja] -> Maybe TorreLoja -> Int -> EstadoApp -> Picture
+desenhaLoja loja torreSelecionada moedas app =
+  Translate (fromIntegral janelaLargura / 2 - 100) (fromIntegral janelaAltura / 2 - 100) $
+  Pictures $ zipWith (desenhaTorreLoja app) [0..] loja ++ [desenhaMoedas moedas]
+  where
+    -- Desenhar a torre com base no tipo de projétil
+    desenhaTorreLoja :: EstadoApp -> Int -> TorreLoja -> Picture
+    desenhaTorreLoja app i torreLoja =
+      let offset = fromIntegral (i * 100)
+          imgTorre = case tipoTorre torreLoja of
+            TorreVermelha -> imgTorreVermelha app
+            TorreAzul     -> imgTorreAzul app
+            TorreVerde    -> imgTorreVerde app
+          circuloSelecionado = case torreSelecionada of
+            Just t | t == torreLoja -> Color yellow $ ThickCircle 35 5
+            _ -> Blank
+      in Pictures
+           [ Translate offset 0 $ Scale 0.1 0.1 imgTorre, -- Exibir a imagem da torre
+             Translate offset (-50) $ Scale 0.1 0.1 $ Text ("$" ++ show (precoTorre torreLoja)),
+             Translate offset 0 circuloSelecionado
+           ]
+
+    desenhaMoedas :: Int -> Picture
+    desenhaMoedas moedas =
+      Translate 50 (-100) $ Scale 0.15 0.15 $ Text ("Moedas: " ++ show moedas)
+
+-- Atualização de desenhaJogo para incluir a loja e as moedas
 desenhaJogo :: EstadoJogo -> EstadoApp -> Picture
 desenhaJogo estado app = Pictures
   [ desenhaMapa app (mapa estado)
-  , desenhaTorres (torres estado)
+  , desenhaTorres (torres estado) app
   , desenhaInimigos (inimigos estado) app
   , desenhaBase (base estado) app
-  , Pictures (map (`desenhaPortal` app) (portais estado)) -- Desenha todos os portais
+  , Pictures (map (`desenhaPortal` app) (portais estado))
   , desenhaPortal portalg app
-
+  , desenhaLoja (loja estado) (torreSelecionada estado) (moedas estado) app -- Passar seleção e moedas
   ]
 
 desenhaMapa :: EstadoApp -> Mapa -> Picture
@@ -188,12 +256,51 @@ desenhaTerrenoBase Agua app =
     escalaY = tamanhoBloco / altura
 
 
-desenhaTorres :: [Torre] -> Picture
-desenhaTorres torres = Pictures $ map desenhaTorre torres
+desenhaTorres :: [Torre] -> EstadoApp -> Picture
+desenhaTorres torres app = Pictures $ map (desenhaTorre app) torres
   where
-    desenhaTorre torre = Translate x y $ Color red $ Circle 20
-      where
-        (x, y) = posicaoTorre torre
+    desenhaTorre :: EstadoApp -> Torre -> Picture
+    desenhaTorre app torre =
+      let (x, y) = posicaoTorre torre
+          imgTorre = imgTorreVermelha app -- Usar a imagem padrão
+          escala = tamanhoBloco / 500 -- Reduz a imagem de 500x500 para o tamanho do bloco
+      in Translate (x * tamanhoBloco) (y * tamanhoBloco) $ Scale escala escala imgTorre
+
+
+-- Função para comprar torre
+comprarTorre :: Float -> EstadoJogo -> EstadoApp -> EstadoApp
+comprarTorre x jogo app =
+  let lojaAtual = loja jogo
+      indiceTorre = floor ((x - (fromIntegral janelaLargura / 2 - 200)) / 100)
+  in if indiceTorre >= 0 && indiceTorre < length lojaAtual
+        then let torreSelecionada = lojaAtual !! indiceTorre
+             in if moedas jogo >= precoTorre torreSelecionada
+                   then app { estadoAtual = Jogando jogo { moedas = moedas jogo - precoTorre torreSelecionada } }
+                   else app -- Sem dinheiro suficiente
+        else app -- Clique fora da loja
+
+        
+-- Função para colocar torre no mapa
+colocarTorre :: Posicao -> EstadoJogo -> EstadoApp -> EstadoApp
+colocarTorre pos jogo app =
+  case torreSelecionada jogo of
+    Just torreLoja ->
+      let novaTorre = Torre
+            { posicaoTorre = pos
+            , danoTorre = 100 -- Exemplo de dano
+            , alcanceTorre = 5 -- Exemplo de alcance
+            , rajadaTorre = 1
+            , cicloTorre = 1.0
+            , tempoTorre = 0.0
+            , projetilTorre = Projetil Fogo (Finita 3.0)
+            }
+      in app { estadoAtual = Jogando jogo
+                { torres = novaTorre : torres jogo
+                , moedas = moedas jogo - precoTorre torreLoja
+                , torreSelecionada = Nothing -- Limpa a seleção
+                }
+             }
+    Nothing -> app -- Nada acontece se nenhuma torre estiver selecionada
 
 
 desenhaInimigos :: [Inimigo] -> EstadoApp -> Picture
@@ -225,25 +332,25 @@ desenhaPortal portal app = Translate x y $ Scale (escalaX*1.5) (escalaY*2) (imgP
     escalaY = tamanhoBloco / alturaPortal
 
 reageEventosApp :: Event -> EstadoApp -> EstadoApp
-reageEventosApp (EventKey (SpecialKey KeyEnter) Down _ _) app =
-  case estadoAtual app of
-    MenuPrincipal -> app { estadoAtual = Jogando estadoInicialJogo }
-    _ -> app
-
 reageEventosApp (EventKey (MouseButton LeftButton) Down _ (x, y)) app =
   case estadoAtual app of
     MenuPrincipal
       | dentroDoBotao x y (-250, -270) (250, -170) -> app { estadoAtual = Jogando estadoInicialJogo }
       | dentroDoBotao x y (-250, -450) (250, -400) -> app { estadoAtual = Sair }
     Jogando jogo ->
-      let (posX, posY) = (x / tamanhoBloco, y / tamanhoBloco)
-          novaTorre = Torre { posicaoTorre = (posX, posY), danoTorre = 5.0, alcanceTorre = 3.0, rajadaTorre = 1, cicloTorre = 1.0, tempoTorre = 0.0, projetilTorre = Projetil Fogo (Finita 3.0) }
-      in if moedas jogo >= 50 && terrenoValido (mapa jogo) (posX, posY)
-           then app { estadoAtual = Jogando jogo { torres = novaTorre : torres jogo, moedas = moedas jogo - 50 } }
-           else app
+      let lojaX = fromIntegral janelaLargura / 2 - 100
+          lojaY = fromIntegral janelaAltura / 2 - 100
+          indiceTorre = floor ((x - lojaX) / 100)
+      in if y > lojaY - 30 && y < lojaY + 30 && indiceTorre >= 0 && indiceTorre < length (loja jogo)
+           then let torreSelecionada = Just (loja jogo !! indiceTorre)
+                in app { estadoAtual = Jogando jogo { torreSelecionada = torreSelecionada } }
+           else if terrenoValido (mapa jogo) (x / tamanhoBloco, y / tamanhoBloco)
+                   && maybe False (\t -> moedas jogo >= precoTorre t) (torreSelecionada jogo)
+                   then colocarTorre (x / tamanhoBloco, y / tamanhoBloco) jogo app
+                   else app
     _ -> app
-
 reageEventosApp _ app = app
+
 
 
 -- Função auxiliar para verificar se o terreno é válido para construção
@@ -261,13 +368,18 @@ reageTempoApp :: Float -> EstadoApp -> EstadoApp
 reageTempoApp dt app =
   case estadoAtual app of
     Jogando jogo ->
-      let -- Atualizar os inimigos
-          inimigosAtualizados = atualizaInimigos dt (mapa jogo) (inimigos jogo)
-          -- Atualizar a base e outros elementos do jogo
-          novaBase = atualizaJogo dt (torres jogo) inimigosAtualizados (head $ portais jogo) (base jogo)
-          novoJogo = jogo { inimigos = inimigosAtualizados, base = novaBase }
-      in app { estadoAtual = Jogando novoJogo }
+      let inimigosAtualizados = atualizaInimigos dt (mapa jogo) (inimigos jogo)
+          portalAtualizado = atualizaPortal dt inimigosAtualizados (head $ portais jogo)
+          novaBase = atualizaJogo dt (torres jogo) inimigosAtualizados portalAtualizado (base jogo)
+          novasTorres = map (atualizaTorre dt inimigosAtualizados) (torres jogo)
+      in app { estadoAtual = Jogando jogo { inimigos = inimigosAtualizados
+                                          , base = novaBase
+                                          , torres = novasTorres
+                                          , portais = [portalAtualizado]
+                                          }
+             }
     _ -> app
+
 
 -- Reações específicas do jogo
 reageEventosJogo :: Event -> EstadoJogo -> EstadoJogo
@@ -293,6 +405,15 @@ baseg = Base { posicaoBase = (-20.5,13), creditosBase = 100, vidaBase = 100.0 }
 
 portalg :: Portal
 portalg = Portal { posicaoPortal = (15, 8.5), ondasPortal = [] }
+
+torreFogo :: Torre
+torreFogo = Torre { posicaoTorre = (0, 1), alcanceTorre = 2.0, rajadaTorre = 3, cicloTorre = 1.0, danoTorre = 1.0, tempoTorre = 2.0, projetilTorre = projetil1 }
+
+torreGelo :: Torre
+torreGelo = Torre { posicaoTorre = (0, 1), alcanceTorre = 2.0, rajadaTorre = 3, cicloTorre = 1.0, danoTorre = 1.0, tempoTorre = 2.0, projetilTorre = projetil2 }
+
+torreResina :: Torre
+torreResina = Torre { posicaoTorre = (0, 1), alcanceTorre = 2.0, rajadaTorre = 3, cicloTorre = 1.0, danoTorre = 1.0, tempoTorre = 2.0, projetilTorre = projetil3 }
 
 inimigog :: Inimigo
 inimigog = Inimigo { posicaoInimigo = (-20, 10), direcaoInimigo = Este, velocidadeInimigo = 1.0, vidaInimigo = 100.0, ataqueInimigo = 10.0, butimInimigo = 50, projeteisInimigo = []}
