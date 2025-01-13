@@ -1,4 +1,5 @@
 module Main where
+
 import Graphics.Gloss.Interface.Pure.Game
 import Graphics.Gloss
 import LI12425
