@@ -138,29 +138,15 @@ Atualiza os inimigos no jogo: aplica os efeitos dos projéteis (Gelo, Fogo, Resi
 >>> atualizaInimigos 5 [torre3] [inimigo4]
 [Inimigo {posicaoInimigo = (1.0,-4.0), direcaoInimigo = Sul, vidaInimigo = 0.0, velocidadeInimigo = 0.25, ataqueInimigo = 10.0, butimInimigo = 50, projeteisInimigo = [Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0},Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0}]}]
 -}
-atualizaInimigos :: Tempo -> [Torre] -> [Inimigo] -> [Inimigo]
-atualizaInimigos tempo torres inimigos =
-  map (\inimigo -> aplicaEfeitoProjetil (inimigo { posicaoInimigo = moverInimigo tempo inimigo })) inimigos
-  where
-    -- Aplica os efeitos dos projéteis, como Fogo, Gelo e Resina
-    aplicarEfeitosProjetil :: Inimigo -> Inimigo
-    aplicarEfeitosProjetil inimigo =
-      case projeteisInimigo inimigo of
-        (Projetil Gelo _:resto) -> inimigo {velocidadeInimigo = 0.0, projeteisInimigo = resto}
-        (Projetil Fogo _:resto) -> inimigo {vidaInimigo = vidaInimigo inimigo - 2, projeteisInimigo = resto}
-        (Projetil Resina _:resto) -> inimigo {velocidadeInimigo = 0.5, projeteisInimigo = resto}
-        _ -> inimigo
-{-|
-Atualiza um inimigo (move e aplica efeitos de projéteis).
+atualizaInimigos :: Tempo -> Mapa -> [Inimigo] -> [Inimigo]
+atualizaInimigos tempo mapa inimigos = map (atualizaInimigo tempo mapa) inimigos
 
-== Exemplo:
->>> atualizaInimigo 5 [torre3] inimigo4
-Inimigo {posicaoInimigo = (1.0,-0.25), direcaoInimigo = Sul, vidaInimigo = 0.0, velocidadeInimigo = 0.25, ataqueInimigo = 10.0, butimInimigo = 50, projeteisInimigo = [Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0},Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0}]}
--}
-atualizaInimigo :: Tempo -> [Torre] -> Inimigo -> Inimigo
-atualizaInimigo tempo torres inimigo =
+atualizaInimigo :: Tempo -> Mapa -> Inimigo -> Inimigo
+atualizaInimigo tempo mapa inimigo =
   let inimigoComEfeitos = aplicaEfeitoProjetil inimigo
-  in inimigoComEfeitos { posicaoInimigo = moverInimigo tempo inimigoComEfeitos }
+      inimigoMovido = moverInimigo tempo mapa inimigoComEfeitos
+  in inimigoComEfeitos { posicaoInimigo = posicaoInimigo inimigoMovido }
+
 
 {-|
 Atualiza os projéteis no jogo.
@@ -218,38 +204,32 @@ aplicaEfeitoResina projetil inimigo =
   else
     inimigo
 
-{-|
-Move o inimigo com base no tempo e nos efeitos.
+proximaDirecao :: Mapa -> Posicao -> Direcao -> Direcao
+proximaDirecao mapa (x, y) direcaoAtual =
+  let (ix, iy) = (floor x, floor y) -- Use floor para evitar arredondamentos inconsistentes
+      vizinhos = [(Norte, (ix, iy - 1)), (Sul, (ix, iy + 1)), (Este, (ix + 1, iy)), (Oeste, (ix - 1, iy))]
+      terrenoValido (_, (cx, cy)) = 
+          cx >= 0 && cy >= 0 && 
+          cy < length mapa && 
+          cx < length (head mapa) && 
+          mapa !! cy !! cx == Terra
+      direcoesValidas = filter terrenoValido vizinhos
+  in case direcoesValidas of
+       [] -> direcaoAtual -- Mantém a direção atual se não houver outra opção
+       (novaDirecao, _):_ -> novaDirecao
 
-== Exemplo:
->>> moverInimigo 5 inimigo4
-(1.0,-4.0)
--}
-moverInimigo :: Tempo -> Inimigo -> Posicao
-moverInimigo tempo inimigo = 
-  let (x, y) = posicaoInimigo inimigo
-  in case direcaoInimigo inimigo of
-       Norte -> (x, y + velocidadeInimigo inimigo * tempo)
-       Sul   -> (x, y - velocidadeInimigo inimigo * tempo)
-       Este  -> (x + velocidadeInimigo inimigo * tempo, y)
-       Oeste -> (x - velocidadeInimigo inimigo * tempo, y)  -- Movimento Oeste
 
-{-|
-Calcula a nova posição de um inimigo com base na sua velocidade e direção.
-
-== Exemplo:
->>> calcularNovaPosicao inimigo4 5
-(1.0,-4.0)
--}
-calcularNovaPosicao :: Inimigo -> Tempo -> Posicao
-calcularNovaPosicao inimigo tempo =
-  let (x, y) = posicaoInimigo inimigo
-      novaPosicao = case direcaoInimigo inimigo of
-                      Norte -> (x, y + velocidadeInimigo inimigo * tempo)
-                      Sul   -> (x, y - velocidadeInimigo inimigo * tempo)
-                      Este  -> (x + velocidadeInimigo inimigo * tempo, y)
-                      Oeste -> (x - velocidadeInimigo inimigo * tempo, y)
-  in novaPosicao
+-- Atualiza a posição do inimigo com base na direção
+moverInimigo :: Tempo -> Mapa -> Inimigo -> Inimigo
+moverInimigo tempo mapa inimigo =
+  let novaDirecao = proximaDirecao mapa (posicaoInimigo inimigo) (direcaoInimigo inimigo)
+      (x, y) = posicaoInimigo inimigo
+      novoPos = case novaDirecao of
+        Norte -> (x, y + velocidadeInimigo inimigo * tempo)
+        Sul   -> (x, y - velocidadeInimigo inimigo * tempo)
+        Este  -> (x + velocidadeInimigo inimigo * tempo, y)
+        Oeste -> (x - velocidadeInimigo inimigo * tempo, y)
+  in inimigo { posicaoInimigo = novoPos, direcaoInimigo = novaDirecao }
 
 {-|
 Verifica se um inimigo morreu (vida <= 0).
