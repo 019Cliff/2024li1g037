@@ -249,9 +249,11 @@ Esta função retorna a lista de projéteis atualizada, com base nessas interaç
 Neste exemplo, a função remove o projétil de Gelo (pois Fogo e Gelo não podem coexistir) e dobra a duração do projétil de Fogo, devido à presença de Resina.
 
 >>> atualizarProjetis (Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 3.0}) [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0}]
-[Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0},Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 3.0}]3. Caso sem interações especiais:
+[Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 5.0},Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 3.0}]
+
+3. Caso sem interações especiais:
 >>> atualizarProjetis (Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0}) [Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 2.0}]
-[Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 2.0}, Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0}]
+[Projetil {tipoProjetil = Fogo, duracaoProjetil = Finita 2.0},Projetil {tipoProjetil = Gelo, duracaoProjetil = Finita 3.0}]
 -- Não há interações especiais entre Fogo e Gelo, então ambos são mantidos na lista sem modificações.
 
 4. Caso em que o novo projétil não interage com os existentes:
