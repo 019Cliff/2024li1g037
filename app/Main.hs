@@ -119,25 +119,24 @@ fr :: Int
 fr = 60
 
 fundoMenu :: IO Picture
-fundoMenu = loadBMP "/home/cliff/2024li1g037/app/fundo_1_.bmp"
+fundoMenu = loadBMP "app/fundo_1_.bmp"
 
 iconeJogar :: IO Picture 
-iconeJogar = loadBMP "/home/cliff/2024li1g037/app/button-game-a-cartoon-congratulations-for-your-vector-30227498-removebg-preview.bmp"
-
+iconeJogar = loadBMP "app/button-game-a-cartoon-congratulations-for-your-vector-30227498-removebg-preview.bmp"
 -- Função principal
 main :: IO ()
 main = do
   imgFundo <- fundoMenu
   imgJogar <- iconeJogar
-  imgRelva <- loadBMP "/home/cliff/2024li1g037/app/images.bmp"
-  imgTerra <- loadBMP "/home/cliff/2024li1g037/app/terra_textura.bmp"
-  imgAgua <- loadBMP "/home/cliff/2024li1g037/app/6da00a37f26551f688dcc04367d7c73c_1.bmp"
-  imgBase <- loadBMP "/home/cliff/2024li1g037/app/tower_image-removebg-preview.bmp"
-  imgPortal <- loadBMP "/home/cliff/2024li1g037/app/portal.bmp"
-  imgInimigo <- loadBMP "/home/cliff/2024li1g037/app/enemy-clipart-little-monster-holding-a-gun-in-one-hand_546721_wh860_2_-removebg-preview.bmp"
-  imgTorreVermelha <- loadBMP "/home/cliff/2024li1g037/app/DALL_E-2025-01-13-13.52.34-A-simple-gray-tower-designed-for-a-tower-defense-game-removebg-preview.bmp"
-  imgTorreAzul <- loadBMP "/home/cliff/2024li1g037/app/DALL_E-2025-01-13-13.52.34-A-simple-gray-tower-designed-for-a-tower-defense-game-removebg-preview.bmp"
-  imgTorreVerde <- loadBMP "/home/cliff/2024li1g037/app/DALL_E-2025-01-13-13.52.34-A-simple-gray-tower-designed-for-a-tower-defense-game-removebg-preview.bmp"
+  imgRelva <- loadBMP "app/images.bmp"
+  imgTerra <- loadBMP "app/terra_textura.bmp"
+  imgAgua <- loadBMP "app/6da00a37f26551f688dcc04367d7c73c_1.bmp"
+  imgBase <- loadBMP "app/tower_image-removebg-preview.bmp"
+  imgPortal <- loadBMP "app/portal.bmp"
+  imgInimigo <- loadBMP "app/enemy-clipart-little-monster-holding-a-gun-in-one-hand_546721_wh860_2_-removebg-preview.bmp"
+  imgTorreVermelha <- loadBMP "app/DALL_E-2025-01-13-13.52.34-A-simple-gray-tower-designed-for-a-tower-defense-game-removebg-preview.bmp"
+  imgTorreAzul <- loadBMP "app/DALL_E-2025-01-13-13.52.34-A-simple-gray-tower-designed-for-a-tower-defense-game-removebg-preview.bmp"
+  imgTorreVerde <- loadBMP "app/DALL_E-2025-01-13-13.52.34-A-simple-gray-tower-designed-for-a-tower-defense-game-removebg-preview.bmp"
   let estadoInicial = EstadoApp 
         { estadoAtual = MenuPrincipal
         , imgFundo = imgFundo
