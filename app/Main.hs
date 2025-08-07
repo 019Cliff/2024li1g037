@@ -26,4 +26,3 @@ corFundo = black
 -}
 frameRate :: Int
 frameRate = 60
-
