@@ -50,14 +50,22 @@ jogo2 = Jogo {mapaJogo = mapa1, baseJogo = base1, portaisJogo = [portal1], inimi
 -- Base {vidaBase = 90.0, posicaoBase = (1.0,1.0), creditosBase = 250}
 --
 -- >>>>>>> temp
-atualizaJogo :: Tempo -> [Torre] -> [Inimigo] -> Portal -> Base -> Base
-atualizaJogo tempo torres inimigos portal base =
-  let torresAtualizadas = map (\t -> atualizaTorre tempo inimigos t) torres
-      inimigosAtualizados = atualizaInimigos tempo mapa1 inimigos
-      portalAtualizado = atualizaPortal tempo inimigos portal
-      baseComButim = base {creditosBase = creditosBase base + sum (map butimInimigo (filter inimigoMorreu inimigosAtualizados))}
+atualizaJogo :: Tempo -> Jogo -> Jogo
+atualizaJogo tempo jogo =
+  let torresAtualizadas = map (\t -> atualizaTorre tempo (inimigosJogo jogo) t) (torresJogo jogo)
+      inimigosAtualizados = atualizaInimigos tempo (mapaJogo jogo) (inimigosJogo jogo)
+      portaisAtualizados = map (atualizaPortal tempo inimigosAtualizados) (portaisJogo jogo)
+      baseComButim =
+        (baseJogo jogo)
+          { creditosBase = creditosBase (baseJogo jogo) + sum (map butimInimigo (filter inimigoMorreu inimigosAtualizados))
+          }
       baseAtualizada = atualizaBase tempo baseComButim
-   in baseAtualizada
+   in jogo
+        { torresJogo = torresAtualizadas,
+          inimigosJogo = inimigosAtualizados,
+          portaisJogo = portaisAtualizados,
+          baseJogo = baseAtualizada
+        }
 
 -- |
 -- Atualiza a base: perde vida se inimigos atingem ela.
@@ -69,11 +77,11 @@ atualizaJogo tempo torres inimigos portal base =
 -- Base {vidaBase = 90.0, posicaoBase = (1.0,1.0), creditosBase = 150}
 atualizaBase :: Tempo -> Base -> Base
 atualizaBase tempo base =
-  let inimigosAtuais = filter (atingiuBase base) (inimigosAtuais)  -- inimigos vivos no jogo, precisa ser passado ou calculado
+  let inimigosAtuais = filter (atingiuBase base) (inimigosAtuais) -- inimigos vivos no jogo, precisa ser passado ou calculado
       inimigosDerrotados = filter inimigoMorreu inimigosAtuais
       somaDanoDosInimigos = sum (map ataqueInimigo inimigosAtuais)
       somaButimDosInimigos = sum (map butimInimigo inimigosDerrotados)
-  in base { vidaBase = vidaBase base - somaDanoDosInimigos, creditosBase = creditosBase base + somaButimDosInimigos }
+   in base {vidaBase = vidaBase base - somaDanoDosInimigos, creditosBase = creditosBase base + somaButimDosInimigos}
 
 -- |
 -- Verifica se o inimigo atingiu a base.
