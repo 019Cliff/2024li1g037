@@ -1,24 +1,28 @@
 module Main where
-
+import Tempo
 import Desenhar
 import Eventos
-import Graphics.Gloss
+import Graphics.Gloss.Interface.IO.Game
 import ImmutableTowers
-import Tempo
 
-janela :: Display
-janela = InWindow "Immutable Towers" (1920, 1080) (0, 0)
-
-fundo :: Color
-fundo = white
-
-fr :: Int
-fr = 60
-
+{- | A função @main@ é o ponto de entrada do programa.
+-}
 main :: IO ()
 main = do
-  putStrLn "Hello from Immutable Towers!"
+  imgs <- carregarImagens
+  playIO janela corFundo frameRate imgs desenha reage reageTempo
 
-  play janela fundo fr it desenha reageEventos reageTempo
-  where
-    it = ImmutableTowers {}
+{- | A constante @janela@ define o tipo de exibição da janela do jogo. 
+-}
+janela :: Display
+janela = FullScreen
+
+{- | A constante @corFundo@ define a cor de fundo da janela do jogo. 
+-}
+corFundo :: Color
+corFundo = black
+
+{- | A constante @frameRate@ define a taxa de quadros por segundo para o jogo.
+-}
+frameRate :: Int
+frameRate = 60
