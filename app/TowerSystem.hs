@@ -52,6 +52,7 @@ import Data.Ord (Down (..))
 import ImmutableTowers (ModoJogoEscolhido (..))
 import LI12425
 import MetaTypes
+import ShopSystem (ChestPurchase (..), ShopReward (..), compraBau, fusaoTempestade)
 import TowerRuntime
 
 data TowerRole
@@ -357,40 +358,15 @@ distanciaTorre a b =
     + fromIntegral (abs (rajadaTorre a - rajadaTorre b)) * 8
 
 abrirBau :: ChestType -> MetaProgress -> (MetaProgress, String)
-abrirBau bau meta
-  | gemasJogador meta < custo = (meta, "Gemas insuficientes")
-  | null candidatos = (meta {gemasJogador = gemasJogador meta - custo}, "Bau aberto: fragmentos convertidos em ouro")
-  | otherwise =
-      let indice = (gemsSeed + length (torresDesbloqueadas meta) + estagiosConcluidos meta) `mod` length candidatos
-       in case drop indice candidatos of
-            novaTorre : _ ->
-              let novasTorres = torresDesbloqueadas meta ++ [novaTorre]
-                  nivelNovo = max (nivelJogadorMeta meta) (1 + length novasTorres `div` 2)
-                  metaNovo = meta {gemasJogador = gemasJogador meta - custo, torresDesbloqueadas = novasTorres, nivelJogadorMeta = nivelNovo}
-               in (metaNovo, "Bau abriu: " ++ nomeTorre novaTorre)
-            [] -> (meta, "Bau indisponivel")
-  where
-    custo = custoBau bau
-    pool = poolDoBau bau
-    candidatos = filter (`notElem` torresDesbloqueadas meta) pool
-    gemsSeed = gemasJogador meta + rotacaoMapasAtual meta * 7 + nivelJogadorMeta meta * 11
+abrirBau bau meta = case compraBau bau meta of
+  Left erro -> (meta, erro)
+  Right compra -> (metaDepoisCompra compra, mensagemRecompensa (recompensaCompra compra))
 
-poolDoBau :: ChestType -> [TowerId]
-poolDoBau bau = case bau of
-  BauMadeira -> [Sentinela, Glaciar, Braseiro, Sentinela, Glaciar]
-  BauCristal -> [Glaciar, Braseiro, Panico, Venenoide, Tesla, Impacto]
-  BauImperial -> [Panico, Venenoide, Tesla, Impacto, Solar, Tempestade, Solar]
+mensagemRecompensa :: ShopReward -> String
+mensagemRecompensa recompensa = case recompensa of
+  NovaTorre torreId -> "Bau abriu: nova torre " ++ nomeTorre torreId
+  CompensacaoDuplicado torreId gemas -> "Duplicado " ++ nomeTorre torreId ++ "; compensacao +" ++ show gemas ++ " gemas"
+  RecompensaColecaoCompleta gemas -> "Colecao completa; compensacao +" ++ show gemas ++ " gemas"
 
 tentaFundirTempestade :: MetaProgress -> Either String MetaProgress
-tentaFundirTempestade meta
-  | Tempestade `elem` torresDesbloqueadas meta = Left "Tempestade ja desbloqueada"
-  | Tesla `notElem` torresDesbloqueadas meta || Solar `notElem` torresDesbloqueadas meta = Left "Falta Tesla e Solar"
-  | gemasJogador meta < 180 = Left "Faltam 180 gemas"
-  | otherwise =
-      Right
-        meta
-          { gemasJogador = gemasJogador meta - 180,
-            torresDesbloqueadas = torresDesbloqueadas meta ++ [Tempestade],
-            torresFundidas = Tempestade : torresFundidas meta,
-            nivelJogadorMeta = max (nivelJogadorMeta meta) 6
-          }
+tentaFundirTempestade = fusaoTempestade

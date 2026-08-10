@@ -10,6 +10,7 @@ where
 
 import Graphics.Gloss
 import UIText (drawUITextCentered)
+import VisualTheme
 
 data UIRect = UIRect
   { rectX :: !Float,
@@ -30,7 +31,7 @@ drawPanel (UIRect x y w h) =
   Translate x y $
     Pictures
       [ Color (makeColorI 22 29 25 238) $ rectangleSolid w h,
-        Color (makeColorI 69 85 69 255) $ rectangleWire w h
+        Color themeBorder $ rectangleWire w h
       ]
 
 drawButton :: Maybe (Float, Float) -> UIRect -> ButtonTone -> String -> Picture
@@ -38,7 +39,7 @@ drawButton mouse rect@(UIRect x y w h) tone label =
   let hovered = maybe False (`containsPoint` rect) mouse && tone /= Disabled
       (fillBase, borderBase, textColor) = colors tone
       fill = if hovered then brighten fillBase else fillBase
-      border = if hovered then makeColorI 235 204 105 255 else borderBase
+      border = if hovered then themeBorderActive else borderBase
    in Translate x y $
         Pictures
           [ Color fill $ rectangleSolid w h,
@@ -56,10 +57,10 @@ drawAccentBar x y w cor =
     rectangleSolid (w - 34) 6
 
 colors :: ButtonTone -> (Color, Color, Color)
-colors Primary = (makeColorI 67 80 48 242, makeColorI 226 194 95 255, makeColorI 238 241 229 255)
-colors Neutral = (makeColorI 32 42 35 236, makeColorI 91 108 87 255, makeColorI 226 232 218 255)
-colors Danger = (makeColorI 76 42 38 242, makeColorI 190 82 72 255, makeColorI 246 228 220 255)
-colors Disabled = (makeColorI 36 38 36 210, makeColorI 69 73 68 255, makeColorI 120 126 116 255)
+colors Primary = (themeSelection, themeAccent, themeText)
+colors Neutral = (themePanelRaised, themeDivider, themeText)
+colors Danger = (makeColorI 76 42 38 242, themeError, themeText)
+colors Disabled = (makeColorI 36 38 36 210, themeTextDisabled, themeTextDisabled)
 
 brighten :: Color -> Color
 brighten baseColor =

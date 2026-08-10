@@ -35,11 +35,14 @@ module UIRects
     submenuBackRect,
     optionsBackRect,
     shopBackRect,
+    metaChestRect,
+    metaFusionRect,
   )
 where
 
 import ImmutableTowers (larguraJanela)
 import UIComponents
+import MetaTypes (ChestType (..))
 
 pauseRect, speed1Rect, speed2Rect, speed4Rect, autoBotRect, upgradeRect, sellRect, cancelRect :: UIRect
 pauseRect = UIRect 418 494 54 42
@@ -112,4 +115,12 @@ modeSandboxRect = UIRect 180 (-105) 300 152
 submenuBackRect, optionsBackRect, shopBackRect :: UIRect
 submenuBackRect = UIRect 0 (-236) 150 48
 optionsBackRect = UIRect 0 (-260) 150 48
+metaChestRect :: ChestType -> UIRect
+metaChestRect bau = case bau of
+  BauMadeira -> UIRect (-250) 68 210 190
+  BauCristal -> UIRect 0 68 210 190
+  BauImperial -> UIRect 250 68 210 190
+
+metaFusionRect :: UIRect
+metaFusionRect = UIRect 0 (-205) 650 110
 shopBackRect = UIRect 0 (-250) 150 72

@@ -39,6 +39,10 @@ executable immutable-towers
     import:           warnings
 
     other-modules:
+        AccountStorage
+        AccountSystem
+        AccountTypes
+        BotStrategy
         BotSystem
         ImmutableTowers
         Desenhar
@@ -53,13 +57,16 @@ executable immutable-towers
         RenderConfig
         SaveSystem
         ScoreSystem
+        ShopSystem
         Tempo
         TowerSystem
         TowerRuntime
         UIComponents
+        UIIcons
         UIRects
         UIState
         UIText
+        VisualTheme
         WaveSystem
 
     main-is:          Main.hs
@@ -67,6 +74,8 @@ executable immutable-towers
     build-depends:
         base >=4.17 && <4.21,
         containers ^>=0.7,
+        directory ^>=1.3,
+        filepath ^>=1.5,
         random ^>=1.3,
         gloss ^>=1.13.2.1,
         gloss-juicy ^>=0.2.3,
@@ -80,6 +89,11 @@ test-suite immutable-towers-test
     type:             exitcode-stdio-1.0
 
     other-modules:
+        AccountSystemSpec
+        BotStrategySpec
+        AccountSystem
+        AccountTypes
+        BotStrategy
         ImmutableTowers
         EnemySystem
         MetaTypes
@@ -87,6 +101,7 @@ test-suite immutable-towers-test
         SaveSystem
         TowerRuntime
         TowerSystem
+        ShopSystem
         Tarefa1Spec
         Tarefa2Spec
         Tarefa3Spec
@@ -100,12 +115,15 @@ test-suite immutable-towers-test
         UIRects
         UILayoutSpec
         UIText
+        VisualTheme
 
     main-is:          Spec.hs
 
     build-depends:
         base >=4.17 && <4.21,
         containers ^>=0.7,
+        directory ^>=1.3,
+        filepath ^>=1.5,
         random ^>=1.3,
         HUnit ^>=1.6.2.0,
         gloss ^>=1.13.2.1,

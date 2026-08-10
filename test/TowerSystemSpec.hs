@@ -4,6 +4,7 @@ import LI12425
 import ImmutableTowers (ModoJogoEscolhido (..))
 import MetaTypes
 import SaveSystem
+import ShopSystem
 import Test.HUnit
 import TowerRuntime
 import TowerSystem
@@ -19,7 +20,10 @@ testesTowerSystem =
         "target priority selects high health enemies for Impacto" ~: targetingVida,
         "high upgrades require one specialization" ~: especializacaoObrigatoria,
         "legacy saves migrate tower identity" ~: migracaoSaveLegado,
-        "versioned saves preserve runtime level" ~: roundTripSaveV2
+        "versioned saves preserve runtime level" ~: roundTripSaveV2,
+        "shop purchase is explicit and never negative" ~: compraBauTest,
+        "duplicate shop reward returns real gem compensation" ~: duplicadoBauTest,
+        "storm fusion validates requirements" ~: fusaoTest
       ]
 
 identidadeExplicita :: Assertion
@@ -100,6 +104,37 @@ roundTripSaveV2 =
    in case decodeGameSave (encodeGameSave (jogoComTorres [torre]) registry) of
         Nothing -> assertFailure "Versioned save should be decoded"
         Just (_, loadedRegistry) -> lookupTowerRuntime pos loadedRegistry @?= Just runtime
+
+compraBauTest :: Assertion
+compraBauTest = do
+  let semGemas = progressoInicial {gemasJogador = 0}
+  case compraBau BauMadeira semGemas of
+    Left "Gemas insuficientes" -> return ()
+    outro -> assertFailure ("Unexpected purchase result: " ++ show outro)
+  let comGemas = progressoInicial {gemasJogador = 100}
+  case compraBau BauMadeira comGemas of
+    Right compra -> assertBool "purchase must not make gems negative" (gemasJogador (metaDepoisCompra compra) >= 0)
+    Left erro -> assertFailure erro
+
+duplicadoBauTest :: Assertion
+duplicadoBauTest =
+  let meta = progressoInicial {gemasJogador = 100, torresDesbloqueadas = shopPool BauMadeira}
+   in case compraBau BauMadeira meta of
+        Right compra -> case recompensaCompra compra of
+          CompensacaoDuplicado _ gemas -> assertBool "duplicate compensation must be positive" (gemas > 0)
+          outra -> assertFailure ("Expected duplicate reward, got " ++ show outra)
+        Left erro -> assertFailure erro
+
+fusaoTest :: Assertion
+fusaoTest = do
+  let incompleta = progressoInicial {gemasJogador = 999, torresDesbloqueadas = [Sentinela]}
+  assertBool "fusion should reject missing inputs" (case fusaoTempestade incompleta of Left _ -> True; Right _ -> False)
+  let completa = incompleta {torresDesbloqueadas = [Sentinela, Tesla, Solar]}
+  case fusaoTempestade completa of
+    Right meta -> do
+      assertBool "fusion adds Tempestade" (Tempestade `elem` torresDesbloqueadas meta)
+      gemasJogador meta @?= 819
+    Left erro -> assertFailure erro
 
 jogoComTorres :: [Torre] -> Jogo
 jogoComTorres torres =

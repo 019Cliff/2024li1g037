@@ -6,7 +6,6 @@ import Data.Maybe (fromMaybe)
 import EnemySystem
 import GameFactory
 import Graphics.Gloss
-import Graphics.Gloss.Juicy
 import ImmutableTowers
 import LI12425
 import MapGeometry
@@ -19,20 +18,22 @@ import Tarefa2 (inimigosNoAlcance)
 import TowerSystem
 import TowerRuntime
 import UIComponents
+import UIIcons
 import UIRects
 import UIState
 import UIText
+import VisualTheme
 
 corFundoJogo, corPainel, corTextoSuave :: Color
 corFundoJogo = makeColorI 30 43 34 255
-corPainel = makeColorI 21 27 24 232
-corTextoSuave = makeColorI 229 233 223 255
+corPainel = themePanel
+corTextoSuave = themeText
 
 corRelvaBase, corRelvaAlt, corTerraBase, corAguaBase :: Color
-corRelvaBase = makeColorI 70 94 56 255
+corRelvaBase = themeTerrainGrass
 corRelvaAlt = makeColorI 81 108 66 255
-corTerraBase = makeColorI 95 73 49 255
-corAguaBase = makeColorI 67 112 133 255
+corTerraBase = themeTerrainPath
+corAguaBase = themeTerrainWater
 
 layoutRender :: ImmutableTowers -> MapLayoutConfig
 layoutRender = layoutParaJanela . janelaAtual
@@ -242,27 +243,68 @@ desenhaOpcoes e =
 desenhaLojaMeta :: ImmutableTowers -> Picture
 desenhaLojaMeta e =
   let meta = progressoMeta e
-      torresTexto =
-        if null (torresDesbloqueadas meta)
-          then "Sem torres desbloqueadas"
-          else unwords (map nomeTowerId (take 8 (torresDesbloqueadas meta)))
+      desbloqueadas = torresDesbloqueadas meta
+      colecaoTexto = show (length desbloqueadas) ++ "/9 TORRES DESCOBERTAS"
    in Pictures
         [ Color (makeColorI 18 28 24 255) $ rectangleSolid (viewW e) (viewH e),
           desenhaFundoAnimado e,
           Color (withAlpha 0.96 corPainel) $ rectangleSolid 920 620,
           Color (makeColorI 68 78 63 255) $ rectangleWire 920 620,
           drawGlossTitle (-380) 266 0.28 (makeColorI 226 194 95 255) "LOJA",
-          drawGlossBody (-380) 214 0.11 corTextoSuave ("GEMAS: " ++ show (gemasJogador meta) ++ " | NIVEL: " ++ show (nivelJogadorMeta meta)),
-          drawGlossTitle (-380) 150 0.14 corTextoSuave "BAUS",
-          drawGlossBody (-380) 102 0.084 (makeColorI 190 201 180 255) ("1 MADEIRA " ++ show (custoBau BauMadeira) ++ " | 2 CRISTAL " ++ show (custoBau BauCristal) ++ " | 3 IMPERIAL " ++ show (custoBau BauImperial)),
-          drawGlossTitle (-380) 30 0.14 corTextoSuave "COLECAO",
-          drawGlossBody (-380) (-24) 0.078 (makeColorI 190 201 180 255) torresTexto,
-          drawGlossTitle (-380) (-106) 0.14 corTextoSuave "FUSAO",
-          drawGlossBody (-380) (-154) 0.082 (makeColorI 226 194 95 255) "F TECLA: TESLA + SOLAR + 180 GEMAS = TEMPESTADE",
+          drawGlossBody (-380) 214 0.11 corTextoSuave ("GEMAS: " ++ show (gemasJogador meta) ++ "   NIVEL: " ++ show (nivelJogadorMeta meta)),
+          drawGlossTitle (-380) 166 0.14 corTextoSuave "BAUS",
+          desenhaBauMeta e meta BauMadeira "MADEIRA" "COMUM / RARO",
+          desenhaBauMeta e meta BauCristal "CRISTAL" "RARO / EPICO",
+          desenhaBauMeta e meta BauImperial "IMPERIAL" "EPICO / LENDARIO",
+          drawGlossTitle (-380) (-54) 0.14 corTextoSuave "COLECAO",
+          drawGlossBody (-380) (-84) 0.078 (makeColorI 190 201 180 255) colecaoTexto,
+          drawGlossBody (-380) (-112) 0.062 (makeColorI 154 164 146 255) (unwords (map nomeTowerId (take 6 desbloqueadas))),
+          Color (withAlpha 0.25 (makeColorI 226 194 95 255)) $ Translate 0 (-145) $ rectangleSolid 650 2,
+          drawGlossTitle (-380) (-172) 0.14 corTextoSuave "FUSAO",
+          drawGlossBody (-380) (-202) 0.068 (makeColorI 226 194 95 255) "TESLA + SOLAR + 180 GEMAS  ->  TEMPESTADE",
           drawButton (posicaoRato e) shopBackRect Neutral "Voltar",
-          drawGlossBody (-276) (-210) 0.078 (makeColorI 154 164 146 255) "1/2/3 ABREM BAUS | F FUNDE",
+          drawGlossBody (-276) (-250) 0.062 (makeColorI 154 164 146 255) "CLICA NOS BAUS OU USA 1/2/3 | F FUNDE",
           desenhaMensagens e
         ]
+
+desenhaBauMeta :: ImmutableTowers -> MetaProgress -> ChestType -> String -> String -> Picture
+desenhaBauMeta e meta bau titulo pool =
+  let UIRect x y w h = metaChestRect bau
+      custo = custoBau bau
+      disponivel = gemasJogador meta >= custo
+      cor = case bau of
+        BauMadeira -> makeColorI 167 119 68 255
+        BauCristal -> makeColorI 92 176 194 255
+        BauImperial -> makeColorI 226 194 95 255
+      fundo = if disponivel then makeColorI 31 43 35 240 else makeColorI 25 28 26 220
+      estado = if disponivel then "COMPRAR" else "SEM GEMAS"
+      pulso = 1 + 0.025 * sin (tempo e * 1.5 + fromIntegral (fromEnum bau))
+   in Translate x y $ Pictures
+        [ Color fundo $ rectangleSolid w h,
+          Color (withAlpha 0.78 cor) $ rectangleWire w h,
+          Scale pulso pulso (modeloBau bau cor),
+          drawGlossTitle (-80) (-48) 0.09 corTextoSuave titulo,
+          drawGlossBody (-80) (-70) 0.058 cor (show custo ++ " GEMAS"),
+          drawGlossBody (-80) (-87) 0.05 (corRaridade (raridadeDoBau bau)) pool,
+          drawGlossBody (-80) (-105) 0.055 (if disponivel then themeSuccess else themeError) estado
+        ]
+
+modeloBau :: ChestType -> Color -> Picture
+modeloBau bau cor =
+  let largura = case bau of
+        BauMadeira -> 60
+        BauCristal -> 54
+        BauImperial -> 64
+      corpo = Color (withAlpha 0.86 cor) $ rectangleSolid largura 38
+      tampa = Color cor $ Translate 0 22 $ rectangleSolid (largura + 8) 8
+      fecho = Color themeCanvas $ Translate 0 2 $ rectangleSolid 7 12
+   in Pictures [Translate 0 20 tampa, Translate 0 0 corpo, fecho]
+
+raridadeDoBau :: ChestType -> Raridade
+raridadeDoBau bau = case bau of
+  BauMadeira -> Comum
+  BauCristal -> Raro
+  BauImperial -> Lendario
 
 modoCard :: ImmutableTowers -> ModoJogoEscolhido -> Float -> Float -> String -> String -> String -> Picture
 modoCard e modoCardAtual x y titulo desc regras =
@@ -1191,11 +1233,19 @@ corRaridade raridade = case raridade of
 
 hudPill :: Float -> Float -> Float -> String -> String -> Color -> Picture
 hudPill x y w etiqueta valor corValor =
-  Translate x y $
+  let icone = case etiqueta of
+        "BASE" -> iconBase 14 corValor
+        "CREDITOS" -> iconCredits 14 corValor
+        "VAGA" -> iconWave 14 corValor
+        "RESTAM" -> iconWarning 14 corValor
+        "VEL" -> iconSpeed 14 corValor
+        _ -> Blank
+   in Translate x y $
     Pictures
       [ Color (withAlpha 0.24 corValor) $ rectangleSolid w 48,
         Color (withAlpha 0.55 corValor) $ rectangleWire w 48,
-        drawUITextLeft (-w / 2 + 14) 9 2.2 (makeColorI 176 184 171 255) etiqueta,
+        Translate (-w / 2 + 18) 1 icone,
+        drawUITextLeft (-w / 2 + 36) 9 2.2 themeTextSecondary etiqueta,
         drawUITextLeft (-w / 2 + 72) (-4) 3.1 corValor valor
       ]
 
@@ -1363,33 +1413,11 @@ offsetMapaY cfg terreno = maybe 0 snd (offsetMapa cfg terreno)
 
 carregarImagens :: IO ImmutableTowers
 carregarImagens = do
-  fundo <- loadJuicy (caminhoImagem "fundo_1_.bmp")
-  grass <- loadJuicy (caminhoImagem "images.bmp")
-  water <- loadJuicy (caminhoImagem "6da00a37f26551f688dcc04367d7c73c_1.bmp")
-  land <- loadJuicy (caminhoImagem "terra_textura.bmp")
-  torreResina <- loadJuicy (caminhoImagem "DALL_E-2025-01-13-13.52.34-A-simple-gray-tower-designed-for-a-tower-defense-game-removebg-preview.bmp")
-  torreGelo <- loadJuicy (caminhoImagem "DALL_E-2025-01-13-13.52.34-A-simple-gray-tower-designed-for-a-tower-defense-game-removebg-preview.bmp")
-  torreFogo <- loadJuicy (caminhoImagem "DALL_E-2025-01-13-13.52.34-A-simple-gray-tower-designed-for-a-tower-defense-game-removebg-preview.bmp")
-  inimigo <- loadJuicy (caminhoImagem "enemy-clipart-little-monster-holding-a-gun-in-one-hand_546721_wh860_2_-removebg-preview.bmp")
-  base <- loadJuicy (caminhoImagem "tower_image-removebg-preview.bmp")
-  portal <- loadJuicy (caminhoImagem "portal.bmp")
-
   -- Estes botões eram carregados a partir de ficheiros que não existem no
   -- repositório. Por agora são desenhados com texto em 'desenhaMenu'.
-  let playImg = Nothing
-      exitImg = Nothing
-      creditosImg = Nothing
-      tutorialImg = Nothing
-
   (perfilGuardado, leaderboardGuardada, modoGuardado, metaGuardado) <- carregarMetaEstado
 
-  let imgs = [
-        (Fundo, fundo), (Grass, grass), (Water, water), (Land, land),
-        (TorreResina, torreResina), (TorreGelo, torreGelo), (TorreFogo, torreFogo),
-        (Inimigocima, inimigo), (BaseFoto, base), (PortalFoto, portal),
-        (Play, playImg), (Exit, exitImg), (ButaoCreditos, creditosImg),
-        (ImagemTutorial, tutorialImg), (ImagemCreditos, creditosImg)
-        ]
+  let imgs = []
       
       (jogoInicial, mapaInicial, totalOndas, metaInicialJogo) = prepararPartida modoGuardado metaGuardado
   
@@ -1435,6 +1463,3 @@ ratoParaCelula cfg mapa (mx, my) =
 
 terrenoEm :: Int -> Int -> Mapa -> Maybe Terreno
 terrenoEm x y mapa = terrenoEmCelula mapa x y
-
-caminhoImagem :: FilePath -> FilePath
-caminhoImagem nome = "app/imagens/" ++ nome

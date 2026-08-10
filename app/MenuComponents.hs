@@ -10,6 +10,7 @@ where
 import Graphics.Gloss
 import UIComponents
 import UIText
+import VisualTheme
 
 drawHeroCard :: UIRect -> Bool -> String -> String -> Picture
 drawHeroCard (UIRect x y w h) selecionado titulo subtitulo =
@@ -75,10 +76,10 @@ drawModalPanel w h titulo linhas =
     ]
 
 corPainel, corTexto, corTextoSub, corTitulo :: Color
-corPainel = makeColorI 21 27 24 232
-corTexto = makeColorI 229 233 223 255
-corTextoSub = makeColorI 154 164 146 255
-corTitulo = makeColorI 226 194 95 255
+corPainel = themePanel
+corTexto = themeText
+corTextoSub = themeTextSecondary
+corTitulo = themeAccent
 
 drawGlossLabel :: Float -> Float -> Float -> Color -> String -> Picture
 drawGlossLabel x y escala corValor texto =

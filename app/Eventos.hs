@@ -235,7 +235,9 @@ reage (EventKey (MouseButton LeftButton) Down _ posBruto) e =
         MostrarPerfil -> voltaSeClicou pos submenuBackRect e
         MostrarLeaderboard -> voltaSeClicou pos submenuBackRect e
         MostrarOpcoes -> voltaSeClicou pos optionsBackRect e
-        MostrarLojaMeta -> voltaSeClicou pos shopBackRect e
+        MostrarLojaMeta
+          | pos `containsPoint` shopBackRect -> voltaSeClicou pos shopBackRect e
+          | otherwise -> compraBauMetaClicado pos e
         _ -> return e
   where
     voltaSeClicou pos rect estado
@@ -248,6 +250,22 @@ reage (EventKey (MouseButton LeftButton) Down _ posBruto) e =
       MostrarOpcoes -> MenuInicial Opcoes
       MostrarLojaMeta -> MenuInicial LojaMeta
       _ -> MenuInicial Jogar
+
+    compraBauMetaClicado pos estado =
+      case [bau | bau <- [BauMadeira, BauCristal, BauImperial], pos `containsPoint` metaChestRect bau] of
+        bau : _ ->
+          let (metaNova, texto) = abrirBau bau (progressoMeta estado)
+           in do
+                guardarMetaEstado (perfilJogador estado) (leaderboardLocal estado) (modoJogoEscolhido estado) metaNova
+                return (adicionaMensagem MsgInfo texto estado {progressoMeta = metaNova})
+        []
+          | pos `containsPoint` metaFusionRect ->
+              case tentaFundirTempestade (progressoMeta estado) of
+                Left erro -> return (adicionaMensagem MsgAviso erro estado)
+                Right metaNova -> do
+                  guardarMetaEstado (perfilJogador estado) (leaderboardLocal estado) (modoJogoEscolhido estado) metaNova
+                  return (adicionaMensagem MsgSucesso "Fusao concluida: Tempestade" estado {progressoMeta = metaNova})
+          | otherwise -> return estado
 reage _ estado = return estado
 
 apagarCaracterPerfil :: Bool -> ImmutableTowers -> IO ImmutableTowers
