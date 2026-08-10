@@ -1,0 +1,9 @@
+{
+  "schema": "immutable-towers-domain-catalog",
+  "version": 1,
+  "terrain": ["grass", "path", "asphalt", "water"],
+  "maps": ["planicie_serena", "garganta_pedra", "lago_fraturado", "cruzamento_solar", "bastiao_espiral"],
+  "modes": ["history", "infinite", "challenge", "boss", "sandbox"],
+  "towers": ["sentinela", "glaciar", "braseiro", "panico", "venenoide", "tesla", "impacto", "solar", "tempestade"],
+  "enemies": ["basico", "rapido", "tanque", "blindado", "regenerador", "dispersor", "protegido", "elite", "boss_acelerador", "boss_guardiao", "boss_ruptura"]
+}

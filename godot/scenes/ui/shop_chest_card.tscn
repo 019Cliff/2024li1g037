@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/presentation/shop_chest_card.gd" id="1_card"]
+
+[node name="ShopChestCard" type="Button"]
+custom_minimum_size = Vector2(270, 286)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 2
+script = ExtResource("1_card")

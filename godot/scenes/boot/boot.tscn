@@ -1,0 +1,345 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/presentation/boot_screen.gd" id="1_boot"]
+[ext_resource type="Theme" path="res://assets/generated/base_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://src/presentation/menu_background.gd" id="3_bg"]
+[ext_resource type="PackedScene" path="res://scenes/ui/shop_chest_card.tscn" id="4_chest"]
+[ext_resource type="PackedScene" path="res://scenes/ui/shop_reward_reveal.tscn" id="5_reveal"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_menu_panel"]
+bg_color = Color(0.055, 0.085, 0.07, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.28, 0.38, 0.29, 0.72)
+
+[node name="Boot" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_boot")
+
+[node name="AnimatedBackground" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_bg")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 72.0
+offset_top = 52.0
+offset_right = -72.0
+offset_bottom = -52.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Columns" type="HBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 48
+
+[node name="Navigation" type="PanelContainer" parent="Margin/Columns"]
+custom_minimum_size = Vector2(390, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBox_menu_panel")
+
+[node name="NavMargin" type="MarginContainer" parent="Margin/Columns/Navigation"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 30
+
+[node name="Nav" type="VBoxContainer" parent="Margin/Columns/Navigation/NavMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Brand" type="Label" parent="Margin/Columns/Navigation/NavMargin/Nav"]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "IMMUTABLE\nTOWERS"
+
+[node name="NavSpacer" type="Control" parent="Margin/Columns/Navigation/NavMargin/Nav"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+
+[node name="Play" type="Button" parent="Margin/Columns/Navigation/NavMargin/Nav"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+text = "JOGAR"
+[node name="Modes" type="Button" parent="Margin/Columns/Navigation/NavMargin/Nav"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "MODOS"
+[node name="Shop" type="Button" parent="Margin/Columns/Navigation/NavMargin/Nav"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "LOJA"
+[node name="Profile" type="Button" parent="Margin/Columns/Navigation/NavMargin/Nav"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "PERFIL"
+[node name="Ranking" type="Button" parent="Margin/Columns/Navigation/NavMargin/Nav"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "RANKING"
+[node name="Help" type="Button" parent="Margin/Columns/Navigation/NavMargin/Nav"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "AJUDA"
+[node name="Options" type="Button" parent="Margin/Columns/Navigation/NavMargin/Nav"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "OPCOES"
+[node name="Editor" type="Button" parent="Margin/Columns/Navigation/NavMargin/Nav"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "EDITOR DE MAPAS"
+[node name="Grow" type="Control" parent="Margin/Columns/Navigation/NavMargin/Nav"]
+layout_mode = 2
+size_flags_vertical = 3
+[node name="Exit" type="Button" parent="Margin/Columns/Navigation/NavMargin/Nav"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "SAIR"
+
+[node name="ContentPanel" type="PanelContainer" parent="Margin/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBox_menu_panel")
+
+[node name="ContentMargin" type="MarginContainer" parent="Margin/Columns/ContentPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 54
+theme_override_constants/margin_top = 44
+theme_override_constants/margin_right = 54
+theme_override_constants/margin_bottom = 44
+
+[node name="Content" type="VBoxContainer" parent="Margin/Columns/ContentPanel/ContentMargin"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="AccountSummary" type="Label" parent="Margin/Columns/ContentPanel/ContentMargin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "JOGADOR   NIVEL 1   40 GEMAS"
+
+[node name="PageTitle" type="Label" parent="Margin/Columns/ContentPanel/ContentMargin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+text = "DEFENDE. EVOLUI. RESISTE."
+
+[node name="PageBody" type="RichTextLabel" parent="Margin/Columns/ContentPanel/ContentMargin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+fit_content = false
+scroll_active = true
+selection_enabled = true
+text = "Prepara o arsenal e protege a base."
+
+[node name="ShopPanel" type="VBoxContainer" parent="Margin/Columns/ContentPanel/ContentMargin/Content"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="ShopHeader" type="Label" parent="Margin/Columns/ContentPanel/ContentMargin/Content/ShopPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "40 GEMAS   |   COLECAO 3/9"
+
+[node name="ChestRow" type="HBoxContainer" parent="Margin/Columns/ContentPanel/ContentMargin/Content/ShopPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="WoodChest" parent="Margin/Columns/ContentPanel/ContentMargin/Content/ShopPanel/ChestRow" instance=ExtResource("4_chest")]
+unique_name_in_owner = true
+chest_id = "wood"
+display_name = "BAU DE MADEIRA"
+cost = 35
+pool_text = "3 TORRES ESSENCIAIS"
+accent_color = Color(0.839, 0.651, 0.369, 1)
+
+[node name="CrystalChest" parent="Margin/Columns/ContentPanel/ContentMargin/Content/ShopPanel/ChestRow" instance=ExtResource("4_chest")]
+unique_name_in_owner = true
+chest_id = "crystal"
+display_name = "BAU DE CRISTAL"
+cost = 90
+pool_text = "RARAS A LENDARIAS"
+accent_color = Color(0.424, 0.769, 0.89, 1)
+
+[node name="ImperialChest" parent="Margin/Columns/ContentPanel/ContentMargin/Content/ShopPanel/ChestRow" instance=ExtResource("4_chest")]
+unique_name_in_owner = true
+chest_id = "imperial"
+display_name = "BAU IMPERIAL"
+cost = 170
+pool_text = "EPICAS A MITICAS"
+accent_color = Color(0.89, 0.741, 0.333, 1)
+
+[node name="ShopHint" type="Label" parent="Margin/Columns/ContentPanel/ContentMargin/Content/ShopPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "Os duplicados devolvem parte do custo em gemas."
+
+[node name="FusionPanel" type="PanelContainer" parent="Margin/Columns/ContentPanel/ContentMargin/Content/ShopPanel"]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Margin/Columns/ContentPanel/ContentMargin/Content/ShopPanel/FusionPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="HBoxContainer" parent="Margin/Columns/ContentPanel/ContentMargin/Content/ShopPanel/FusionPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="FusionStatus" type="Label" parent="Margin/Columns/ContentPanel/ContentMargin/Content/ShopPanel/FusionPanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "FUSAO TEMPESTADE   TESLA + SOLAR + 180 GEMAS"
+
+[node name="FusionButton" type="Button" parent="Margin/Columns/ContentPanel/ContentMargin/Content/ShopPanel/FusionPanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+text = "FUNDIR TEMPESTADE"
+
+[node name="RewardRow" type="HBoxContainer" parent="Margin/Columns/ContentPanel/ContentMargin/Content/ShopPanel"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="RewardReveal" parent="Margin/Columns/ContentPanel/ContentMargin/Content/ShopPanel/RewardRow" instance=ExtResource("5_reveal")]
+unique_name_in_owner = true
+
+[node name="ClaimReward" type="Button" parent="Margin/Columns/ContentPanel/ContentMargin/Content/ShopPanel/RewardRow"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(245, 92)
+layout_mode = 2
+text = "RECOLHER"
+
+[node name="OptionsPanel" type="VBoxContainer" parent="Margin/Columns/ContentPanel/ContentMargin/Content"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(620, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_constants/separation = 12
+
+[node name="FullscreenToggle" type="CheckButton" parent="Margin/Columns/ContentPanel/ContentMargin/Content/OptionsPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ECRA INTEIRO"
+
+[node name="ReducedEffectsToggle" type="CheckButton" parent="Margin/Columns/ContentPanel/ContentMargin/Content/OptionsPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "REDUZIR EFEITOS VISUAIS"
+
+[node name="DamageNumbersToggle" type="CheckButton" parent="Margin/Columns/ContentPanel/ContentMargin/Content/OptionsPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "MOSTRAR NUMEROS DE DANO"
+
+[node name="RememberAccountToggle" type="CheckButton" parent="Margin/Columns/ContentPanel/ContentMargin/Content/OptionsPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ENTRAR AUTOMATICAMENTE NESTE PERFIL"
+
+[node name="AccountSelect" type="OptionButton" parent="Margin/Columns/ContentPanel/ContentMargin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+visible = false
+
+[node name="NameInput" type="LineEdit" parent="Margin/Columns/ContentPanel/ContentMargin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+visible = false
+max_length = 16
+placeholder_text = "Nome da conta"
+
+[node name="Actions" type="GridContainer" parent="Margin/Columns/ContentPanel/ContentMargin/Content"]
+layout_mode = 2
+columns = 2
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 14
+
+[node name="Action1" type="Button" parent="Margin/Columns/ContentPanel/ContentMargin/Content/Actions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+size_flags_horizontal = 3
+[node name="Action2" type="Button" parent="Margin/Columns/ContentPanel/ContentMargin/Content/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+[node name="Action3" type="Button" parent="Margin/Columns/ContentPanel/ContentMargin/Content/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+[node name="Action4" type="Button" parent="Margin/Columns/ContentPanel/ContentMargin/Content/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+[node name="Action5" type="Button" parent="Margin/Columns/ContentPanel/ContentMargin/Content/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Message" type="Label" parent="Margin/Columns/ContentPanel/ContentMargin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = ""
+
+[node name="ImportFile" type="FileDialog" parent="."]
+unique_name_in_owner = true
+title = "Importar conta ou save"
+size = Vector2i(1000, 700)
+access = 2
+file_mode = 0
+filters = PackedStringArray("*.json ; Save JSON")
+
+[node name="ConfirmImport" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Conta ja existente"
+size = Vector2i(720, 260)
+
+[node name="ConfirmNewRun" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Comecar nova partida"
+dialog_text = "A partida guardada atual sera substituida."
+ok_button_text = "COMECAR NOVA"
+cancel_button_text = "CANCELAR"
+size = Vector2i(720, 260)
+
+[node name="ExportFile" type="FileDialog" parent="."]
+unique_name_in_owner = true
+title = "Exportar conta local"
+size = Vector2i(1000, 700)
+access = 2
+file_mode = 4
+filters = PackedStringArray("*.json ; Conta JSON")

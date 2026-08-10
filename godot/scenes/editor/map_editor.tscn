@@ -1,0 +1,116 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/presentation/map_editor_screen.gd" id="1_screen"]
+[ext_resource type="Script" path="res://src/presentation/vertical_slice_map.gd" id="2_map"]
+[ext_resource type="Theme" path="res://assets/generated/base_theme.tres" id="3_theme"]
+
+[node name="MapEditor" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_theme")
+script = ExtResource("1_screen")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.055, 0.086, 0.071, 1)
+
+[node name="Layout" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 80.0
+offset_top = 70.0
+offset_right = 1840.0
+offset_bottom = 1010.0
+theme_override_constants/separation = 42
+
+[node name="MapFrame" type="PanelContainer" parent="Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(816, 750)
+layout_mode = 2
+
+[node name="MapLayer" type="Control" parent="Layout/MapFrame"]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("2_map")
+
+[node name="Panel" type="PanelContainer" parent="Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Margin" type="MarginContainer" parent="Layout/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 42
+theme_override_constants/margin_top = 38
+theme_override_constants/margin_right = 42
+theme_override_constants/margin_bottom = 38
+
+[node name="Content" type="VBoxContainer" parent="Layout/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="Layout/Panel/Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+text = "EDITOR DE MAPAS"
+
+[node name="Instructions" type="Label" parent="Layout/Panel/Margin/Content"]
+layout_mode = 2
+autowrap_mode = 2
+text = "Cada celula grande equivale a 3x3 celulas antigas. Clica para alternar Relva, Caminho, Asfalto e Agua. Uma edicao que corte a rota e rejeitada."
+
+[node name="Tools" type="HBoxContainer" parent="Layout/Panel/Margin/Content"]
+layout_mode = 2
+[node name="Terrain" type="Button" parent="Layout/Panel/Margin/Content/Tools"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "TERRENO"
+[node name="Portal" type="Button" parent="Layout/Panel/Margin/Content/Tools"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "PORTAL"
+[node name="Base" type="Button" parent="Layout/Panel/Margin/Content/Tools"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "BASE"
+
+[node name="Message" type="Label" parent="Layout/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+
+[node name="Grow" type="Control" parent="Layout/Panel/Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Save" type="Button" parent="Layout/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "GUARDAR MAPA"
+[node name="Load" type="Button" parent="Layout/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "CARREGAR MAPA"
+[node name="Reset" type="Button" parent="Layout/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "REPOR MAPA OFICIAL"
+[node name="PlayCustom" type="Button" parent="Layout/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "JOGAR ESTE MAPA"
+[node name="UseOfficial" type="Button" parent="Layout/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "USAR ROTACAO OFICIAL"
+[node name="Back" type="Button" parent="Layout/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "VOLTAR AO MENU"

@@ -1,0 +1,13 @@
+{
+  "schema": "immutable-towers-transfer",
+  "version": 1,
+  "source": {
+    "game": "haskell-gloss",
+    "exporter_version": 1,
+    "exported_at_utc": "2026-07-13T12:00:00Z"
+  },
+  "legacy_global": null,
+  "account_index": null,
+  "accounts": [],
+  "warnings": []
+}

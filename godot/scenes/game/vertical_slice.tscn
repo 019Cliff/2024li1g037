@@ -1,0 +1,384 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/presentation/vertical_slice_screen.gd" id="1_screen"]
+[ext_resource type="Script" path="res://src/presentation/vertical_slice_map.gd" id="2_map"]
+[ext_resource type="Script" path="res://src/presentation/vertical_slice_view.gd" id="3_view"]
+[ext_resource type="Theme" path="res://assets/generated/base_theme.tres" id="4_theme"]
+
+[node name="VerticalSlice" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("4_theme")
+script = ExtResource("1_screen")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.055, 0.086, 0.071, 1)
+mouse_filter = 2
+
+[node name="TopBar" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 80.0
+offset_top = 34.0
+offset_right = 1840.0
+offset_bottom = 96.0
+theme_override_constants/separation = 28
+
+[node name="Title" type="Label" parent="TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"SectionLabel"
+text = "IMMUTABLE TOWERS"
+
+[node name="ToggleHud" type="Button" parent="TopBar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "HUD"
+
+[node name="TogglePanel" type="Button" parent="TopBar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "PAINEL"
+
+[node name="AutosaveStatus" type="Label" parent="TopBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+text = ""
+
+[node name="HudValues" type="HBoxContainer" parent="TopBar"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="HealthTitle" type="Label" parent="TopBar/HudValues"]
+layout_mode = 2
+text = "BASE"
+[node name="HealthValue" type="Label" parent="TopBar/HudValues"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "80"
+[node name="CreditsTitle" type="Label" parent="TopBar/HudValues"]
+layout_mode = 2
+text = "CREDITOS"
+[node name="CreditsValue" type="Label" parent="TopBar/HudValues"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "150"
+[node name="WaveTitle" type="Label" parent="TopBar/HudValues"]
+layout_mode = 2
+text = "VAGA"
+[node name="WaveValue" type="Label" parent="TopBar/HudValues"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0/3"
+
+[node name="MapFrame" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 80.0
+offset_top = 130.0
+offset_right = 896.0
+offset_bottom = 880.0
+
+[node name="MapLayer" type="Control" parent="MapFrame"]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("2_map")
+
+[node name="EntityLayer" type="Control" parent="MapFrame"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("3_view")
+
+[node name="MapFooter" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 80.0
+offset_top = 898.0
+offset_right = 896.0
+offset_bottom = 948.0
+
+[node name="Margin" type="MarginContainer" parent="MapFooter"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 7
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 7
+
+[node name="Values" type="HBoxContainer" parent="MapFooter/Margin"]
+layout_mode = 2
+
+[node name="MapName" type="Label" parent="MapFooter/Margin/Values"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "PLANICIE SERENA"
+
+[node name="TowerCapacity" type="Label" parent="MapFooter/Margin/Values"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "TORRES  0 / 18"
+
+[node name="SidePanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 938.0
+offset_top = 130.0
+offset_right = 1840.0
+offset_bottom = 970.0
+
+[node name="Margin" type="MarginContainer" parent="SidePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 38
+theme_override_constants/margin_top = 34
+theme_override_constants/margin_right = 38
+theme_override_constants/margin_bottom = 34
+
+[node name="Content" type="VBoxContainer" parent="SidePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Heading" type="Label" parent="SidePanel/Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "PARTIDA"
+
+[node name="Status" type="Label" parent="SidePanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "A PREPARAR PRIMEIRA VAGA"
+
+[node name="WaveProgress" type="ProgressBar" parent="SidePanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+show_percentage = false
+
+[node name="NextWave" type="Label" parent="SidePanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+text = "PROXIMA VAGA"
+
+[node name="Separator" type="HSeparator" parent="SidePanel/Margin/Content"]
+layout_mode = 2
+
+[node name="TowerList" type="Label" parent="SidePanel/Margin/Content"]
+layout_mode = 2
+text = "ARSENAL  |  GRELHA GLOBAL 3x"
+
+[node name="ShopButtons" type="GridContainer" parent="SidePanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 10
+columns = 3
+
+[node name="BuildSentinela" type="Button" parent="SidePanel/Margin/Content/ShopButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "SENTINELA"
+[node name="BuildGlaciar" type="Button" parent="SidePanel/Margin/Content/ShopButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "GLACIAR"
+[node name="BuildBraseiro" type="Button" parent="SidePanel/Margin/Content/ShopButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "BRASEIRO"
+
+[node name="BuildPanico" type="Button" parent="SidePanel/Margin/Content/ShopButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "PANICO"
+[node name="BuildVenenoide" type="Button" parent="SidePanel/Margin/Content/ShopButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "VENENOIDE"
+[node name="BuildTesla" type="Button" parent="SidePanel/Margin/Content/ShopButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "TESLA"
+[node name="BuildImpacto" type="Button" parent="SidePanel/Margin/Content/ShopButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "IMPACTO"
+[node name="BuildSolar" type="Button" parent="SidePanel/Margin/Content/ShopButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "SOLAR"
+[node name="BuildTempestade" type="Button" parent="SidePanel/Margin/Content/ShopButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "TEMPESTADE"
+
+[node name="Selection" type="Label" parent="SidePanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+text = "Seleciona uma torre ou escolhe uma construcao."
+
+[node name="TowerActions" type="HBoxContainer" parent="SidePanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Upgrade" type="Button" parent="SidePanel/Margin/Content/TowerActions"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "UPGRADE"
+[node name="Sell" type="Button" parent="SidePanel/Margin/Content/TowerActions"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "VENDER"
+[node name="Cancel" type="Button" parent="SidePanel/Margin/Content/TowerActions"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "CANCELAR"
+
+[node name="Specializations" type="HBoxContainer" parent="SidePanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SpecA" type="Button" parent="SidePanel/Margin/Content/Specializations"]
+unique_name_in_owner = true
+layout_mode = 2
+visible = false
+text = "POTENCIA"
+[node name="SpecB" type="Button" parent="SidePanel/Margin/Content/Specializations"]
+unique_name_in_owner = true
+layout_mode = 2
+visible = false
+text = "CADENCIA"
+
+[node name="Obstacle" type="Button" parent="SidePanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "COLOCAR OBSTACULO"
+tooltip_text = "Coloca ate 6 bloqueios na estrada. Cada um reduz a velocidade dos inimigos nessa celula."
+
+[node name="Spacer" type="Control" parent="SidePanel/Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Controls" type="HBoxContainer" parent="SidePanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Pause" type="Button" parent="SidePanel/Margin/Content/Controls"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "PAUSA"
+[node name="Speed1" type="Button" parent="SidePanel/Margin/Content/Controls"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "1x"
+[node name="Speed2" type="Button" parent="SidePanel/Margin/Content/Controls"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "2x"
+[node name="Speed4" type="Button" parent="SidePanel/Margin/Content/Controls"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "4x"
+
+[node name="Persistence" type="HBoxContainer" parent="SidePanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Save" type="Button" parent="SidePanel/Margin/Content/Persistence"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "GUARDAR"
+[node name="Load" type="Button" parent="SidePanel/Margin/Content/Persistence"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "CARREGAR"
+
+[node name="BotControls" type="HBoxContainer" parent="SidePanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Suggest" type="Button" parent="SidePanel/Margin/Content/BotControls"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "SUGERIR"
+[node name="AutoBot" type="Button" parent="SidePanel/Margin/Content/BotControls"]
+unique_name_in_owner = true
+layout_mode = 2
+toggle_mode = true
+text = "BOT AUTO"
+
+[node name="Back" type="Button" parent="SidePanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+text = "VOLTAR AO MENU"
+
+[node name="GameOverlay" type="ColorRect" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.035, 0.028, 0.82)
+
+[node name="Center" type="CenterContainer" parent="GameOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="GameOverlay/Center"]
+custom_minimum_size = Vector2(650, 400)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="GameOverlay/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 54
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 54
+theme_override_constants/margin_bottom = 48
+
+[node name="Content" type="VBoxContainer" parent="GameOverlay/Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="OverlayTitle" type="Label" parent="GameOverlay/Center/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+text = "JOGO EM PAUSA"
+
+[node name="OverlayDetail" type="Label" parent="GameOverlay/Center/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "A simulacao esta parada."
+
+[node name="OverlayResume" type="Button" parent="GameOverlay/Center/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "CONTINUAR"
+[node name="OverlayRestart" type="Button" parent="GameOverlay/Center/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "REINICIAR"
+[node name="OverlayMenu" type="Button" parent="GameOverlay/Center/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "VOLTAR AO MENU"
