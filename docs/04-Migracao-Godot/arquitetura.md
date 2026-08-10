@@ -14,21 +14,21 @@ O estado da partida sera uma unica fonte de verdade. Jogador e bot devem emitir 
 
 ## Mapeamento
 
-| Haskell | Godot | Regra |
-|---|---|---|
-| `LI12425` | DTOs de dominio | preservar campos, unidades e invariantes |
-| `Tarefa1` | validacao/rota | fixtures validas e invalidas |
-| `Tarefa2` | resolucao de efeitos | mesmas combinacoes e duracoes |
-| `Tarefa3` | simulacao fixa | movimento, disparo, morte e base |
-| `EnemySpatial` | indice espacial | sem scans globais no hot path |
-| `MapData` | dados + `WorldGrid` + canvas 2D batched | IDs e mapa-fonte preservados; geometria Godot agregada |
-| `TowerSystem`/`TowerRuntime` | specs + runtime | identidade explicita por celula |
-| `EnemySystem` | specs + runtime | resistencias, escudos e bosses |
-| `WaveSystem` | DTOs declarativos | composicoes e mutadores |
-| `BotStrategy` | dominio puro | primeiro paridade, depois melhorias |
-| `ShopSystem` | transacoes puras | saldo nunca negativo |
-| `SaveSystem`/`AccountStorage` | JSON em `user://` | versionado, `.tmp` e `.bak` |
-| `Desenhar`/`UI*` | cenas, Containers e Theme | preservar informacao, melhorar layout |
+| Haskell                       | Godot                                   | Regra                                                  |
+| ----------------------------- | --------------------------------------- | ------------------------------------------------------ |
+| `LI12425`                     | DTOs de dominio                         | preservar campos, unidades e invariantes               |
+| `Tarefa1`                     | validacao/rota                          | fixtures validas e invalidas                           |
+| `Tarefa2`                     | resolucao de efeitos                    | mesmas combinacoes e duracoes                          |
+| `Tarefa3`                     | simulacao fixa                          | movimento, disparo, morte e base                       |
+| `EnemySpatial`                | indice espacial                         | sem scans globais no hot path                          |
+| `MapData`                     | dados + `WorldGrid` + canvas 2D batched | IDs e mapa-fonte preservados; geometria Godot agregada |
+| `TowerSystem`/`TowerRuntime`  | specs + runtime                         | identidade explicita por celula                        |
+| `EnemySystem`                 | specs + runtime                         | resistencias, escudos e bosses                         |
+| `WaveSystem`                  | DTOs declarativos                       | composicoes e mutadores                                |
+| `BotStrategy`                 | dominio puro                            | primeiro paridade, depois melhorias                    |
+| `ShopSystem`                  | transacoes puras                        | saldo nunca negativo                                   |
+| `SaveSystem`/`AccountStorage` | JSON em `user://`                       | versionado, `.tmp` e `.bak`                            |
+| `Desenhar`/`UI*`              | cenas, Containers e Theme               | preservar informacao, melhorar layout                  |
 
 ## Decisoes iniciais
 
