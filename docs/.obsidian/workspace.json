@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "7c2665c76a112054",
+        "id": "ce5ece78aa0686fd",
         "type": "tabs",
         "children": [
           {
-            "id": "712501aea3ab0d91",
+            "id": "157c91ea907e9bb6",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "roadmap-atual.md",
+                "file": "00-Inicio/guia-vault.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "roadmap-atual"
+              "title": "guia-vault"
             }
           }
         ]
@@ -34,19 +34,6 @@
         "id": "f4e27d77d417edae",
         "type": "tabs",
         "children": [
-          {
-            "id": "e6986018fa226f4c",
-            "type": "leaf",
-            "state": {
-              "type": "file-explorer",
-              "state": {
-                "sortOrder": "alphabetical",
-                "autoReveal": false
-              },
-              "icon": "lucide-folder-closed",
-              "title": "Explorador de ficheiros"
-            }
-          },
           {
             "id": "3678fef038266510",
             "type": "leaf",
@@ -73,8 +60,22 @@
               "icon": "lucide-bookmark",
               "title": "Marcadores"
             }
+          },
+          {
+            "id": "ecd66e0e8b6990aa",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Explorador de ficheiros"
+            }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "horizontal",
@@ -94,7 +95,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "sistema-progressao.md",
+                "file": "01-Sistemas/sistema-progressao.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -113,7 +114,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "sistema-progressao.md",
+                "file": "01-Sistemas/sistema-progressao.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -156,7 +157,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "sistema-progressao.md",
+                "file": "01-Sistemas/sistema-progressao.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -183,27 +184,39 @@
       "bases:Criar nova base": false
     }
   },
-  "active": "712501aea3ab0d91",
+  "active": "157c91ea907e9bb6",
   "lastOpenFiles": [
-    "prompt-mestre-continuidade.md",
-    "template-playtest.md",
-    "sistema-progressao.md",
-    "estado-atual.md",
-    "HOME.md",
-    "changelog-jogavel.md",
-    "novas features.md",
-    "roadmap-atual.md",
-    "obsidian-index.md",
-    "backlog-jogo.md",
-    "checklist-regressao.md",
-    "distribuicao.md",
-    "extras-implementados.md",
-    "sistema-ui.md",
-    "sistema-torres.md",
-    "sistema-ondas.md",
-    "sistema-inimigos.md",
-    "guia-vault.md",
-    "feedback-jogo-lei120arch-2026-07-08.md",
-    "etapa5-roadmap-features.md"
+    "00-Inicio/HOME.md",
+    "00-Inicio/estado-atual.md",
+    "02-Planeamento/roadmap-atual.md",
+    "02-Planeamento/backlog-jogo.md",
+    "03-Qualidade-e-Release/auditoria-2026-07-28.md",
+    "03-Qualidade-e-Release/checklist-regressao.md",
+    "03-Qualidade-e-Release/changelog-jogavel.md",
+    "04-Migracao-Godot/arquitetura.md",
+    "04-Migracao-Godot/matriz-paridade.md",
+    "00-Inicio/guia-vault.md",
+    "01-Sistemas/sistema-ondas.md",
+    "01-Sistemas/sistema-inimigos.md",
+    "01-Sistemas/Indice-Sistemas.md",
+    "01-Sistemas/sistema-torres.md",
+    "90-Referencia/prompt-mestre-loja-contas.md",
+    "90-Referencia/Indice-Referencia.md",
+    "04-Migracao-Godot/Indice-Migracao-Godot.md",
+    "03-Qualidade-e-Release/Indice-Qualidade-e-Release.md",
+    "02-Planeamento/Indice-Planeamento.md",
+    "04-Migracao-Godot/diario-migracao.md",
+    "04-Migracao-Godot/contrato-saves.md",
+    "04-Migracao-Godot/checklist-cutover.md",
+    "04-Migracao-Godot/baseline.md",
+    "90-Referencia/prompt-mestre-migracao-godot.md",
+    "90-Referencia/prompt-mestre-loja-contas.md",
+    "90-Referencia",
+    "04-Migracao-Godot",
+    "03-Qualidade-e-Release",
+    "02-Planeamento",
+    "01-Sistemas",
+    "00-Inicio",
+    "migracao-godot"
   ]
 }

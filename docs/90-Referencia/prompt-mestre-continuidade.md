@@ -1,5 +1,9 @@
 # Prompt Mestre — Continuidade e grande evolução do Immutable Towers
 
+Tags: #arquivo #prompt
+
+> Estado: concluído em 2026-07-13. Este prompt descreve a ronda Haskell já implementada e fica apenas como histórico. Para trabalho atual usa [[02-Planeamento/plano-melhoria-total-2026-07-29|Plano de Melhoria Total]], não outro prompt histórico.
+
 > Copia o texto abaixo para o próximo modelo/agente. Ele deve tratar este repositório como a fonte de verdade e trabalhar diretamente sobre o código.
 
 ## Prompt
@@ -152,7 +156,7 @@ Adiciona pelo menos dois mutadores reutilizáveis, por exemplo crédito inicial 
 - usa funções puras para regras de jogo e deixa IO limitado a save/load e ciclo da aplicação;
 - não adiciona dependências pesadas sem necessidade;
 - atualiza `README.md` e o vault Obsidian após cada alteração relevante;
-- mantém `docs/estado-atual.md`, `docs/backlog-jogo.md`, `docs/roadmap-atual.md`, `docs/changelog-jogavel.md` e as notas técnicas coerentes;
+- mantém `docs/00-Inicio/estado-atual.md`, `docs/02-Planeamento/backlog-jogo.md`, `docs/02-Planeamento/roadmap-atual.md`, `docs/03-Qualidade-e-Release/changelog-jogavel.md` e as notas técnicas coerentes;
 - regista decisões de balanceamento e incompatibilidades de save.
 
 ### 7. Processo de execução

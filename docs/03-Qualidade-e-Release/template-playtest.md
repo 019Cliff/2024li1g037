@@ -14,9 +14,14 @@ Relacionadas:
 
 - data:
 - tester:
+- plataforma: Haskell / Godot
 - build/commit:
+- conta: nova / avançada / importada
 - resolucao:
+- escala do sistema:
 - modo de jogo:
+- mapa:
+- bot: desligado / sugestão / automático
 
 ## O que foi testado
 
@@ -51,3 +56,6 @@ Relacionadas:
 - entra no backlog?
 - entra no changelog?
 - precisa de nota tecnica?
+- houve risco/perda de progresso?
+- foi reproduzido após fechar/reabrir?
+- existe captura, save sanitizado ou log?

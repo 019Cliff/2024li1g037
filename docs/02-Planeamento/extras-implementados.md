@@ -64,6 +64,8 @@ Melhorias recentes:
 - Boss: poucas ondas, mas inimigos duros.
 - Sandbox: muitos creditos para testar torres e upgrades.
 
+O Godot agrega cada bloco 3x3 do mapa-fonte numa célula global grande. A grelha jogável passa de 36x34 para 12x11 e cada torre ocupa apenas uma dessas células, tal como estrada, água, portal, base, inimigos e obstáculos. Cada modo tem também um limite: 18 História, 24 Infinito, 12 Desafio, 16 Bosses e 30 Sandbox. Vender liberta capacidade e runs antigos são migrados sem perder torres.
+
 ## Guardar e carregar
 
 - `S`: guarda o jogo atual em `immutable-towers-save.txt`.
@@ -89,13 +91,29 @@ Melhorias recentes:
 
 ## Bot / sugestao
 
-- O painel lateral mostra uma sugestao automatica simples.
-- `B` coloca automaticamente uma torre compravel numa celula valida perto do caminho.
+- Haskell e Godot possuem sugestão contextual e bot automático opcional.
+- O Godot compara construção, upgrade e especialização pela mesma API do jogador.
+- Poupar é uma decisão válida, exige rendimento provável e uma defesa mínima já preparada.
+- O planeador usa memória curta e um rollout reduzido sobre no máximo 12 ações.
+- A estratégia atual é determinística, mas ainda precisa de melhor posicionamento e diversidade; a evolução está no [[plano-melhoria-total-2026-07-29#Fase 3 - Bot 3.0|plano do Bot 3.0]].
+
+## Integridade e balanceamento
+
+- Compra, upgrades e venda usam o investimento realmente pago; refund fixo de 65%.
+- Elites e bosses têm tenacidade e diminishing returns contra controlo repetido.
+- Gelo mantém movimento mínimo, eletricidade tem stun curto e medo não faz bosses recuar.
+- A pontuação não recompensa espera nem torres sem utilidade.
+- Os cinco estágios de História têm perfis próprios, assinaturas por mapa e escalamento por capítulo.
+- O Infinito recompensa a vaga alcançada com uma curva crescente de gemas, multiplicador 2,5x, retornos decrescentes e limite de 188 por partida.
+- A melhor vaga do Infinito é persistida por conta e a recompensa aparece no ecrã final.
+- O runner automático inclui uma matriz económica e nove partidas finitas anti-stalemate.
 
 ## Interface e grafismo
 
-- O mapa foi aumentado para reduzir margens pretas.
+- O mapa Godot usa células globais de 66 px, equivalentes a 3x3 células antigas de 22 px, e ganhou contador de capacidade.
 - A shop passou a funcionar numa sidebar lateral esquerda.
+- A loja meta Godot ganhou três modelos procedurais de baú, abertura e revelação animadas.
+- O fundo do menu Godot representa uma batalha procedural com estrada, portal, inimigos, torres e projéteis.
 - Novos efeitos visuais indicam fogo, gelo, resina, medo, veneno e eletricidade.
 - Os disparos agora mostram um impacto visual mais claro no alvo.
 - A UI passou a bloquear corretamente o clique no mapa por baixo.
