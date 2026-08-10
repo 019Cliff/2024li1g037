@@ -121,3 +121,7 @@ immutable-towers-save.txt
 
 # Generated Windows release artifacts
 release/
+
+# Obsidian per-user window state
+docs/.obsidian/workspace.json
+docs/.obsidian/workspace-mobile.json
